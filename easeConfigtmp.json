@@ -1,0 +1,20 @@
+{
+	"configuration":
+	{
+		"gapp_client_id": "[client_id]",
+		"gapp_client_secret": "[client_secret]",
+        "database_host": "mysql:unix_socket=/cloudsql/[app_id]:[sql_id];dbname=ease_db;charset=utf8",
+        "database_username": "root",
+        "database_password": "",
+	"gs_bucket_name": "[bucket_name]",
+		"gapp_access_token": "",
+		"gapp_refresh_token": ""
+	},
+	"localhost":
+	{
+		"gapp_client_id": "",
+		"gapp_client_secret": "",
+		"gapp_access_token": "",
+		"gapp_refresh_token": ""
+	}
+}
