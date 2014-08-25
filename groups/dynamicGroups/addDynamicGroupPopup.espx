@@ -1,0 +1,33 @@
+<div class="modal fade" id="addDynamicGroup" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" style="width:425px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Save Group</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+            <div class="form-group col-lg-12">
+                <label>Group Title</label>
+                <input class="form-control" id="addDynamicGroupTitle" >
+            </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="saveAsGroup()">Save</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="saveAsGroupAndReload()">Save & Load</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('#addDynamicGroup').on('hide.bs.modal',function(){
+            $("#addDynamicGroupTitle").val("");
+        })
+
+    })
+</script>

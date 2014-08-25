@@ -1,0 +1,26 @@
+<# include "_authentication_user.espx" #>
+
+<#
+delete record for "easeCRMIndustries.<#[url.id]#>";
+#>
+
+<?php
+
+$industryId=$_GET["id"];
+
+// update contact
+$updateContact= "UPDATE easecrmcontacts SET industry='' WHERE industry='$industryId'";
+$resultContact = ease_db_exec($updateContact);
+
+// update account
+$updateAccount= "UPDATE easecrmaccounts SET industry='' WHERE industry='$industryId'";
+$resultAccount = ease_db_exec($updateAccount);
+
+// update lead
+$updateLead= "UPDATE easecrmleads SET industry='' WHERE industry='$industryId'";
+$resultLead = ease_db_exec($updateLead);
+
+?>
+
+
+<# redirect to "/settings/industries"; #>

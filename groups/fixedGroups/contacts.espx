@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fixed Groups</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/easeModules/groups/groupsList.js"></script>
+    <style>
+        .customBadge{
+        vertical-align:middle;
+        margin-top: -3px;"
+    </style>
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# include "/groups/groupsHeader.espx" #>
+
+<div class="col-lg-9">
+
+    <div class="" style="margin-top:20px">
+    <# start list for easecrmfixedgroups;
+
+        include when easecrmfixedgroups.moduleid == "1" and (easecrmfixedgroups.created_by == "<# [session.useruuid]#>");
+        show 10 rows per page;
+        sort by title;
+        hide top pagers;
+         #>
+        <# start header #>
+            <div class="">
+            <h6 style="display:inline-block">
+                Groups
+                <span class="badge customBadge" ><# numberofrows#></span>
+            </h6>
+            <a class="pull-right" style="margin-top: 15px;" href="/groups/fixedGroups/contacts/add">
+                Add New Group
+            </a>
+                </div>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Title</th>
+                        <th style="width:100px">Action</th>
+                    </tr>
+                </tbody>
+
+        <# end header #>
+
+        <# start row #>
+                <tr>
+                    <td>
+                        <a href="/groups/fixedGroups/contacts/details?id=<# easecrmfixedgroups.uuid#>">
+                            <# easecrmfixedgroups.title#>
+                        </a>
+                    </td>
+                    <td style="text-align:center">
+                        <a href="/groups/fixedGroups/contacts/edit?id=<#easecrmfixedgroups.uuid#>">
+                            <span class="fui-new"></span>
+                        </a>
+                        <a href="#">
+                            <span class="fui-cross" style="margin-left:15px;color:red;" onclick="onDeleteFixedGroup('<# easecrmfixedgroups.uuid #>','/groups/fixedGroups/contacts')"></span>
+                        </a>
+                    </td>
+                </tr>
+
+        <# end row #>
+        <# start footer #>
+        </table>
+        <# end footer #>
+
+        <# start no results #>
+            <div style="margin-left:30px">
+            <div>
+                No Group Exits!!
+            </div>
+            <div style="margin-top:10px">
+            <a href="/addContactFixedGroup" >
+                Add New Group
+            </a>
+            </div>
+            </div>
+        <# end no results #>
+
+    <# end list #>
+    </div>
+
+
+</div>
+
+<style>
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus{
+        background-color:#32B69C
+    }
+</style>
+</body>
+</html>

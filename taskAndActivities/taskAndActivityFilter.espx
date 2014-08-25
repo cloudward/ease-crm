@@ -1,0 +1,241 @@
+<# start list for easeCRMTaskTypes;
+    sort by name;
+    save to taskType.options;
+#>
+<# start row #>
+    <option value="<# uuid #>"><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+<# start list for easeUsers;
+    sort by fname;
+    save to assignedTo.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>"><# fname as html #><# lname as html #></option>
+<# end row #>
+<# end list #>
+
+
+<div class="modal fade" id="taskAndActivityFilter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="width:900px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Task and Activity Filters</h4>
+      </div>
+        <div class="modal-body">
+
+
+        <div class="row marginTop">
+            <div class="col-lg-6">
+                <label class="col-lg-12">Task Type</label>
+
+                    <div class="col-lg-4">
+                        <select  class="selectpicker col-lg-12 customSelectList" id="taskType_operator">
+                        <option value="is">is</option>
+                        <option value="is not">is not</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-8" >
+                        <select  id="taskType_val"  class="selectpicker col-lg-12 customSelectList" multiple data-live-search="true" data-selected-text-format="count>2">
+                            <# [taskType.options] #>
+                        </select>
+                    </div>
+
+
+            </div>
+
+            <# if("<# [session.role]#>" != "2") {
+                <div class="col-lg-6">
+
+                    <label class="col-lg-12">Assigned To</label>
+
+                    <div class="col-lg-4">
+                        <select  class="selectpicker col-lg-12 customSelectList" id="assignedTo_operator">
+                        <option value="is">is</option>
+                        <option value="is not">is not</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-8" >
+                        <select  id="assignedTo_val"  class="selectpicker col-lg-12 customSelectList" multiple data-live-search="true" data-selected-text-format="count>2">
+                            <# [assignedTo.options] #>
+                        </select>
+                    </div>
+                </div>
+            }#>
+
+        </div>
+
+
+
+        <div class="row marginTop">
+            <div class="col-lg-12">
+
+                <label class="col-lg-2">Created On</label>
+
+                <div class="col-lg-2">
+                    <select class="selectpicker col-lg-12 customSelectList" id="created_on_operator"
+                    onchange="changeOperator('created_on')">
+                        <option value="is">is</option>
+                        <option value="<">before</option>
+                        <option value=">">after</option>
+                        <option value="between">between</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-8">
+
+                    <div id="created_on_type_1" class="col-lg-5">
+                        <span class='input-group date' id='created_on' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="created_on_input" required class="form-control" placeholder="Enter Created Date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </span>
+                    </div>
+
+                    <div id="created_on_type_2" style="display: none">
+
+                        <div class="col-lg-5">
+                            <span class='input-group date' id='created_on_start' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="created_on_start_input" required class="form-control" placeholder="Enter start date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </span>
+                        </div>
+
+                        <div class="col-lg-1" style="text-align: center;">To</div>
+
+                        <div class="col-lg-5">
+                            <span class='input-group date' id='created_on_end' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="created_on_end_input" required class="form-control" placeholder="Enter end date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row marginTop">
+            <div class="col-lg-12">
+
+                <label class="col-lg-2">Due Date</label>
+
+                <div class="col-lg-2">
+                    <select class="selectpicker col-lg-12 customSelectList" id="dueDate_operator"
+                    onchange="changeOperator('dueDate')">
+                        <option value="is">is</option>
+                        <option value="<">before</option>
+                        <option value=">">after</option>
+                        <option value="between">between</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-8">
+
+                    <div id="dueDate_type_1" class="col-lg-5">
+                        <span class='input-group date' id='dueDate' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="dueDate_input" required class="form-control"/ placeholder="Enter Due Date...">
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </span>
+                    </div>
+
+                    <div id="dueDate_type_2" style="display: none">
+
+                        <div class="col-lg-5">
+                            <span class='input-group date' id='dueDate_start' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="dueDate_start_input" required class="form-control" placeholder="Enter start date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </span>
+                        </div>
+
+                        <div class="col-lg-1" style="text-align: center;">To</div>
+
+                        <div class="col-lg-5">
+                            <span class='input-group date' id='dueDate_end' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="dueDate_end_input" required class="form-control" placeholder="Enter end date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="applyFilter()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+    $(".selectpicker").selectpicker();
+
+    $('#created_on').datetimepicker({
+        pickTime: false,
+        maxDate: moment()
+    })
+
+    $('#created_on_start').datetimepicker({
+        pickTime: false,
+        maxDate: moment()
+    })
+
+    $('#created_on_end').datetimepicker({
+        pickTime: false,
+        maxDate: moment()
+    })
+    $('#dueDate').datetimepicker({
+        pickTime: false
+
+    })
+
+    $('#dueDate_start').datetimepicker({
+        pickTime: false
+
+    })
+
+    $('#dueDate_end').datetimepicker({
+        pickTime: false
+
+    })
+
+    validOnDateInFilter('created_on');
+    validOnDateInFilter('dueDate');
+</script>
+<style>
+    .marginTop {
+        margin-top: 15px;
+    }
+
+    .customSelectList{
+        padding:0px
+    }
+
+    .dropdown-menu li.selected > a{
+        background: #f3f4f5;
+        color: #797878;
+    }
+    .open > .dropdown-menu{
+        margin-top: 10px !important;
+    }
+    .dropdown-menu{
+        display:none;
+    }
+</style>

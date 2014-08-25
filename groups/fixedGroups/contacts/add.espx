@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Fixed Group</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/easeCRMConstants.js"></script>
+    <script src="/js/easeModules/groups/addFixedGroup.js"></script>
+
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+<div class="addContactFixedGroupBody">
+<div class="form-group">
+<label>Group Title</label>
+    <input class="form-control"  id="fixedGroupTitle" required placeholder="Enter group title...">
+</div>
+
+
+<div class="row col-lg-12" id="contactContent" >
+
+<# start list for easecrmcontacts;
+    if("<# [session.role]#>"=="2"){
+        include when (easeCRMContacts.created_by == "<# [session.useruuid]#>" or easeCRMContacts.assignedTo == "<# [session.useruuid]#>");
+    }
+    sort by easecrmcontacts.fname;
+#>
+    <# start header#>
+        <label>Contacts
+            <span class="badge" style="margin-left:5px"><# numberofrows#></span>
+        </label>
+    <# end header#>
+    <# start row #>
+        <div class="col-lg-12">
+            <label class="checkbox" for="checkbox2">
+                <input type="checkbox" class="contacts" data-toggle="checkbox"
+                name="<# easecrmcontacts.uuid #>">
+                <# easecrmcontacts.fname #> <# easecrmcontacts.lname #>
+            </label>
+        </div>
+    <# end row #>
+
+    <# start no results #>
+        No Contact Exits!!
+    <# end no results #>
+<# end list #>
+
+    <div>
+
+        <a class="btn btn-default pull-right" href="/groups/fixedGroups/contacts">Cancel</a>
+
+        <button class="btn btn-primary pull-right" onclick="saveContactsIntoFixedGroup();" style="margin-right:10px"
+        disable="">Save</button>
+    </div>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+<# include "_authentication_user.espx" #>
+<#
+
+delete record for "easeCRMLeads.<#[url.id]#>";
+redirect to "/leads/cleanLead?id=<# [url.id] #>";
+
+#>

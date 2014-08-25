@@ -1,0 +1,146 @@
+ <?php
+
+require_once "EaseQueryBuilder.php";
+
+$sqlGroupTable="easecrmdynamicgroups";    // Group table
+$sqlCriteriaTable="easecrmdynamicgroupscriteria";   // Relation of group with entity
+
+
+$groupId = $_POST['groupId'];
+
+if(isSet($_POST['criteria'])){
+
+    $criteria = json_decode($_POST['criteria'],true);
+
+    function convertIntoAddFormat($key,$value,$ease)
+    {
+        switch ($key) {
+            case "industry":
+            case "source":
+            case "territory":
+            case "assignedTo":
+            case "stage":
+            case "taskType":
+                $savedValue = join(',' , $value);
+                break;
+            case "tags":
+                $value=EaseQueryBuilder::replaceTagId($value,$ease);
+                $savedValue = join(',', $value);
+                break;
+            case "created_on":
+            case "expectedDate":
+            case "dueDate":
+            case "confidenceLevel":
+            case "amount":
+                $savedValue = json_encode($value);
+                break;
+        }
+
+        return $savedValue;
+    }
+
+    // update exits criteria
+    if( sizeof($criteria['existCriteria'])>0 ){
+
+        $existCriteria = $criteria['existCriteria'];
+
+        $updateQuery = $this->core->db->prepare("update $sqlCriteriaTable set criteriavalue=:value , operator=:operator ,operationtype=:operationtype where groupid=:groupid and criteriakey=:criteriakey;");
+
+        foreach($existCriteria as $singleCriteria){
+
+            $value= convertIntoAddFormat($singleCriteria['key'],$singleCriteria[value],$this);
+
+            if($singleCriteria[operator]!="")
+                $operator= $singleCriteria[operator];
+            else{
+                $operator="";
+            }
+
+            if($singleCriteria[operationType]!=""){
+                $operationType= $singleCriteria[operationType];
+            }
+            else{
+                $operationType= "";
+            }
+
+
+            $updateParams=array(":groupid"=>$groupId,":criteriakey"=>$singleCriteria[key],":value"=>$value,":operator"=>$operator,":operationtype"=>$operationType);
+
+            $updateQuery ->execute($updateParams);
+
+        }
+
+    }
+
+    // deleted criteria delete from table
+    if( sizeof($criteria['deletedCriteria'])>0 ){
+
+        $deletedCriteria = $criteria['deletedCriteria'];
+
+        $deleteQuery="DELETE FROM $sqlCriteriaTable WHERE (groupid,criteriakey) IN (";
+
+        foreach($deletedCriteria as $singleCriteria){
+
+            $deleteQuery .= "('$groupId','$singleCriteria'),";
+
+        }
+
+        if($deleteQuery[strlen($deleteQuery)-1] == ",")
+                $deleteQuery = substr($deleteQuery, 0, -1);
+
+        $deleteQuery .=');';
+
+        $result = ease_db_exec($deleteQuery);
+
+    }
+
+
+    // New criteria added into table
+    if( sizeof($criteria['newCriteria'])>0 ){
+
+        $newCriteria = $criteria['newCriteria'];
+
+        $insertQuery = $this->core->db->prepare("insert into $sqlCriteriaTable SET groupid=:groupid,criteriakey=:criteriakey,criteriavalue=:value,operator=:operator,operationtype=:operationtype;");
+
+        foreach($newCriteria as $singleCriteria){
+
+            $value= convertIntoAddFormat($singleCriteria['key'],$singleCriteria[value],$this);
+
+            if($singleCriteria[operator]!="")
+                $operator= $singleCriteria[operator];
+            else{
+                $operator="";
+            }
+
+            if($singleCriteria[operationType]!=""){
+                $operationType= $singleCriteria[operationType];
+            }
+            else{
+                $operationType= "";
+            }
+
+            $insertParams=array(":groupid"=>$groupId,":criteriakey"=>$singleCriteria[key],":value"=>$value,":operator"=>$operator,":operationtype"=>$operationType);
+            $insertQuery -> execute($insertParams);
+
+        }
+    }
+}
+
+
+if(isSet($_POST['title']) && $_POST['title'] != ""){
+
+// update title of group
+
+$title=$_POST['title'];
+
+$params=array(":uuid"=>$groupId,":title"=>$title);
+
+$query = $this->core->db->prepare("UPDATE $sqlGroupTable SET title=:title WHERE uuid=:uuid;");
+
+$query->execute($params);
+
+}
+
+
+
+?>

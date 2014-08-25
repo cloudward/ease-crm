@@ -1,0 +1,14 @@
+<# start list for easecrmsettings;
+    include when settingkey == "init" and settingvalue == "1";
+#>
+
+<# start row #>
+    <#
+        redirect to "/index";
+    #>
+<# end row #>
+
+<# no results #>
+<# end no results #>
+
+<# end list #>

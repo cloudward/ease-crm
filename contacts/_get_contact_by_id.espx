@@ -1,0 +1,11 @@
+ <# start list for easeCRMContacts;
+    include when uuid == "<#[url.id]#>";
+#>
+
+    <# start row #>
+            <# easecrmcontacts.fname #> <# easecrmcontacts.lname #>
+    <# end row #>
+
+
+<# end list #>
+

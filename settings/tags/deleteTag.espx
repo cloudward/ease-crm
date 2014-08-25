@@ -1,0 +1,17 @@
+<# include "_authentication_user.espx" #>
+
+<#
+delete record for "easetags.<#[url.id]#>";
+#>
+
+<?php
+
+$tagId=$_GET['id'];
+
+$deleteTag="delete from easetagsentities where tagid='$tagId'";
+
+$result=ease_db_exec($deleteTag);
+
+?>
+
+<# redirect to "/settings/tags"; #>

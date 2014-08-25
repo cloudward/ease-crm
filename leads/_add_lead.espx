@@ -1,0 +1,146 @@
+<# include "_authentication_user.espx" #>
+
+<?php
+	$uuid=$this->core->new_uuid();
+	ease_set_value('lead.uuid',$uuid);
+?>
+
+<# apply easecrmstages.<# [post.stage] #> as "easecrmstageobj"; #>
+<#
+    if( "<# [easecrmstageobj.name]#>"=="won" || "<# [easecrmstageobj.name]#>" =="Won" ){
+         set wonDate to "<# [system.date_time_short] #>";
+         set lostDate to "";
+    }else if("<# [easecrmstageobj.name]#>"=="lost" || "<# [easecrmstageobj.name]#>" =="Lost"){
+         set lostDate to "<# [system.date_time_short] #>";
+         set wonDate to "";
+    }else{
+         set lostDate to "";
+        set wonDate to "";
+    }
+
+
+#>
+
+<# create record for "easecrmleads" reference as "lead";
+       set lead.title to "<#[post.title]#>";
+       set lead.contact to "<#[post.contact]#>";
+       set lead.account to "<#[post.account]#>";
+       set lead.expecteddate to "<#[post.expecteddate] #> 00:00:00";
+       set lead.amount to "<#[post.amount]#>";
+       set lead.confidencelevel to "<#[post.confidencelevel]#>";
+       set lead.product to "<#[post.product]#>";
+       set lead.industry to "<#[post.industry]#>";
+       set lead.source to "<#[post.source]#>";
+       set lead.stage to "<#[post.stage]#>";
+       set lead.assignedto to "<#[post.assignedto]#>";
+       set lead.wondate to "<#[wonDate]#>";
+       set lead.lostdate to "<#[lostDate]#>";
+       set lead.created_by to "<# [session.useruuid]#>";
+       set lead.updated_by to "<# [session.useruuid]#>";
+       set lead.uuid to <# [lead.uuid] #>;
+       #>
+
+
+<?php
+
+//echo "<pre>";
+
+$tags=$_POST['tags'];
+
+if($tags!=""){
+      //echo "\n\nPost Tags : ".$tags;
+
+      $tagsArr = explode(",", $tags);
+
+      $tagsCommaStr = "";
+
+      foreach($tagsArr as $tagStr)
+      {
+          $tagsCommaStr .= $this->core->db->quote(trim($tagStr)) . ",";
+      }
+
+
+      $tagsCommaStr = substr($tagsCommaStr, 0, strlen($tagsCommaStr) - 1);
+
+      $bindParams = array(":tags" => $tagsCommaStr);
+
+      $query = "select uuid, name from easetags where name in ($tagsCommaStr)";
+
+      $stmt = ease_db_query($query);
+
+      $res = ease_db_fetch_all($stmt);
+
+      //echo "\n\nExisting Tags:";
+      //print_r($res);
+
+      $resTags = array();
+
+      $contactTags = array();
+
+      foreach($res as $resObj)
+      {
+          $resTags[] = $resObj['name'];
+          $contactTags[] = $resObj['uuid'];
+      }
+
+      if(sizeof($tagsArr) != sizeof($resTags))
+      {
+          $newTags = array();
+
+          foreach($tagsArr as $inputTag)
+          {
+              if(array_search($inputTag, $resTags) === false)
+                  $newTags[] = $inputTag;
+          }
+
+      //    echo "\n\nNew tags to be created:";
+      //    print_r($newTags);
+
+          $newTagsObjsArr = array();
+
+          $userId=ease_get_value('session.useruuid');;
+
+          $newTagInsert="insert into easetags (uuid,name,created_by,updated_by) values";
+
+          foreach($newTags as $newTagToCreate)
+          {
+              $tagObj = array();
+              $tagObj['uuid'] = $this->core->new_uuid();
+              $tagObj['name'] = $newTagToCreate;
+
+              $newTagInsert.= "('$tagObj[uuid]','$tagObj[name]','$userId','$userId'),";
+
+              $contactTags[] = $tagObj['uuid'];
+              $newTagsObjsArr[] = $tagObj;
+          }
+
+          if($newTagInsert[strlen($newTagInsert)-1] == ",")
+          	$newTagInsert = substr($newTagInsert, 0, -1);
+
+          $newTagInsertResult = ease_db_exec($newTagInsert);
+
+      //    echo "\n\nNew Tags Object array:";
+      //    print_r($newTagsObjsArr);
+
+      }
+
+      if(sizeof($contactTags)){
+      	
+      	$insertTagEntity="insert into easetagsentities (tagid,moduleid,entityid) values";
+
+      	$leadId=ease_get_value('lead.uuid');
+      	foreach($contactTags as $newContactTag){
+      		$insertTagEntity.="('$newContactTag','2','$leadId'),";
+      	}
+
+      	if($insertTagEntity[strlen($insertTagEntity)-1] == ",")
+          	$insertTagEntity= substr($insertTagEntity, 0, -1);
+
+          $inserTagEntityResult = ease_db_exec($insertTagEntity);
+            
+      }
+}
+
+?>
+
+<# redirect to "/leads"; #>

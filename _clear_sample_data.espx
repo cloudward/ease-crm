@@ -1,0 +1,68 @@
+<# include "_authentication_user.espx" #>
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Mitul
+ * Date: 21/08/14
+ * Time: 3:00 PM
+ */
+
+
+try
+{
+//    $db = new PDO("mysql:host=127.0.0.1;dbname=easeCRM", "root", "root");
+//    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//    $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+    $db = $this->core->db;
+
+    $query = '
+DELETE FROM easecrmaccounts WHERE issample="1";
+
+DELETE FROM easecrmcontacts WHERE issample="1";
+
+DELETE FROM easecrmdynamicgroups WHERE issample="1";
+
+DELETE FROM easecrmdynamicgroupscriteria WHERE issample="1";
+
+DELETE FROM easecrmfixedgroups WHERE issample="1";
+
+DELETE FROM easecrmfixedgroupsentities WHERE issample="1";
+
+DELETE FROM easecrmleads WHERE issample="1";
+
+DELETE FROM easecrmproducts WHERE issample="1";
+
+DELETE FROM easecrmtaskandactivity WHERE issample="1";
+
+DELETE FROM easecrmtaskandactivitycomments WHERE issample="1";
+
+DELETE FROM easetags WHERE issample="1";
+
+DELETE FROM easetagsentities WHERE issample="1";
+
+';
+
+    $res = $db->exec($query);
+
+    $result = array(
+        "flag" => true,
+        "data" => array("result" => $res),
+        "message" => "Sample data cleared."
+    );
+
+}
+catch(PDOException $e)
+{
+    $msg = $e->getMessage();
+
+    $result = array(
+        "flag" => false,
+        "error" => array("code" => $e->getCode()),
+        "message" => $msg
+    );
+}
+
+echo json_encode($result);
+
+?>

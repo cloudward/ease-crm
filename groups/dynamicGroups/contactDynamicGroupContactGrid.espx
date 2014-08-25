@@ -1,0 +1,149 @@
+<?php
+
+require_once "EaseQueryBuilder.php";
+
+$easeText = "";
+
+//use role will be retrieved from session
+$userRole = ease_get_value('session.role');
+
+function defaultIncludeCondition($userRole)
+{
+
+    if($userRole == "2")
+        $easeText = '(easeCRMContacts.created_by == "<# [session.useruuid]#>" or easeCRMContacts.assignedTo == "<# [session.useruuid]#>")';
+    else
+        $easeText ="";
+
+    return $easeText;
+}
+
+// criteria from post params
+
+$criteriaStr = $_POST['criteria'];
+
+$criteria = json_decode($criteriaStr, true);
+
+if($criteria && sizeof($criteria)>0){
+
+    if($userRole == "2")
+        $easeText .= '(easeCRMContacts.created_by == "<# [session.useruuid]#>" or easeCRMContacts.assignedTo == "<# [session.useruuid]#>") and ';
+    else
+        $easeText .= "";
+
+    foreach($criteria as &$criteriaObj)
+            {
+                if($criteriaObj['key'] == "tags")
+                {
+                    $tagsArr = $criteriaObj['value'];
+
+                    $criteriaObj['value'] = EaseQueryBuilder::retrieveTagEntitiesId($tagsArr, $this, "1");
+
+                    break;
+                }
+            }
+
+    $easeText .= EaseQueryBuilder::prepareQuery($criteria,1);
+
+}else{
+
+    $easeText = defaultIncludeCondition($userRole);
+
+}
+
+// set it in variable, and then print that variable in ease
+
+ease_set_value('filterConditions', $easeText);
+
+?>
+
+<# start list for easeCRMContacts;
+
+    relate easeCRMContacts.industry to easeCRMIndustries.uuid;
+    relate easeCRMContacts.source to easeCRMSources.uuid;
+    relate easeCRMContacts.account to easeCRMAccounts.uuid;
+    relate easeCRMContacts.assignedTo to easeusers.uuid;
+
+    if("<# [filterConditions]#>"!=""){
+        include when <# [filterConditions] #>;
+    }
+
+    show 10 rows per page;
+    sort by easeCRMContacts.fname;
+    #>
+
+    <table class="table table-bordered" style="margin-top: 20px;">
+
+    <# start header #>
+
+        <thead>
+        <tr>
+            <th >Name</th>
+            <th>Designation</th>
+            <th>Account</th>
+            <th>Work Email</th>
+            <th>Work Phone</th>
+            <th >Territory</th>
+            <th >Industry</th>
+            <th >Source</th>
+            <th>Assigned To </th>
+
+        </tr>
+        </thead>
+    <# end header #>
+
+    <tbody>
+    <# start row #>
+        <tr>
+            <td>
+                <a href="/contacts/details?id=<#easeCRMContacts.uuid#>&redirectUrl=8&dynamicGroupId=<# [url.id] #>">
+                    <# easeCRMContacts.fname #> <# easeCRMContacts.lname #>
+                </a>
+            </td>
+            <td><# easeCRMContacts.designation #></td>
+            <td>
+                <#
+                    if(("<# [session.role]#>"=="2") and ("<# easeCRMAccounts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMAccounts.assignedTo#>" != "<# [session.useruuid]#>")){
+                         <# easeCRMAccounts.name #>
+
+                    }else{
+                        <a href="/accounts/details?id=<#easeCRMAccounts.uuid#>&redirectUrl=9&dynamicGroupId=<# [url.id] #>">
+                            <# easeCRMAccounts.name #>
+                        </a>
+                    }
+                #>
+
+            </td>
+            <td>
+                <a href="mailto:<# easeCRMContacts.workEmail #>" target="_top">
+                    <# easeCRMContacts.workEmail #>
+                </a>
+            </td>
+            <td><# easeCRMContacts.workPhone #></td>
+            <td><# easeCRMContacts.territory #></td>
+            <td><# easeCRMIndustries.name #></td>
+            <td><# easeCRMSources.name #></td>
+            <td><# easeusers.fname #> <# easeusers.lname #></td>
+
+        </tr>
+    <# end row #>
+    </tbody>
+
+    <# start footer #>
+    </table>
+
+        <script>
+        (function(){
+            $("#dynamicGroupEntities").html("<# numberofrows#>");
+        })();
+        </script>
+
+    <# end footer #>
+
+    <# no results #>
+        <div>
+            <span>No Contacts Found!!</span>
+        </div>
+    <# end no results #>
+
+    <# end list #>

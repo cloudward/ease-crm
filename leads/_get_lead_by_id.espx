@@ -1,0 +1,11 @@
+ <# start list for easeCRMLeads;
+    include when uuid == "<#[url.id]#>";
+#>
+
+    <# start row #>
+            <# easecrmleads.title #>
+    <# end row #>
+
+
+<# end list #>
+

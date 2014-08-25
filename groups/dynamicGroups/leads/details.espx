@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leads Dynamic Groups</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/bootstrap-datetimepicker.css" rel="stylesheet" type="text/css">
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/bootstrap-datetimepicker.js"></script>
+
+    <script src="/js/easeCRMConstants.js"></script>
+    <script src="/js/util.js"></script>
+    <script src="/js/easeModules/groups/entityListOfDynamicGroup.js"></script>
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+<# apply easecrmdynamicgroups.<#[url.id]#> as "easecrmdynamicgroupobj"; #>
+
+<div class="row" style="margin-right:15px;margin-left:15px">
+    <div >
+    <h6 style="color:#16a085;display:inline-block">
+
+        <span id="labelForDynamicGroupTitle">
+            <# [easecrmdynamicgroupobj.title]#>
+        </span>
+
+        <span class="badge " style="vertical-align:middle" id="dynamicGroupEntities">0</span>
+
+        <a style="margin-left: 15px;font-size: 18px;vertical-align: middle;cursor:pointer"
+        data-target="#editDynamicGroupTitlePopup" data-toggle="modal">
+            <span class="fui-new"></span>
+        </a>
+
+    </h6>
+
+    <div class="pull-right " style="display:inline-block">
+        <a class="btn btn-primary" style="margin-right:15px"
+         data-toggle="modal" data-target="#filterForDynamicGroupLead">
+            Filters
+        </a>
+        <a class="col btn btn-default" href="/groups/dynamicGroups/leads">Back</a>
+    </div>
+
+    </div>
+
+    <div style="margin-top:10px" id="dynamicGroupContent">
+    </div>
+
+</div>
+
+<# include "/groups/dynamicGroups/leads/filterInLeadDynamicGroup.espx"#>
+<# include "/groups/dynamicGroups/editDynamicGroupPopup.espx"#>
+
+</body>
+</html>

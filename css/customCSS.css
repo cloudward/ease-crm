@@ -1,0 +1,222 @@
+.fullWidth {
+    width: 100%;
+}
+
+.fullHeight {
+    height: 100%;
+}
+
+.rightBorder {
+    border-right: 1px solid #dadada;
+}
+
+.paddingForContactProfile {
+    padding: 15px
+}
+
+.contactProfileLabel {
+    font-size: 16px;
+    color: #BBB;
+    margin-right: -15px;
+}
+
+.contactProfileEmail {
+    padding-bottom: 5px;
+}
+
+.contactProfilePadding {
+    padding: 0;
+}
+
+.contactProfileGroupMargin {
+    margin-bottom: 12px !important;
+}
+
+.customContactProfileTab {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 8px 15px;
+    height: 100%;
+    border-right: 1px solid #dadada;
+    cursor: pointer;
+}
+
+.customActive {
+    background-color: #1abc9c;
+    color: #fff;
+    /*font-weight: bold;*/
+}
+
+.customTabContent {
+    padding: 15px;
+    top: 60px;
+    bottom: 0px;
+    position: absolute;
+    width: calc(100% - 15px);
+    overflow: auto;
+}
+
+.customTabContentForTask {
+    padding: 15px;
+    top: 220px;
+    bottom: 0px;
+    position: absolute;
+    width: calc(100% - 15px);
+    overflow: auto;
+}
+
+.customRadio {
+    display: inline-block;
+
+}
+
+.customDateTimePicker {
+    opacity: 1;
+    visibility: visible;
+    display: none;
+    border: 1px solid #dadada;
+}
+
+.paddingLeftForProfile {
+    padding-left: 0px;
+}
+
+.marginRightProfile {
+    margin-right: -15px;
+}
+
+.dueDateIn {
+    background-color: #ddf3e7;
+
+}
+
+.overDueDate {
+    background-color: #EED1D1;
+
+}
+
+.customSorting {
+    margin-top: 5px;
+    float: right;
+    font-size: 10px;
+}
+
+#ease-pager {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    height: 22px;
+    margin-bottom: 3px;
+    margin-top: 5px;
+}
+
+#ease-pager li {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    list-style: none;
+    margin-right: 2px;
+}
+
+#ease-pager a {
+    background: none repeat scroll 0 0 #d6dbdf;
+    margin-right: 2px;
+}
+
+#ease-pager a:link,
+#ease-pager a:visited {
+    color: #0E509E;
+    display: block;
+    border-radius: 20px;
+    float: left;
+    padding: 3px 9px;
+    text-decoration: none;
+}
+
+#ease-pager a:hover {
+    background: #1abc9c;
+}
+
+#ease-pager .ease-pager-previous-off,
+#ease-pager .ease-pager-next-off {
+    border: hidden 1px #DEDEDE;
+    color: #888888;
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin-right: 2px;
+    padding: 4px 6px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#ease-pager .ease-pager-next a,
+#ease-pager .ease-pager-previous a {
+    border: hidden 1px;
+    font-weight: bold;
+}
+
+#ease-pager .ease-pager-next a:link,
+#ease-pager .ease-pager-previous a:link,
+#ease-pager .ease-pager-next a:visited,
+#ease-pager .ease-pager-previous a:visited {
+    padding: 4px 6px;
+}
+
+#ease-pager .ease-pager-next a:hover,
+#ease-pager .ease-pager-previous a:hover {
+    border: solid 1px #0E509E;
+    padding: 3px 5px;
+}
+
+#ease-pager .ease-pager-active {
+    background: #d6dbdf;
+    color: #FFFFFF;
+    border-radius: 20px;
+    font-weight: bold;
+    display: block;
+    float: left;
+    padding: 3px 9px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#ease-pager .ease-pager-gap {
+    border: hidden 1px;
+    display: block;
+    float: left;
+    padding: 3px 4px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.customLoader {
+    top: 0px;
+    bottom: 0px;
+    position: absolute;
+    /*height: 300px;*/
+    width: 100%;
+    background: url(../images/ajax-loader.gif) no-repeat 50% 50%;
+}
+
+.addContactFixedGroupBody {
+    width: 500px;
+    margin: auto auto;
+}
+
+.positionForBodyLoader{
+    position: relative;
+}

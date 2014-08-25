@@ -1,0 +1,336 @@
+<html>
+<head>
+    <title>Add Task And Activity</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/bootstrap-datetimepicker.css" rel="stylesheet" type="text/css">
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/easeCRMConstants.js"></script>
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/bootstrap-datetimepicker.js"></script>
+
+    <script src="/js/easeModules/taskAndActivity/addTaskAndActivityFromModule.js"></script>
+
+    <style type="text/css">
+        .marginBottom10 {
+            margin-bottom: 10px;
+        }
+
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+
+        .elementActive {
+
+            background: #008AD5;
+            color: #fff;
+        }
+
+        .autoComplete {
+            z-index: 100;
+            position: absolute;
+            background: #fff;
+            width: 100%;
+            border: solid;
+            border-width: 1;
+            border-radius: 6px;
+            border-color: #BDC3C7;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+
+
+
+        $(document).ready(function() {
+
+            $(function () {
+                $('#dueDate').datetimepicker({
+                    useCurrent: true,
+                   pick12HourFormat: false,
+                   defaultDate:moment(),
+                   useStrict:true,
+                     format:"YYYY-MM-DD hh:mm A"
+                })
+
+                .data("DateTimePicker")
+
+
+
+
+                $("#dueDate").on("dp.change",function (e) {
+                        var datePickerDate=$('#dueDate').data("DateTimePicker").getDate();
+                        var currentDate=moment();
+                        var diff = datePickerDate.diff(currentDate, 'seconds');
+
+                        console.log(diff);
+
+                        if(diff<0){
+                        console.log(event);
+
+                            $(".timepicker-hour").addClass('disabled');
+                            $(".timepicker-minute").addClass('disabled');
+
+
+                        }else{
+                            $(".timepicker-hour").removeClass('disabled');
+                            $(".timepicker-minute").removeClass('disabled');
+                        }
+
+                });
+
+                   if("<# [url.id]#>" == ""){
+                         $('#dueDate').data("DateTimePicker").setMinDate(new Date().toDateString());
+                    }else{
+                        setDueDateInRenderFormat();
+                        setMaxAndMinOfDTPicker();
+                    }
+
+
+
+
+
+        });
+        })
+        function getRedirectVal(){
+
+            var moduleId=$("#moduleId").val();
+            console.log(moduleId)
+            alert(moduleId )
+            if(moduleId == "1" ){
+            <# set  updateValueForRedirect to "/contacts/details?id=<# [url.referenceId ] #>"; #>
+            }
+            else if(moduleId == "2" ){
+            <# set  updateValueForRedirect to "/accounts/details?id=<# [url.referenceId] #>"; #>
+
+            }
+            else if(moduleId == "3" ){
+            <# set  updateValueForRedirect to "/leads/details?id=<# [url.referenceId] #>"; #>
+
+            }
+
+        }
+
+
+
+    </script>
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# if("<#[url.id]#>"=="") {
+    set formMethod to "Add";
+}
+else
+{
+    set formMethod to "Edit";
+}
+#>
+
+
+<div style="width: 800px;margin: 0 auto">
+<h3><#[formMethod]#> Task & Activity</h3>
+
+
+
+
+<# start list for easeusers;
+sort by fname;
+save to assignedTo.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>"><# fname as html #> <# lname as html #></option>
+<# end row #>
+<# end list #>
+
+
+
+<# start list for easeCRMTaskTypes;
+    sort by name;
+    save to taskType.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>"><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+<#  if("<#[url.moduleId]#>" == "1"  AND "<#[url.id] #>" == ""){
+        set  valueForRedirect to "/contacts/details?id=<#[url.referenceId]#>";
+    }
+#>
+
+<#
+    if("<#[url.moduleId]#>" == "2" AND "<#[url.id] #>" == ""){
+        set valueForRedirect to "/accounts/details?id=<#[url.referenceId]#>";
+    }
+#>
+
+<#
+    if("<#[url.moduleId]#>" == "3" AND "<#[url.id] #>" == ""){
+        set valueForRedirect to "/leads/details?id=<#[url.referenceId]#>";
+    }
+#>
+<#  if("<#[url.moduleId]#>" == "1"  AND "<#[url.id] #>" != ""){
+         set valOfRedirectForUpdate to "/contacts/details?id=<# [url.referenceId]#>";
+    }
+#>
+
+<#
+    if("<#[url.moduleId]#>" == "2" AND "<#[url.id] #>" != ""){
+       set valOfRedirectForUpdate to "/accounts/details?id=<# [url.referenceId]#>";
+    }
+#>
+
+<#
+    if("<#[url.moduleId]#>" == "3" AND "<#[url.id] #>" != ""){
+       set  valOfRedirectForUpdate to "/leads/details?id=<# [url.referenceId]#>";
+    }
+#>
+
+
+
+<# start form for easeCRMTaskAndActivity <#[url.id]#>;
+
+when creating call setRemainingField();
+when creating set easeCRMTaskAndActivity.created_by to "<# [session.useruuid]#>";
+when creating set easeCRMTaskAndActivity.updated_by to "<# [session.useruuid]#>";
+
+
+when updating call setDueDateField();
+when updating set easeCRMTaskAndActivity.updated_by to "<# [session.useruuid]#>";
+
+when creating set referenceid to "<#[url.referenceId]#>";
+
+when creating set moduleid to <#[url.moduleId]#>;
+
+when creating redirect to "<#[valueForRedirect]#>";
+
+
+
+when updating redirect to "<#[valOfRedirectForUpdate]#>";
+
+#>
+
+
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">Task Or Activity </label>
+                <div>
+                    <select id="taskOrActivity" class="form-control marginBottom10" <# addedAs #> onchange="setDateRangeForDueDate(event,'<# addedAs #>');" >
+                        <option value="1">Task</option>
+                        <option value="2">Activity</option>
+                    </select>
+                </div>
+            </div>
+             <div class="form-group col-lg-6">
+                <label class="control-label">Title</label>
+
+                <div>
+                    <input type="text" class="form-control  " required placeholder="Title" <# title #>/>
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">Type</label>
+                <div class="">
+                    <select class="form-control marginBottom10" <# taskType #>>
+                        <#[taskType.options]#>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="control-label">Assigned To</label>
+
+                <div class="">
+                    <select class="form-control marginBottom10" <# assignedTo #>  >
+                       <#[assignedTo.options]#>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">Select Due Date</label>
+                <span class='input-group date' id='dueDate'  data-date-format="YYYY-MM-DD hh:mm A" >
+                                    <input type='text' id="dueDateInput" required class="form-control" <# dueDate #> />
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                </span>
+
+
+
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="control-label">Note</label>
+
+                <div>
+                    <textarea rows="2"  type="text" class="form-control"  placeholder="Add Note.." <# detail #>
+                    style="height:80px;resize: vertical;"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <input id="completed_at"  type="hidden" <#completed_at#>>
+        <input id="status"  type="hidden" <#status#>>
+
+        <#
+            if("<#[url.id] #>"!=""){
+                <input id="moduleId"  type="hidden" <#moduleId#>>
+            }
+        #>
+
+
+        <div class="row demo-row ">
+            <div class="col-lg-4">
+                <input type="button" class="btn btn-block btn-lg btn-primary" <# Create button #> Create />
+            </div>
+
+            <div class="col-lg-4">
+                <input type="button" class="btn btn-block btn-lg btn-primary" <# Update button #> Update />
+            </div>
+
+            <div class="col-lg-4">
+                <input type="button" class="btn btn-block btn-lg btn-danger" <# Delete button #> Delete />
+            </div>
+        </div>
+
+
+
+    <# end form #>
+
+
+</div>
+
+<script>
+
+</script>
+</body>
+</html>

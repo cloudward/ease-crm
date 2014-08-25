@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leads Fixed Groups</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/util.js"></script>
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+<# apply easecrmfixedGroups.<#[url.id]#> as "easecrmfixedgroupobj"; #>
+
+<div class="col-lg-12">
+    <div class="">
+    <h6 style="color:#16a085;display:inline-block">
+        <# [easecrmfixedgroupobj.title]#>
+        <span class="badge " style="vertical-align:middle" id="fixedGroupEntities">0</span>
+    </h6>
+
+    <div class="pull-right " style="display:inline-block">
+        <a href="/groups/fixedGroups/leads/edit?id=<# [url.id] #>&redirectUrl=2" style="margin-right:15px">
+            <span class="fui-new"></span>
+        </a>
+        <a class="col btn btn-default" href="/groups/fixedGroups/leads">Back</a>
+    </div>
+    </div>
+    <div style="margin-top:10px" >
+
+        <# start list for easecrmleads;
+        relate easecrmleads.uuid to easecrmfixedgroupsentities.entityId;
+        relate easeCRMLeads.product to easeCRMProducts.uuid;
+        relate easeCRMLeads.industry to easeCRMIndustries.uuid;
+        relate easeCRMLeads.source to easeCRMSources.uuid;
+        relate easeCRMLeads.stage to easeCRMStages.uuid;
+        relate easeCRMLeads.assignedTo to easeUsers.uuid;
+        relate easeCRMLeads.contact to easeCRMContacts.uuid;
+        relate easeCRMLeads.account to easeCRMAccounts.uuid;
+
+        include when easecrmfixedgroupsentities.groupid	 == "<# [url.id]#>";
+        sort by easecrmleads.title;
+        show 10 rows per page;
+        #>
+
+        <# start header #>
+        <table class="table table-bordered" style="margin-top: 20px;">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th >Contact</th>
+                <th >Role</th>
+                <th>Account</th>
+                <th>Expected Date</th>
+                <th>Amount</th>
+                <th>Confidence Level</th>
+                <th>Industry</th>
+                <th>Source</th>
+                <th>Stage</th>
+                <th>Product</th>
+                <th>Assigned To</th>
+            </tr>
+            </thead>
+        <# end header #>
+
+        <# start row #>
+            <tr>
+                <td>
+                <a href="/leads/details?id=<# easecrmleads.uuid#>&redirectUrl=5&fixedGroupId=<# [url.id]#>">
+                    <# easeCRMLeads.title #>
+                </a>
+                <td>
+                <#
+                    if(("<# [session.role]#>"=="2") and ("<# easeCRMContacts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMContacts.assignedTo#>" != "<# [session.useruuid]#>")){
+                         <# easeCRMContacts.fname as html#>  <# easeCRMContacts.lname as html#>
+
+                    }else{
+                        <a href="/contacts/details?id=<#easeCRMContacts.uuid#>&redirectUrl=7&fixedGroupId=<# [url.id] #>">
+                            <# easeCRMContacts.fname as html#>  <# easeCRMContacts.lname as html#>
+                        </a>
+                    }
+                #>
+                </td>
+                <td><# easeCRMContacts.designation#> </td>
+                <td><#
+                    if(("<# [session.role]#>"=="2") and ("<# easeCRMAccounts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMAccounts.assignedTo#>" != "<# [session.useruuid]#>")){
+                         <# easeCRMAccounts.name #>
+
+                    }else{
+                        <a href="/accounts/details?id=<#easeCRMAccounts.uuid#>&redirectUrl=7&fixedGroupId=<# [url.id] #>">
+                            <# easeCRMAccounts.name #>
+                        </a>
+                    }
+                    #>
+                </td>
+                <td id="expectedDate-<# easecrmleads.uuid#>">
+                    <script>
+                        (function(){
+                            var date=moment("<# easeCRMLeads.expectedDate#>","YYYY-MM-DD");
+                            $("#expectedDate-<# easecrmleads.uuid#>").html(date.format("DD MMM, YYYY"));
+                        })();
+                    </script>
+
+                </td>
+                <td id="amount-<# easecrmleads.uuid#>">
+                    <script>
+                    (function(){
+                        var num=properNumberFormat("<# easeCRMLeads.amount #>");
+                        $('#amount-<# easecrmleads.uuid#>').html(num);
+                    })();
+                    </script>
+                </td>
+                <td><# easeCRMLeads.confidenceLevel #></td>
+                <td><# easeCRMIndustries.name #></td>
+                <td><# easeCRMSources.name #></td>
+                <td><# easeCRMStages.name #></td>
+                <td><# easeCRMProducts.name #></td>
+                <td><# easeUsers.fname #> <# easeUsers.lname #></td>
+
+                </tr>
+
+
+
+        <# end row #>
+        <# start footer #>
+            </table>
+            <script>
+                (function(){
+                    $("#fixedGroupEntities").html('<# numberofrows#>');
+                })()
+            </script>
+
+        <# end footer #>
+
+        <# start no results #>
+            No Leads Added!!
+        <# end no results #>
+
+        <# end list #>
+    </div>
+ </div>
+
+</body>
+</html>

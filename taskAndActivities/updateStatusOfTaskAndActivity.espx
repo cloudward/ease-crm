@@ -1,0 +1,9 @@
+<# include "_authentication_user.espx" #>
+
+<#
+update record for "easeCRMTaskAndActivity.<#[url.id]#>";
+set status to "<#[url.status]#>";
+set completed_at to "<#[url.currentTime]#>";
+redirect to "<#[url.valueForRedirect] #>";
+
+#>

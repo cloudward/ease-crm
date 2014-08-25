@@ -1,0 +1,17 @@
+<?php
+
+$groupId=$_POST['groupId'];
+
+if($groupId!=""){
+    $query = "SELECT entityid FROM easecrmfixedgroupsentities WHERE groupid=:groupId";
+    $param=array(':groupId'=>$groupId);
+
+    $result=ease_db_query_params($query,$param);
+
+    if($row = ease_db_fetch_all($result)) {
+        echo json_encode($row);
+    }
+}
+
+
+?>

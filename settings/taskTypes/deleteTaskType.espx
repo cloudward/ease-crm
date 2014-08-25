@@ -1,0 +1,27 @@
+<# include "_authentication_user.espx" #>
+
+<# apply easecrmtasktypes.<#[url.id]#> as "easecrmtasktypesobj"; #>
+
+<# if("<# [easecrmtasktypesobj.issystemstage]#>"!="1"){
+
+    delete record for "easecrmtasktypes.<#[url.id]#>";
+}
+#>
+
+<?php
+
+$isSystemStage=ease_get_value("easecrmstageobj.issystemstage");
+
+if($isSystemStage != "1"){
+
+    $taskType=$_GET["id"];
+
+    // update taskAndActivity
+    $updateTaskAndActivity = "UPDATE easecrmtaskandactivity SET tasktype='' WHERE tasktype='$taskType'";
+    $resultTaskAndActivity = ease_db_exec($updateTaskAndActivity);
+}
+
+?>
+
+<# redirect to "/settings/taskTypes"; #>
+

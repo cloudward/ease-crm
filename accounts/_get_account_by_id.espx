@@ -1,0 +1,11 @@
+ <# start list for easeCRMAccounts;
+    include when uuid == "<#[url.id]#>";
+#>
+
+    <# start row #>
+            <# easeCRMAccounts.name #>
+    <# end row #>
+
+
+<# end list #>
+

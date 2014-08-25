@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contacts Fixed Groups</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+<# apply easecrmfixedGroups.<#[url.id]#> as "easecrmfixedgroupobj"; #>
+
+<div class="col-lg-12">
+    <div class="">
+    <h6 style="color:#16a085;display:inline-block">
+        <# [easecrmfixedgroupobj.title]#>
+        <span class="badge " style="vertical-align:middle" id="fixedGroupEntities">0</span>
+    </h6>
+
+    <div class="pull-right " style="display:inline-block">
+        <a href="/groups/fixedGroups/contacts/edit?id=<# [url.id] #>&redirectUrl=2" style="margin-right:15px">
+            <span class="fui-new"></span>
+        </a>
+        <a class="col btn btn-default" href="/groups/fixedGroups/contacts">Back</a>
+    </div>
+    </div>
+    <div style="margin-top:10px" id="fixedContactGroupContent">
+
+        <# start list for easecrmcontacts;
+        relate easecrmcontacts.uuid to easecrmfixedgroupsentities.entityId;
+        relate easeCRMContacts.industry to easeCRMIndustries.uuid;
+        relate easeCRMContacts.source to easeCRMSources.uuid;
+        relate easeCRMContacts.account to easeCRMAccounts.uuid;
+        relate easeCRMContacts.assignedTo to easeusers.uuid;
+
+        include when easecrmfixedgroupsentities.groupid	 == "<# [url.id]#>";
+        sort by easecrmcontacts.fname;
+
+        show 10 rows per page;
+
+        #>
+
+        <# start header #>
+        <table class="table table-bordered" style="margin-top: 20px;">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Account</th>
+                    <th>Work Email</th>
+                    <th>Work Phone</th>
+                    <th >Territory</th>
+                    <th >Industry</th>
+                    <th >Source</th>
+                    <th >Assigned To </th>
+                </tr>
+            </tbody>
+        <# end header #>
+
+        <# start row #>
+            <tr>
+                <td>
+                    <a href="/contacts/details?id=<#easeCRMContacts.uuid#>&redirectUrl=5&fixedGroupId=<# [url.id]#>">
+                        <# easeCRMContacts.fname #> <# easeCRMContacts.lname #>
+                    </a>
+                </td>
+                <td><# easeCRMContacts.designation #></td>
+                <td>
+                    <#
+                        if(("<# [session.role]#>"=="2") and ("<# easeCRMAccounts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMAccounts.assignedTo#>" != "<# [session.useruuid]#>")){
+                             <# easeCRMAccounts.name #>
+
+                        }else{
+                            <a href="/accounts/details?id=<#easeCRMAccounts.uuid#>&redirectUrl=6&fixedGroupId=<# [url.id] #>">
+                                <# easeCRMAccounts.name #>
+                            </a>
+                        }
+                    #>
+
+                </td>
+                <td>
+                    <a href="mailto:<# easeCRMContacts.workEmail #>" target="_top">
+                        <# easeCRMContacts.workEmail #>
+                    </a>
+                </td>
+                <td><# easeCRMContacts.workPhone #></td>
+                <td><# easeCRMContacts.territory #></td>
+                <td><# easeCRMIndustries.name #></td>
+                <td><# easeCRMSources.name #></td>
+                <td><# easeusers.fname #> <# easeusers.lname #></td>
+            </tr>
+        <# end row #>
+
+        <# start footer #>
+            </table>
+            <script>
+
+                (function(){
+                    $("#fixedGroupEntities").html('<# numberofrows#>');
+                })()
+            </script>
+
+        <# end footer #>
+
+        <# start no results #>
+            No Contact Added!!
+        <# end no results #>
+
+        <# end list #>
+    </div>
+ </div>
+
+</body>
+</html>

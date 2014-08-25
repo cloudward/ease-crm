@@ -1,0 +1,111 @@
+<script>
+    var statusOfCommentIsEdit;
+    function editComment(commentId){
+
+        $.get('addTaskAndActivityComment.espx?taskAndActivityId=<#[url.taskAndActivityId]#>&id='+commentId+"&redirectUrl=<#[url.redirectUrl]#>",function(data){
+            statusOfCommentIsEdit=true;
+           $("#action-"+commentId).css({"display":"none"});
+           $("#commentRender-"+commentId).css({"display":"none"});
+           $("#commentUpdate-"+commentId).css({"display":"block"});
+           $("#commentUpdate-"+commentId).html(data);
+        })
+
+
+    }
+
+    function editIconShowOrHide(flag,commentId){
+        if(flag==true && !statusOfCommentIsEdit){
+            $("#action-"+commentId).css({"display":"inline-block"});
+        }
+        else{
+            $("#action-"+commentId).css({"display":"none"});
+        }
+    }
+
+    function deleteComment(commentId){
+          if (confirm("Are you sure, you want to delete this Comment ?") == true) {
+            window.location.href = "/taskAndActivities/deleteTaskAndActivityComment?id=" + commentId+"&taskAndActivityId=<# [url.taskAndActivityId]#>&redirectUrl=<#[url.redirectUrl]#>";
+          }
+    }
+
+</script>
+
+
+<# start list for easecrmtaskandactivitycomments;
+
+relate easecrmtaskandactivitycomments.userid to easeusers.uuid;
+include when (easecrmtaskandactivitycomments.taskAndActivityId == "<# [url.taskAndActivityId ]#>");
+sort by easecrmtaskandactivitycomments.created_on in descending order;
+ #>
+
+
+    <# start row #>
+
+        <div class="row" id="row-<# easecrmtaskandactivitycomments.uuid#>" style="padding:15px;border-top:1px solid #dadada;border-bottom:1px solid #dadada;" onmouseover="editIconShowOrHide(true,'<# uuid#>')" onmouseout="editIconShowOrHide(false,'<# uuid#>')">
+            <div>
+            <span> <# easeusers.fname#> <# easeusers.lname#><span>
+
+            <span id="duration-<#easecrmtaskandactivitycomments.uuid #>" style="display:inline-block;color:#BBB;font-size:14px;margin-left:15px">
+                <script>
+                    var date;
+                        var updatedOn=moment("<# easecrmtaskandactivitycomments.updated_on #>","YYYY-MM-DD HH:mm:ss");
+                        var createdOn=moment("<# easecrmtaskandactivitycomments.created_on #>","YYYY-MM-DD HH:mm:ss");
+                        var diff=updatedOn.diff(createdOn,"seconds");
+                        if(diff<0){
+                            date=retrieveCompletedDateDuration("<# easecrmtaskandactivitycomments.created_on #>","YYYY-MM-DD HH:mm:ss");
+                        }
+                        else{
+                            date=retrieveCompletedDateDuration("<# easecrmtaskandactivitycomments.updated_on #>","YYYY-MM-DD HH:mm:ss");
+                        }
+
+                    $("#duration-<# easecrmtaskandactivitycomments.uuid#>").html(date);
+
+                </script>
+            </span>
+
+            <#
+                if("<# [session.useruuid]#>"=="<# easecrmtaskandactivitycomments.userid#>"){
+                    <span id="action-<# uuid#>" style="display:none;float:right;">
+                        <span >
+                            <span onclick="editComment('<# easecrmtaskandactivitycomments.uuid #>')" style="margin-left:12px;color:#6B6A6A;cursor:pointer">
+                                <span class="fui-new"></span>
+                            </span>
+                        </span>
+                        <span style="" >
+                            <span onclick="deleteComment('<# easecrmtaskandactivitycomments.uuid #>')" style="margin-left:12px;color:#6B6A6A;cursor:pointer">
+                                <span class="fui-cross"></span>
+                            </span>
+                        </span>
+
+                    </span>
+                }
+
+            #>
+
+
+
+            </div>
+
+            <div id="commentRender-<# easecrmtaskandactivitycomments.uuid#>"  style="font-size: 16px;margin-top: 7px;margin-left: 7px;">
+                <# easecrmtaskandactivitycomments.comment#>
+            </div>
+            <div id="commentUpdate-<# easecrmtaskandactivitycomments.uuid#>" style="display:none" >
+
+            </div>
+
+        </div>
+    <# end row #>
+    <# start footer #>
+
+                   <script>
+                        $("#countOfComments").html("<# numberofrows#>");
+                    </script>
+
+
+    <# end footer #>
+
+    <# start no results #>
+        No Comments!!
+    <# end no results #>
+
+<# end list #>

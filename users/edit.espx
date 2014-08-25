@@ -1,0 +1,175 @@
+<html>
+<head>
+    <title>Add New User</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+    <script src="/js/easeCRMConstants.js"></script>
+
+    <style type="text/css">
+        .marginBottom10 {
+            margin-bottom: 10px;
+        }
+
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+
+    </style>
+
+    <script type="text/javascript">
+        $(function(){
+            $("[type=submit]").click(function(){
+                if($("[name=pwd]").val() != $("[name=cpwd]").val() && $("[name=pwd]").val() && $("[name=cpwd]").val())
+                {
+                    console.log($("[name=pwd]").val());
+                    console.log($("[name=cpwd]").val());
+
+                    document.getElementById("cpwd").setCustomValidity("Password doesn't Match!!");
+                }
+            });
+        });
+    </script>
+
+
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# if("<#[url.id]#>"=="") {
+    set formMethod to "Add";
+}
+else
+{
+    set formMethod to "Edit";
+}
+#>
+
+<# apply easeusers.<#[url.id]#> as "easeuser"; #>
+
+
+<div style="width: 600px;margin: 0 auto">
+<h3><#[formMethod]#> User</h3>
+
+
+
+    <form method="POST" action="_validate_update_user?id=<#[url.id]#>" style="margin-bottom: 0px">
+
+        <div class="row">
+            <div class="form-group col-lg-12" style="margin-bottom:0px">
+
+
+                <div class="col-lg-8" style="padding-left:0px">
+                    <label class="radio col-lg-3 customRadio"  >
+                        <input type="radio" name="role"
+                        data-toggle="radio" value="1" id="role-1" >
+                        Admin
+                    </label>
+                    <label class="radio col-lg-3 customRadio" >
+                        <input type="radio" name="role"
+                        data-toggle="radio" value="2" id="role-2" >
+                        User
+                    </label>
+
+                </div>
+
+                <input type="hidden" name="role" value="0" id="superAdmin">
+
+                    <script>
+
+                       if("<# [easeuser.role]#>"==userRole.SUPER_ADMIN){
+                            //$("#roleContainer").prop("disabled",true);
+                            $("input:radio[name=role]").prop("disabled",true);
+                        }else{
+                            $("#role-<# [easeuser.role]#>").prop('checked', true);
+                            $("#superAdmin").prop("disabled",true);
+                        }
+                    </script>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">First Name:</label>
+
+                <div>
+                    <input type="text" class="form-control" required placeholder="First Name" name="fname" value="<#[easeuser.fname]#>"/>
+                </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class=" control-label">Last Name: </label>
+
+                <div class="">
+                    <input type="text" class="form-control" placeholder="Last Name" required name="lname" value="<#[easeuser.lname]#>"/>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class=" control-label">Username: </label>
+
+                <div class="">
+                    <input type="text" class="form-control" required  placeholder="Username" name="user" value="<#[easeuser.username]#>"/>
+                </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class=" control-label">Email: </label>
+
+                <div class="">
+                    <input type="search" class="form-control" required placeholder="Email" name="email" value="<#[easeuser.email]#>"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class=" control-label">Password: </label>
+
+                <div class="">
+                    <input type="password" class="form-control"  placeholder="Password" name="pwd" />
+                </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class=" control-label">Confirm Password: </label>
+
+                <div class="">
+                    <input type="password" class="form-control"  placeholder="Confirm Password" name="cpwd" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row demo-row ">
+            <div class="col-lg-8" style="margin-top: 8px">
+                <p style="color:red"><#[url.msg]#></p>
+            </div>
+
+            <div class="col-lg-4">
+                <input type="submit" class="btn btn-block btn-lg btn-primary" value="Update" />
+            </div>
+
+        </div>
+
+    </form>
+
+
+
+</div>
+
+</body>
+</html>

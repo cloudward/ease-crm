@@ -1,0 +1,183 @@
+
+<style>
+    .customPadding{
+    padding: 15px 12px !important;
+    }
+</style>
+<div>
+    <nav class="navbar  navbar-inverse customNavBar" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">EaseCRM</a>
+        </div>
+
+        <ul class="nav navbar-nav">
+                        <li id="nav-li-contacts"><a href="/contacts" class="customPadding">Contacts</a></li>
+                         <li id="nav-li-accounts" class=""><a href="/accounts" class="customPadding">Accounts</a></li>
+                       <li id="nav-li-leads" class=""><a href="/leads" class="customPadding">Sales Pipeline</a></li>
+                       <li id="nav-li-taskAndActivity" class=""><a href="/taskAndActivities" class="customPadding">Task & Activity</a></li>
+                       <li id="nav-li-groups" class=""><a href="/groups/fixedGroups/contacts" class="customPadding">Groups</a></li>
+                       <li id="nav-li-callList" class=""><a href="/callList" class="customPadding">Call List</a></li>
+
+                        <#  if("<# [session.role] #>" == "1" or "<# [session.role] #>" == "0"){
+                                <li class="dropdown" id="nav-li-settings">
+                                    <a href="#" class="dropdown-toggle customPadding" data-toggle="dropdown" >Settings
+                                        <b class="caret"></b>
+                                    </a>
+                                    <span class="dropdown-arrow"></span>
+                                    <ul class="dropdown-menu">
+                                        <li id="nav-li-stages"><a href="/settings/stages">Stages</a></li>
+                                        <li id="nav-li-sources"><a href="/settings/sources">Sources</a></li>
+                                        <li id="nav-li-industries"><a href="/settings/industries">Industries</a></li>
+                                        <li id="nav-li-products"><a href="/settings/products">Products</a></li>
+                                        <li id="nav-li-taskTypes"><a href="/settings/taskTypes">Task Types</a></li>
+                                        <li id="nav-li-tags"><a href="/settings/tags">Tags</a></li>
+                                        <li id="nav-li-webFormToLead"><a href="/webFormToLead">Web Form to Lead</a></li>
+                                        <li onclick="clearData()"><a style="cursor:pointer">Clear Sample Data</a></li>
+                                    </ul>
+                                </li>
+
+                                <li id="nav-li-users" class=""><a href="/users" class="customPadding">Users</a></li>
+                            }
+
+                        #>
+
+
+                    </ul>
+
+
+        <div class="pull-right">
+
+            <ul class="nav navbar-nav">
+                <li>
+                    <a style="padding-right:0px;">Welcome <#[cookie.fname]#> <#[cookie.lname]#>&nbsp;!</a>
+                </li>
+                <li>
+                    <a href="/logout" style="margin-top: 2px;font-size: 18px;"><i class="glyphicon glyphicon-off"></i></a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+</div>
+
+<script>
+$('document').ready(function(){
+    var urlVal = window.location.pathname;
+    urlVal=urlVal.substr(urlVal.indexOf('/') + 1, urlVal.length);
+    console.log(urlVal)
+    switch(urlVal){
+        case 'contacts':
+        case 'contacts/details':
+        case 'contacts/add':
+        case 'contacts/edit':
+            $('#nav-li-contacts').addClass('active');
+            break;
+        case 'accounts':
+        case 'accounts/details':
+        case 'accounts/add':
+        case 'accounts/edit':
+            $('#nav-li-accounts').addClass('active');
+            break;
+        case 'leads':
+        case 'leads/details':
+        case 'leads/add':
+        case 'leads/edit':
+            $('#nav-li-leads').addClass('active');
+            break;
+        case 'taskAndActivities':
+        case 'taskAndActivities/add':
+        case 'taskAndActivities/edit':
+        case 'taskAndActivities/details':
+            $('#nav-li-taskAndActivity').addClass('active');
+            break;
+        case 'callList':
+            $('#nav-li-callList').addClass('active');
+            break;
+        case 'settings/stages':
+        case 'settings/stages/edit':
+        case 'settings/stages/add':
+            $("#nav-li-stages").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'settings/tags':
+        case 'settings/tags/add':
+        case 'settings/tags/edit':
+            $("#nav-li-tags").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'settings/taskTypes':
+        case 'settings/taskTypes/add':
+        case 'settings/taskTypes/edit':
+            $("#nav-li-taskTypes").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'settings/industries':
+        case 'settings/industries/add':
+        case 'settings/industries/edit':
+            $("#nav-li-industries").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'settings/sources':
+        case 'settings/sources/add':
+        case 'settings/sources/edit':
+            $("#nav-li-sources").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'settings/products':
+        case 'settings/products/add':
+        case 'settings/products/edit':
+            $("#nav-li-products").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'webFormToLead':
+            $("#nav-li-webFormToLead").addClass('active');
+            $('#nav-li-settings').addClass('active');
+            break;
+        case 'users':
+        case 'users/add':
+        case 'users/edit':
+            $('#nav-li-users').addClass('active');
+            break;
+        case 'groups/fixedGroups/contacts':
+        case 'groups/fixedGroups/contacts/details':
+        case 'groups/fixedGroups/contacts/add':
+        case 'groups/fixedGroups/contacts/edit':
+        case 'groups/fixedGroups/accounts':
+        case 'groups/fixedGroups/accounts/details':
+        case 'groups/fixedGroups/accounts/add':
+        case 'groups/fixedGroups/accounts/edit':
+        case 'groups/fixedGroups/leads':
+        case 'groups/fixedGroups/leads/details':
+        case 'groups/fixedGroups/leads/add':
+        case 'groups/fixedGroups/leads/edit':
+
+        case 'groups/dynamicGroups/contacts':
+        case 'groups/dynamicGroups/contacts/details':
+        case 'groups/dynamicGroups/accounts':
+        case 'groups/dynamicGroups/accounts/details':
+        case 'groups/dynamicGroups/leads':
+        case 'groups/dynamicGroups/leads/details':
+
+        case 'groups/tagBasedGroups/contacts':
+        case 'groups/tagBasedGroups/accounts':
+        case 'groups/tagBasedGroups/leads':
+        case 'groups/tagBasedGroups':
+            $('#nav-li-groups').addClass('active');
+            break;
+
+    }
+
+})
+
+    function clearData(){
+        if (confirm("Are you sure, you want to Clear Sample Data?") == true) {
+            $('body').addClass('customLoader positionForBodyLoader modal-backdrop fade in ');
+            $.get('_clear_sample_data.espx',function(data,status){
+                if(status=="success"){
+                    $('body').removeClass('customLoader positionForBodyLoader modal-backdrop fade in');
+                    window.location.href="/dashboard";
+                }
+            })
+        }
+    }
+</script>

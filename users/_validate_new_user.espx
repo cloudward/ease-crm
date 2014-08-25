@@ -1,0 +1,34 @@
+<# start list for easeUsers;
+include when username is "<#[post.user]#>" or email is "<#[post.email]#>";
+#>
+
+    <# start row #>
+    <#
+        redirect to "/users/add?msg=Error Validating User";
+    #>
+    <# end row #>
+
+    <# no results #>
+    <#
+        
+    #>
+    <# end no results #>
+<# end list #>
+
+
+
+<# 
+    create new record for "easeusers" reference as "var1";
+    set var1.role to "<#[post.role]#>";
+    set var1.fname to "<#[post.fname]#>";
+    set var1.lname to "<#[post.lname]#>";
+    set var1.email to "<#[post.email]#>";
+    set var1.username to "<#[post.user]#>";
+    set var1.pwd to "<#[post.pwd]#>";
+    set var1.created_by to "<# [session.useruuid]#>";
+    set var1.updated_by to "<# [session.useruuid]#>";
+
+    redirect to "/users";
+
+
+#>

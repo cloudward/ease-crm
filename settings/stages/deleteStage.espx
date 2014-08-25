@@ -1,0 +1,28 @@
+<# include "_authentication_user.espx" #>
+
+<# apply easecrmstages.<#[url.id]#> as "easecrmstageobj"; #>
+
+<# if("<# [easecrmstageobj.issystemstage]#>"!="1"){
+
+    delete record for "easeCRMStages.<#[url.id]#>";
+
+}#>
+
+<?php
+
+$isSystemStage=ease_get_value("easecrmstageobj.issystemstage");
+
+if($isSystemStage != "1"){
+
+    $stageId=$_GET["id"];
+
+
+    // update lead
+    $updateLead= "UPDATE easecrmleads SET stage='' WHERE stage='$stageId'";
+    $resultLead = ease_db_exec($updateLead);
+}
+
+?>
+
+
+<# redirect to "/settings/stages"; #>

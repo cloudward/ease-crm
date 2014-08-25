@@ -1,0 +1,30 @@
+
+<# start list for easeCRMContacts;
+	include when fname contains "<#[url.search]#>" or lname contains "<#[url.search]#>";
+    show 10 rows per page;
+    hide both pagers;
+ #>
+
+  <# start row #>
+	
+		
+		<div id="referenceId-<#rownumber#>" onmouseover="onMouseOverElement(event)" onmouseout="onMouseOutElement(event)"  onclick="onContactClick(event, '<# easeCRMContacts.fname #>' + ' '+ '<# easeCRMContacts.lname #>', '<# easeCRMContacts.uuid #>')">
+
+			<# easeCRMContacts.fname #> <# easeCRMContacts.lname #>
+		</div>
+
+
+	<# end row #>
+
+	 <# no results #>
+      <#:  <div>
+            <span>No Contacts Found!!</span>
+        </div> :#>
+        
+    <# end no results #>
+
+
+<# end list #>
+
+
+<#: print "test" :#>

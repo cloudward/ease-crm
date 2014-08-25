@@ -1,0 +1,29 @@
+<# start list for easecrmleads;
+	include when easecrmleads.title contains "<#[url.search]#>" ;
+    show 10 rows per page;
+    hide both pagers;
+ #>
+
+  <# start row #>
+
+        <input id="lead-<# uuid #>" type="hidden" value="<# title as html#>">
+		<div onmouseover="onMouseOverElement(event)" onmouseout="onMouseOutElement(event)"  onclick="onLeadClickRef(event,'<#uuid #>')">
+			<#title as html#>
+		</div>
+
+
+	<# end row #>
+
+	 <# no results #>
+     
+        
+    <# end no results #>
+
+
+<# end list #>
+<script>
+    function onLeadClickRef(event,uuid){
+        var title=$("#lead-"+uuid).val();
+        onLeadClick(event,title,uuid);
+    }
+</script>

@@ -1,0 +1,20 @@
+{
+  "configuration":
+  {
+    "gapp_client_id": "",
+    "gapp_client_secret": "",
+    "gapp_refresh_token": "",
+    "database_host": "",
+    "database_username": "",
+    "database_password": ""
+  },
+  "localhost":
+  {
+    "gapp_client_id": "",
+    "gapp_client_secret": "",
+    "gapp_refresh_token": "",
+    "database_host": "mysql:host=127.0.0.1:3306;dbname=easeCRM",
+    "database_username": "root",
+    "database_password": "root"
+  }
+}

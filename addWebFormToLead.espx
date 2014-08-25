@@ -1,0 +1,97 @@
+<?php
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods:POST');
+?>
+
+<# start list for easecrmstages;
+        include when easecrmstages.name=="New";
+        save to stage.value;
+    #>
+        <#start row#>
+            <# uuid#>
+        <#end row#>
+    <#end list#>
+
+<?php
+    $uuid=$this->core->new_uuid();
+    ease_set_value('reference.uuid',$uuid);
+?>
+
+
+<# if("<# [post.userType]#>"!="" and (("<# [post.userType]#>"=="1" and "<# [post.fname]#>"!="" and "<# [post.lname]#>"!="") or
+("<# [post.userType]#>"=="2" and "<# [post.name]#>"!="")) and "<# [post.email]#>"!=""  and "<# [post.product]#>"!="" and
+"<# [post.industry]#>"!=""){
+
+    set flag.value to "true";
+}else{
+    set flag.value to "false";
+}#>
+
+<#
+if("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="1"){
+
+    create record for "easecrmcontacts" reference as "contact";
+    set contact.fname to "<#[post.fname]#>";
+    set contact.lname to "<#[post.lname]#>";
+    set contact.workemail to "<#[post.email]#>";
+    set contact.workphone to "<#[post.phoneNumber]#>";
+    set contact.industry to "<#[post.industry]#>";
+    set contact.uuid to "<#[reference.uuid]#>";
+
+
+}
+elseif("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="2"){
+    create record for "easecrmaccounts" reference as "account";
+    set account.name to "<#[post.name]#>";
+    set account.workemail to "<#[post.email]#>";
+    set account.workphone to "<#[post.phoneNumber]#>";
+    set account.industry to "<#[post.industry]#>";
+    set account.uuid to "<#[reference.uuid]#>";
+
+
+}
+
+#>
+<#
+if("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="1"){
+    create record for "easecrmleads" reference as "lead";
+    set lead.title to "<#[post.fname]#> <#[post.lname]#>'s Lead";
+    set lead.industry to "<#[post.industry]#>";
+    set lead.product to "<#[post.product]#>";
+    set lead.stage to "<#[stage.value]#>";
+    set lead.amount to "0";
+    set lead.contact  to "<#[reference.uuid]#>";
+
+}elseif("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="2"){
+    create record for "easecrmleads" reference as "lead";
+    set lead.title to "<#[post.name]#>'s Lead";
+    set lead.industry to "<#[post.industry]#>";
+    set lead.product to "<#[post.product]#>";
+    set lead.stage to "<#[stage.value]#>";
+    set lead.amount to "0";
+    set lead.account to "<#[reference.uuid]#>";
+
+}
+#>
+
+
+<?php
+    $flag = ease_get_value("flag.value");
+
+    if($flag=="true"){
+                $result = array(
+                        "flag" => true,
+                        "message" => "Successfully Lead Created!!"
+                    );
+
+    }
+    else if($flag=="false"){
+        $result = array(
+                "flag" => false,
+                "message" => "Insufficient fields to create Lead!!"
+            );
+    }
+    echo json_encode($result);
+?>
+
+

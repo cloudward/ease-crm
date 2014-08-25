@@ -1,0 +1,28 @@
+
+<?php
+$startDate=$_POST['startDate'];
+$endDate=$_POST['endDate'];
+
+$newLeadCountQuery = "SELECT COUNT( uuid ) AS  'count', DATE_FORMAT( created_on, '%a, %D %b %Y' ) AS  'date' FROM easecrmleads where created_on >= '$startDate' and created_on <= '$endDate' GROUP BY DATE(created_on);";
+
+$stmt = ease_db_query($newLeadCountQuery);
+
+$queryResult = ease_db_fetch_all($stmt);
+
+$categories = array();
+$values  = array();
+
+foreach($queryResult as $resultObj)
+{
+    $categories[] = $resultObj['date'];
+    $values[] = floatval($resultObj['count']);
+}
+
+$result = array();
+$result['categories'] = $categories;
+$result['values'] = $values;
+
+echo json_encode($result);
+
+?>
+

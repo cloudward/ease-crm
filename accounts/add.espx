@@ -1,0 +1,322 @@
+<html>
+<head>
+    <title>Add New Account</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <style type="text/css">
+        .marginBottom10 {
+            margin-bottom: 10px;
+        }
+
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+
+        .elementActive {
+
+            background: #008AD5;
+            color: #fff;
+        }
+
+        .autoComplete {
+            z-index: 100;
+            position: absolute;
+            background: #fff;
+            width: 100%;
+            border: solid;
+            border-width: 1;
+            border-radius: 6px;
+            border-color: #BDC3C7;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function onContactClick(event, name, id) {
+
+            // $(event.target).removeClass("elementActive");
+            $("#dummy-contact-id-input").val(id);
+             $("#contact-auto-complete").val(name);
+            $("#contact-auto-complete-div").css("display", "none");
+        }
+
+        function onContactAutoCompleteChange(event) {
+
+           var search = $('#contact-auto-complete').val();
+
+           autoCompleteChanged(search, "contact-auto-complete-div", "/contacts/_contact_auto_complete_data", event.keyCode);
+
+        }
+
+        $(document).ready(function() {
+
+            /*if("<#[url.id]#>" != "") {
+
+
+                $.get("_get_account_contact_by_id?id=" + "<#[url.id]#>", function(data, status) {
+
+                data = data.trim();
+                $('#contact-auto-complete').val(data);
+                });
+
+
+            }*/
+
+        });
+
+        function deleteFromFixedGroupInAccount(){
+
+            var assignedTo=$("#assignedTo").val();
+            var oldAssignedTo=$("#oldAssignedTo").val();
+            var createdBy=$("#createdBy").val();
+
+            if(assignedTo!=oldAssignedTo && oldAssignedTo!=createdBy){
+
+                $.get('/groups/fixedGroups/deleteEntityFromFixedGroup?createdBy='+oldAssignedTo+'&entityId=<#[url.id]#>',function(){
+                    console.log("sdfsdf");
+                });
+
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<div style="width: 800px;margin: 0 auto">
+<h3>Add Account</h3>
+
+ <# start list for easeCRMIndustries;
+    sort by name;
+    save to industry.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>"><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+
+<# start list for easeCRMSources;
+    sort by name;
+    save to source.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>"><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+<# start list for easeusers;
+    sort by fname;
+    save to assignedTo.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>"><# fname as html #> <# lname as html #></option>
+<# end row #>
+<# end list #>
+
+<#
+    if("<# [url.redirectUrl]#>" == "2"){
+        set redirectVal to "/accounts/details?id=<# [url.id]#>";
+    }else{
+        set redirectVal to "/accounts";
+    }
+#>
+
+
+    <form method="POST" action="_add_account" style="margin-bottom: 0px">
+    <div class="row">
+        <div class="form-group col-lg-12">
+            <label class="control-label">Account Name:</label>
+
+            <div>
+                <input type="text" class="form-control  " required placeholder="Account Name" name="name"/>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="form-group col-lg-4">
+            <label class=" control-label"> Work Email: </label>
+
+            <div class="">
+                <input type="text" class="form-control  " placeholder="Work Email" required name="workemail"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class="control-label">Home Email: </label>
+
+            <div class="">
+                <input type="text" class="form-control  " placeholder="Home Email" name="homeemail"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Personal Email: </label>
+
+            <div class="">
+                <input type="text" class="form-control  " placeholder="Personal Email" name="personalemail" />
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row ">
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Work Phone: </label>
+
+            <div class="">
+                <input type="tel" class="form-control " placeholder="Work Phone" required name="workphone"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Home Phone: </label>
+
+            <div class="">
+                <input type="tel" class="form-control " placeholder="Home Phone" name="homephone"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Personal Phone: </label>
+
+            <div class="">
+                <input type="tel" class="form-control " placeholder="Personal Phone" name="personalphone"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label class=" col-lg-12 control-label">Address: </label>
+
+            <div>
+                <div class="col-lg-6">
+                    <input type="text" class="form-control marginBottom10" placeholder="Street1" name="street1"/>
+                </div>
+                <div class="col-lg-6">
+                    <input type="text" class="form-control marginBottom10 " placeholder="Street2" name="street2" />
+                </div>
+
+
+            </div>
+            <div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="Area" name="area" />
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="City" name="city" />
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="State" name="state" />
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="Zip" name="zip" />
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="form-group col-lg-6">
+            <label class="  control-label">Territory: </label>
+
+            <div class="">
+                <select class="form-control marginBottom10" name="territory">
+                    <option value="East" selected="selected">East</option>
+                    <option value="West">West</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                    <option value="Central">Central</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="form-group col-lg-6">
+            <label class=" control-label">Industry: </label>
+
+            <div class="">
+                <select class="form-control marginBottom10" name="industry">
+
+                    <#[industry.options]#>
+                </select>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+     <div class="row">
+        <div class="form-group col-lg-6">
+           <label class=" control-label">Source: </label>
+           <div class="">
+               <select class="form-control marginBottom10" name="source">
+
+                   <#[source.options]#>
+               </select>
+           </div>
+       </div>
+         <div class="form-group col-lg-6">
+           <label class=" control-label">Assigned To: </label>
+           <div class="">
+               <select class="form-control marginBottom10" id="assignedTo" name="assignedto">
+
+                   <#[assignedTo.options]#>
+               </select>
+
+        </div>
+       </div>
+
+    </div>
+
+
+
+     <div class="form-group col-lg-12">
+        <label class=" control-label">Tags: </label>
+        <div style="height: 45px">
+             <input id="tagsinput" class="tagsinput"  style="display: none;" name="tags"/>
+        </div>
+    </div>
+
+    <div class="row demo-row ">
+        <div class="col-lg-4">
+            <input type="submit" class="btn btn-block btn-lg btn-primary" value="Create" />
+        </div>
+
+
+    </div>
+
+
+    </form>
+</div>
+
+
+</body>
+</html>

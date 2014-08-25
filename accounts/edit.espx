@@ -1,0 +1,335 @@
+<html>
+<head>
+    <title>Edit Account</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <style type="text/css">
+        .marginBottom10 {
+            margin-bottom: 10px;
+        }
+
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+
+        .elementActive {
+
+            background: #008AD5;
+            color: #fff;
+        }
+
+        .autoComplete {
+            z-index: 100;
+            position: absolute;
+            background: #fff;
+            width: 100%;
+            border: solid;
+            border-width: 1;
+            border-radius: 6px;
+            border-color: #BDC3C7;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function onContactClick(event, name, id) {
+
+            // $(event.target).removeClass("elementActive");
+            $("#dummy-contact-id-input").val(id);
+             $("#contact-auto-complete").val(name);
+            $("#contact-auto-complete-div").css("display", "none");
+        }
+
+        function onContactAutoCompleteChange(event) {
+
+           var search = $('#contact-auto-complete').val();
+
+           autoCompleteChanged(search, "contact-auto-complete-div", "/contacts/_contact_auto_complete_data", event.keyCode);
+
+        }
+
+        $(document).ready(function() {
+
+            /*if("<#[url.id]#>" != "") {
+
+
+                $.get("_get_account_contact_by_id?id=" + "<#[url.id]#>", function(data, status) {
+
+                data = data.trim();
+                $('#contact-auto-complete').val(data);
+                });
+
+
+            }*/
+
+        });
+
+    </script>
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# apply  easeCRMAccounts.<#[url.id]#> as "easecrmaccountobj"; #>
+
+
+<div style="width: 800px;margin: 0 auto">
+<h3>Edit Account</h3>
+
+ <# start list for easeCRMIndustries;
+    sort by name;
+    save to industry.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>" <# if("<# [easecrmaccountobj.industry]#>"=="<# uuid#>" ) {print "selected='selected'";} #>><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+
+<# start list for easeCRMSources;
+    sort by name;
+    save to source.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>" <# if("<# [easecrmaccountobj.source]#>"=="<# uuid#>" ) {print "selected='selected'";} #>><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+<# start list for easeusers;
+    sort by fname;
+    save to assignedTo.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>" <# if("<# [easecrmaccountobj.assignedto]#>"=="<# uuid#>" ) {print "selected='selected'";} #>><# fname as html #> <# lname as html #></option>
+<# end row #>
+<# end list #>
+
+<# start list for easetagsentities;
+    relate easetagsentities.tagid to easetags.uuid;
+    include when entityid=="<# [url.id] #>" and moduleid=="2";
+    save to tags.value;
+#>
+
+<# start row #>
+    <#easetags.name#> ,
+<# end row #>
+<# end list #>
+
+
+<#
+    if("<# [url.redirectUrl]#>" == "2"){
+        set redirectVal to "/accounts/details?id=<# [url.id]#>";
+    }else{
+        set redirectVal to "/accounts";
+    }
+#>
+
+
+<form method="POST" action="_edit_account?id=<#[url.id]#>&redirectUrl=<# [redirectVal]#>" style="margin-bottom: 0px">
+    <div class="row">
+        <div class="form-group col-lg-12">
+            <label class="control-label">Account Name:</label>
+
+            <div>
+                <input type="text" class="form-control  " required placeholder="Account Name" name="name"
+                value="<#[easecrmaccountobj.name]#>"/>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="form-group col-lg-4">
+            <label class=" control-label"> Work Email: </label>
+
+            <div class="">
+                <input type="text" class="form-control  " placeholder="Work Email" required name="workemail"
+                value="<#[easecrmaccountobj.workemail]#>"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class="control-label">Home Email: </label>
+
+            <div class="">
+                <input type="text" class="form-control  " placeholder="Home Email" name="homeemail"
+                value="<#[easecrmaccountobj.homeemail]#>"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Personal Email: </label>
+
+            <div class="">
+                <input type="text" class="form-control  " placeholder="Personal Email" name="personalemail"
+                value="<#[easecrmaccountobj.personalemail]#>"/>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row ">
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Work Phone: </label>
+
+            <div class="">
+                <input type="tel" class="form-control " placeholder="Work Phone" required name="workphone"
+                value="<#[easecrmaccountobj.workphone]#>"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Home Phone: </label>
+
+            <div class="">
+                <input type="tel" class="form-control " placeholder="Home Phone" name="homephone"
+                value="<#[easecrmaccountobj.homephone]#>"/>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-4">
+            <label class=" control-label">Personal Phone: </label>
+
+            <div class="">
+                <input type="tel" class="form-control " placeholder="Personal Phone" name="personalphone"
+                value="<#[easecrmaccountobj.personalphone]#>"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label class=" col-lg-12 control-label">Address: </label>
+
+            <div>
+                <div class="col-lg-6">
+                    <input type="text" class="form-control marginBottom10" placeholder="Street1" name="street1"
+                    value="<#[easecrmaccountobj.street1]#>"/>
+                </div>
+                <div class="col-lg-6">
+                    <input type="text" class="form-control marginBottom10 " placeholder="Street2" name="street2"
+                    value="<#[easecrmaccountobj.street2]#>" />
+                </div>
+
+
+            </div>
+            <div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="Area" name="area"
+                    value="<#[easecrmaccountobj.area]#>" />
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="City" name="city"
+                    value="<#[easecrmaccountobj.city]#>"/>
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="State" name="state"
+                    value="<#[easecrmaccountobj.state]#>"/>
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="form-control marginBottom10 " placeholder="Zip" name="zip"
+                    value="<#[easecrmaccountobj.zip]#>"/>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="form-group col-lg-6">
+            <label class="  control-label">Territory: </label>
+
+            <div class="">
+                <select class="form-control marginBottom10" name="territory" >
+                    <option value="East" <# if("<# [easecrmcontactobj.territory]#>"=="East" ) {print "selected='selected'";} #>>East</option>
+                    <option value="West" <# if("<# [easecrmcontactobj.territory]#>"=="West" ) {print "selected='selected'";} #>>West</option>
+                    <option value="North" <# if("<# [easecrmcontactobj.territory]#>"=="North" ) {print "selected='selected'";} #>>North</option>
+                    <option value="South" <# if("<# [easecrmcontactobj.territory]#>"=="South" ) {print "selected='selected'";} #>>South</option>
+                    <option value="Central" <# if("<# [easecrmcontactobj.territory]#>"=="central" ) {print "selected='selected'";} #>>Central</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="form-group col-lg-6">
+            <label class=" control-label">Industry: </label>
+
+            <div class="">
+                <select class="form-control marginBottom10" name="industry">
+
+                    <#[industry.options]#>
+                </select>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+     <div class="row">
+        <div class="form-group col-lg-6">
+           <label class=" control-label">Source: </label>
+           <div class="">
+               <select class="form-control marginBottom10" name="source">
+
+                   <#[source.options]#>
+               </select>
+           </div>
+       </div>
+         <div class="form-group col-lg-6">
+           <label class=" control-label">Assigned To: </label>
+           <div class="">
+               <select class="form-control marginBottom10" id="assignedTo" name="assignedto">
+
+                   <#[assignedTo.options]#>
+               </select>
+           </div>
+       </div>
+
+    </div>
+
+     <div class="form-group col-lg-12">
+        <label class=" control-label">Tags: </label>
+        <div style="height: 45px">
+             <input id="tagsinput" class="tagsinput"  style="display: none;" name="tags"
+             value="<#[tags.value]#>"/>
+        </div>
+    </div>
+
+    <div class="row demo-row ">
+
+
+        <div class="col-lg-4">
+            <input type="submit" class="btn btn-block btn-lg btn-primary" value="Update" />
+        </div>
+
+    </div>
+
+
+    </form>
+</div>
+
+
+</body>
+</html>

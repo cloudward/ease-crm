@@ -1,0 +1,9 @@
+<h3>Subdirectory</h3>
+
+<div style='margin-top:9px'>Both of these links point back to this page.</div>
+<li><a href='/subdirectory/'>Subdirectory link with href='/subdirectory/'</a></li>
+<li><a href='/?page=subdirectory/index'>Subdirectory link with href='/?page=subdirectory/index'</a></li>
+
+<div style='margin-top:9px;'>Both of these links point to a subfile of this directory.</div>
+<li><a href='/subdirectory/subfile'>Subfile link with href='/subdirectory/subfile'</a></li>
+<li><a href='/?page=subdirectory/subfile'>Subfile link with href='/?page=subdirectory/subfile'</a></li>

@@ -1,0 +1,23 @@
+<?php
+
+$sqlGroupTable="easecrmdynamicgroups";    // Group table
+$sqlEntityTable="easecrmdynamicgroupscriteria";   // Relation of group with entity
+
+$groupId = $_GET['id'];
+
+if($groupId !=""){
+
+    $deleteGroupQuery="DELETE FROM $sqlGroupTable WHERE uuid='$groupId'";
+
+    $result = ease_db_exec($deleteGroupQuery);
+
+
+    if($result){
+        $deleteEntityQuery="DELETE FROM $sqlEntityTable WHERE groupid='$groupId'";
+
+        $result = ease_db_exec($deleteEntityQuery);
+    }
+
+}
+
+?>

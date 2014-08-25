@@ -1,0 +1,14 @@
+<# start list for easecrmsettings;
+    include when settingkey == "init" and settingvalue == "1";
+#>
+
+<# start row #>
+<# end row #>
+
+<# no results #>
+    <#
+        redirect to "/initializeEaseCRM";
+    #>
+<# end no results #>
+
+<# end list #>

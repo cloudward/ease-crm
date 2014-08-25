@@ -1,0 +1,43 @@
+<?php
+
+$useruuid=ease_get_value('session.useruuid');   //get user Id
+
+$uuid = $this->core->new_uuid(); // unique id at addition time
+
+$title = $_POST['title'];   // title of fixed group
+
+$moduleId = $_POST['moduleId']; // fixed group for contact, account or taskAndActivity
+
+// insert fixed group into easeCRMFixedGroups
+
+//$query = "insert into easecrmfixedgroups (uuid,title,moduleid,created_by,updated_by) values ('$uuid','$title','$moduleId','$useruuid','$useruuid')";
+
+$params=array(":uuid"=>$uuid,":title"=>$title,":moduleid"=>$moduleId,":useruuid"=>$useruuid);
+$query = $this->core->db->prepare("INSERT INTO easecrmfixedgroups SET uuid=:uuid,title=:title,moduleid=:moduleid ,created_by=:useruuid,updated_by=:useruuid;");
+$query->execute($params);
+
+
+// insert all entity into easeCRMFixedGroupsEntities
+
+$entities=json_decode($_POST['entities'],true);
+
+$queryText="insert into easecrmfixedgroupsentities (groupid,entityid) values ";
+
+foreach($entities as $entity){
+
+    $queryText .= "('$uuid','$entity'),";
+
+}
+
+if($queryText[strlen($queryText)-1] == ",")
+    $queryText = substr($queryText, 0, -1);
+
+$queryText .=';';
+
+$result = ease_db_exec($queryText);
+
+
+
+
+?>
+

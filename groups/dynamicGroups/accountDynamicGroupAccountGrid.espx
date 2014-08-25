@@ -1,0 +1,200 @@
+<?php
+
+require_once "EaseQueryBuilder.php";
+
+$easeText = "";
+
+//use role will be retrieved from session
+$userRole = ease_get_value('session.role');
+
+function defaultIncludeCondition($userRole)
+{
+
+    if($userRole == "2")
+        $easeText = '(easeCRMAccounts.created_by == "<# [session.useruuid]#>" or easeCRMAccounts.assignedTo == "<# [session.useruuid]#>")';
+    else
+        $easeText ="";
+
+    return $easeText;
+}
+
+// criteria from post params
+
+$criteriaStr = $_POST['criteria'];
+
+$criteria = json_decode($criteriaStr, true);
+
+if($criteria && sizeof($criteria)>0){
+
+    if($userRole == "2")
+        $easeText .= '(easeCRMAccounts.created_by == "<# [session.useruuid]#>" or easeCRMAccounts.assignedTo == "<# [session.useruuid]#>") and ';
+    else
+        $easeText .= "";
+
+    foreach($criteria as &$criteriaObj)
+            {
+                if($criteriaObj['key'] == "tags")
+                {
+                    $tagsArr = $criteriaObj['value'];
+
+                    $criteriaObj['value'] = EaseQueryBuilder::retrieveTagEntitiesId($tagsArr, $this, "2");
+
+                    break;
+                }
+            }
+
+    $easeText .= EaseQueryBuilder::prepareQuery($criteria,2);
+
+}else{
+
+    $easeText = defaultIncludeCondition($userRole);
+
+}
+
+// set it in variable, and then print that variable in ease
+ease_set_value('filterConditions', $easeText);
+
+?>
+
+<# start list for easeCRMAccounts;
+
+    relate easeCRMAccounts.uuid to easeCRMContacts.account;
+    relate easeCRMAccounts.industry to easeCRMIndustries.uuid;
+    relate easeCRMAccounts.source to easeCRMSources.uuid;
+    relate easeCRMAccounts.assignedTo to easeusers.uuid;
+
+    if("<# [filterConditions]#>"!=""){
+        include when <# [filterConditions] #>;
+    }
+
+    show 10 easeCRMAccounts per page;
+
+    sort by easeCRMAccounts.name;
+
+    #>
+
+    <table class="table table-bordered" style="margin-top: 20px;">
+
+    <# start header #>
+
+       <thead>
+            <tr>
+                <th>Name</th>
+                <th>Contacts</th>
+                <th>Work Email</th>
+                <th>Work Phone</th>
+                <th >Territory</th>
+                <th>Industry</th>
+                <th>Source</th>
+                <th>Assigned To</th>
+
+            </tr>
+        </thead>
+
+    <#
+    set current.account to "";
+    #>
+
+
+    <# end header #>
+
+    <tbody>
+    <# start row #>
+
+            <# if("<# current.account #>"!="" AND "<# current.account #>"!="<# uuid #>") {
+
+            		</td>
+            		<td>
+            		    <a href="mailto:<# previousAccount.workEmail #>" target="_top">
+            		        <# previousAccount.workEmail #>
+            		    </a>
+            		</td>
+                    <td>
+
+                            <# previousAccount.workPhone #>
+
+                    </td>
+                    <td><# previousAccount.territory #></td>
+                    <td><# previousAccount.industry #></td>
+                    <td><# previousAccount.source #></td>
+                    <td><# previousAccount.assignedTo#></td>
+
+
+            	</tr>
+            } #>
+
+            <# if("<# current.account #>"=="" OR "<# current.account #>"!="<# uuid #>") {
+
+            	set <# current.account #> to "<# uuid #>";
+
+            	set <# totalAccount #> to <# totalAccount #> + 1;
+
+                set <# previousAccount.uuid #> to "<# easeCRMAccounts.uuid#>";
+                set <# previousAccount.workEmail #> to "<# easeCRMAccounts.workEmail #>";
+                set <# previousAccount.workPhone #> to "<# easeCRMAccounts.workPhone #>";
+                set <# previousAccount.territory #> to "<# easeCRMAccounts.territory #>";
+                set <# previousAccount.industry #> to "<# easeCRMIndustries.name #>";
+                set <# previousAccount.source #> to "<# easeCRMSources.name #>";
+                set <# previousAccount.assignedTo #> to "<# easeusers.fname #> <# easeusers.lname #>";
+
+
+            	  <tr>
+                        <td>
+                            <a href="/accounts/details?id=<# uuid #>&redirectUrl=8&dynamicGroupId=<# [url.id] #>"> <# easeCRMAccounts.name #></a>
+                            </td>
+                        <td>
+
+            } #>
+
+            <div style="margin-bottom:5px;display:inline-block">
+                <#
+                    if(("<# [session.role]#>"=="2") and ("<# easeCRMContacts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMContacts.assignedTo#>" != "<# [session.useruuid]#>")){
+                         <# easeCRMContacts.fname as html #> <# easeCRMContacts.lname as html #>
+
+                    }else{
+                        <a href="/contacts/details?id=<#easeCRMContacts.uuid#>&redirectUrl=9&dynamicGroupId=<# [url.id] #>">
+                            <# easeCRMContacts.fname as html #> <# easeCRMContacts.lname as html #>
+                        </a>
+                    }
+                #>
+
+            </div>
+            <br />
+
+    <# end row #>
+
+    <# start footer #>
+
+                </td>
+                <td>
+                     <a href="mailto:<# previousAccount.workEmail #>" target="_top">
+                        <# previousAccount.workEmail #>
+                     </a>
+                </td>
+                <td><# previousAccount.workPhone #></td>
+                <td><# previousAccount.territory #></td>
+                <td><# previousAccount.industry #></td>
+                <td><# previousAccount.source #></td>
+                <td><# previousAccount.assignedTo#></td>
+
+            </tr>
+        </table>
+
+        <script type="text/javascript">
+            (function (){
+                $('#dynamicGroupEntities').html(<# totalAccount #>);
+            })();
+        </script>
+    <# end footer #>
+
+
+    <# no results #>
+        <div>
+            <span>No Accounts Found!!</span>
+        </div>
+    <# end no results #>
+
+    <# end list #>
+
+
+

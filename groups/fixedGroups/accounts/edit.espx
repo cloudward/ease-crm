@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Fixed Group</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/easeCRMConstants.js"></script>
+    <script src="/js/easeModules/groups/editFixedGroup.js"></script>
+
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# if("<# [url.redirectUrl]#>"=="2"){
+        set redirectUrlVal to "/groups/fixedGroups/accounts/details?id=<# [url.id]#>";
+    }
+    else{
+        set redirectUrlVal to "/groups/fixedGroups/accounts";
+    }
+
+#>
+
+
+<# apply easecrmfixedGroups.<#[url.id]#> as "easecrmfixedgroupobj"; #>
+
+<div class="addContactFixedGroupBody">
+<div class="form-group">
+<label>Group Title</label>
+    <input class="form-control" value="<# [easecrmfixedgroupobj.title]#>" id="fixedGroupTitle"
+    required placeholder="Enter group title...">
+</div>
+
+<div class="row col-lg-12"  >
+
+<# start list for easecrmaccounts;
+    if("<# [session.role]#>"=="2"){
+        include when (easecrmaccounts.created_by == "<# [session.useruuid]#>" or easecrmaccounts.assignedTo == "<# [session.useruuid]#>");
+    }
+    sort by easecrmaccounts.name;
+#>
+<# start header #>
+    <label>
+        Accounts
+        <span class="badge" style="margin-left:5px"><# numberofrows#></span>
+    </label>
+<# end header #>
+<# start row #>
+    <div class="col-lg-12">
+
+        <label class="checkbox" for="checkbox2" id="checkboxLabel-<# easecrmaccounts.uuid #>">
+            <input type="checkbox" class="accounts" data-toggle="checkbox"
+            name="<# easecrmaccounts.uuid #>" >
+            <# easecrmaccounts.name #>
+        </label>
+    </div>
+
+<# end row #>
+
+<# no results #>
+    No Accounts Exits!!
+<# end no results #>
+
+<# end list #>
+
+    <div>
+        <a class="btn btn-default pull-right" href="<# [redirectUrlVal]#>">Cancel</a>
+        <button class="btn btn-primary pull-right edit" onclick="editAccountsIntoFixedGroup('<# [redirectUrlVal]#>');"
+         style="margin-right:10px">Save</button>
+
+    </div>
+
+</div>
+
+</div>
+
+</body>
+</html>

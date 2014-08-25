@@ -1,0 +1,2677 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Mitul
+ * Date: 18/07/14
+ * Time: 6:19 PM
+ */
+
+$start_time = microtime(true);
+
+function new_uuid()
+{
+    return bin2hex(openssl_random_pseudo_bytes(16));
+}
+
+/**
+ * @param $arr
+ * @param $table
+ * @param \PDO $ease
+ * @return bool
+ */
+function addArrInDB($arr, $table, $ease)
+{
+    $truncate_table = "truncate table $table";
+
+    $ease->exec($truncate_table);
+
+    $firstObj = $arr[0];
+
+    $fields = array_keys($firstObj);
+
+    $query = "insert into $table(" . implode(", ", $fields) . ") VALUES ";
+
+    $params = array();
+    $params_data = array();
+
+    $params_str = str_repeat("?, ", sizeof($fields));
+
+    $params_str = "(" . substr($params_str, 0, strlen($params_str) - 2) . ")";
+
+    foreach($arr as $rowObj)
+    {
+        $params[] = $params_str;
+
+        $params_data = array_merge($params_data, array_values($rowObj));
+    }
+
+    $final_query = $query . implode(",", $params);
+
+    $stmt = $ease->prepare($final_query);
+
+    $res = $stmt->execute($params_data);
+
+    return $res;
+}
+
+/**
+ * @param $arr
+ * @param $moduleId
+ * @param \PDO $ease
+ * @return bool
+ */
+function addModuleTagsInDB($arr, $moduleId, $ease)
+{
+    $query = "insert into easetagsentities(created_on, moduleid, entityid, tagid, issample) VALUES ";
+
+    $params = array();
+    $params_data = array();
+
+    $params_str = "(?, ?, ?, ?, ?)";
+
+    foreach($arr as $rowObj)
+    {
+        $params[] = $params_str;
+
+        $params_data[] = $rowObj['created_on'];
+        $params_data[] = $moduleId;
+        $params_data[] = $rowObj['entityid'];
+        $params_data[] = $rowObj['tagid'];
+        $params_data[] = "1";
+    }
+
+    $final_query = $query . implode(",", $params);
+
+    $stmt = $ease->prepare($final_query);
+
+    $res = $stmt->execute($params_data);
+
+    return $res;
+}
+
+/**
+ * @param $arr
+ * @param \PDO $ease
+ * @return bool
+ */
+function addFixedGroupInDB($arr, $ease)
+{
+    $truncate_table = "truncate table easecrmfixedgroups";
+
+    $ease->exec($truncate_table);
+
+    $truncate_table = "truncate table easecrmfixedgroupsentities";
+
+    $ease->exec($truncate_table);
+
+    $groups_query = "insert into easecrmfixedgroups(uuid, title, moduleid, created_by, updated_by, created_on, updated_on, issample) VALUES ";
+    $entities_query = "insert into easecrmfixedgroupsentities(created_on, groupid, entityid, issample) VALUES ";
+
+    $groups_params = array();
+    $groups_params_data = array();
+    $entities_params = array();
+    $entities_params_data = array();
+
+    $groups_params_str = "(?, ?, ?, ?, ?, ?, ?, ?)";
+    $entities_params_str = "(?, ?, ?, ?)";
+
+    foreach($arr as $rowObj)
+    {
+        $groups_params[] = $groups_params_str;
+
+        $groups_params_data[] = $rowObj['uuid'];
+        $groups_params_data[] = $rowObj['title'];
+        $groups_params_data[] = $rowObj['moduleid'];
+        $groups_params_data[] = $rowObj['created_by'];
+        $groups_params_data[] = $rowObj['updated_by'];
+        $groups_params_data[] = $rowObj['created_on'];
+        $groups_params_data[] = $rowObj['updated_on'];
+        $groups_params_data[] = "1";
+
+        foreach($rowObj['entities'] as $entity)
+        {
+            $entities_params[] = $entities_params_str;
+
+            $entities_params_data[] = $rowObj['created_on'];
+            $entities_params_data[] = $rowObj['uuid'];
+            $entities_params_data[] = $entity;
+            $entities_params_data[] = "1";
+        }
+    }
+
+    $final_groups_query = $groups_query . implode(",", $groups_params);
+    $final_entities_query = $entities_query . implode(",", $entities_params);
+
+    $groups_stmt = $ease->prepare($final_groups_query);
+    $entities_stmt = $ease->prepare($final_entities_query);
+
+    $groups_res = $groups_stmt->execute($groups_params_data);
+    $entities_res = $entities_stmt->execute($entities_params_data);
+
+    return $groups_res;
+}
+
+/**
+ * @param $arr
+ * @param \PDO $ease
+ * @return bool
+ */
+function addDynamicGroupInDB($arr, $ease)
+{
+    $truncate_table = "truncate table easecrmdynamicgroups";
+
+    $ease->exec($truncate_table);
+
+    $truncate_table = "truncate table easecrmdynamicgroupscriteria";
+
+    $ease->exec($truncate_table);
+
+    $groups_query = "insert into easecrmdynamicgroups(created_on, updated_on, uuid, created_by, updated_by, title, moduleid, issample) VALUES ";
+    $entities_query = "insert into easecrmdynamicgroupscriteria(created_on, groupid, criteriakey, criteriavalue, operator, operationtype, issample) VALUES ";
+
+    $groups_params = array();
+    $groups_params_data = array();
+    $entities_params = array();
+    $entities_params_data = array();
+
+    $groups_params_str = "(?, ?, ?, ?, ?, ?, ?, ?)";
+    $entities_params_str = "(?, ?, ?, ?, ?, ?, ?)";
+
+    foreach($arr as $rowObj)
+    {
+        $groups_params[] = $groups_params_str;
+
+        $groups_params_data[] = $rowObj['created_on'];
+        $groups_params_data[] = $rowObj['updated_on'];
+        $groups_params_data[] = $rowObj['uuid'];
+        $groups_params_data[] = $rowObj['created_by'];
+        $groups_params_data[] = $rowObj['updated_by'];
+        $groups_params_data[] = $rowObj['title'];
+        $groups_params_data[] = $rowObj['moduleid'];
+        $groups_params_data[] = "1";
+
+        foreach($rowObj['criteria'] as $criteria)
+        {
+            $entities_params[] = $entities_params_str;
+
+            $entities_params_data[] = $criteria['created_on'];
+            $entities_params_data[] = $rowObj['uuid'];
+            $entities_params_data[] = $criteria['criteriakey'];
+            $entities_params_data[] = $criteria['value'];
+            $entities_params_data[] = $criteria['operator'];
+            $entities_params_data[] = $criteria['operationtype'];
+            $entities_params_data[] = "1";
+        }
+    }
+
+    $final_groups_query = $groups_query . implode(",", $groups_params);
+    $final_entities_query = $entities_query . implode(",", $entities_params);
+
+    $groups_stmt = $ease->prepare($final_groups_query);
+    $entities_stmt = $ease->prepare($final_entities_query);
+
+    $groups_res = $groups_stmt->execute($groups_params_data);
+    $entities_res = $entities_stmt->execute($entities_params_data);
+
+    return $groups_res;
+}
+
+function random_time_str()
+{
+    $hour = mt_rand(0, 24);
+    $minutes = mt_rand(0, 59);
+    $seconds = mt_rand(0, 59);
+
+    $hour = (string)$hour;
+    $minutes = (string)$minutes;
+    $seconds = (string)$seconds;
+
+    if(strlen($hour) < 2)
+        $hour = "0" . $hour;
+
+    if(strlen($minutes) < 2)
+        $minutes = "0" . $minutes;
+
+    if(strlen($hour) < 2)
+        $seconds = "0" . $seconds;
+
+    return $hour . ":" . $minutes . ":" . $seconds;
+}
+
+function getFormattedDateFromString($timestampStr, $takeRandomTime = true)
+{
+    if($takeRandomTime)
+        $timestampStr .= " " . random_time_str();
+
+    $timestamp = new DateTime($timestampStr);
+    return date("Y-m-d H:i:s", $timestamp->getTimestamp());
+}
+
+try
+{
+    if(!isset($_REQUEST["user"]))
+    {
+        $result = array(
+            "flag" => false,
+            "error" => array(),
+            "message" => "user required"
+        );
+    }
+    else
+    {
+        $user = json_decode($_REQUEST['user'], true);
+
+        if(!isset($user['fname']) || !isset($user['lname']) || !isset($user['email']) || !isset($user['user']) || !isset($user['pwd']))
+        {
+            $result = array(
+                "flag" => false,
+                "error" => array(),
+                "message" => "Insufficient fields to create user."
+            );
+        }
+        else
+        {
+//            $db = new PDO("mysql:host=127.0.0.1;dbname=easeCRM", "root", "root");
+//            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//            $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+            $db = $this->core->db;
+
+            /**
+             * Check if database is already initialized
+             */
+
+            $check_table_query = "show tables like 'easecrmsettings'";
+
+            $check_table_stmt = $db->query($check_table_query);
+
+            $check_table_res = $check_table_stmt->fetchAll();
+
+            if(sizeof($check_table_res) > 0)
+            {
+                $init_check_query = 'select * from easecrmsettings where settingkey="init" and settingvalue="1"';
+
+                $init_check_stmt = $db->query($init_check_query);
+
+                $init_check_res = $init_check_stmt->fetchAll();
+            }
+            else
+                $init_check_res = array();
+
+            if(sizeof($init_check_res) <= 0)
+            {
+                /**
+                 * Create all tables
+                 */
+
+                $query = "
+DROP TABLE IF EXISTS easecrmaccounts;
+
+CREATE TABLE IF NOT EXISTS easecrmaccounts (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  workemail text NOT NULL,
+  homeemail text NOT NULL,
+  personalemail text NOT NULL,
+  workphone text NOT NULL,
+  homephone text NOT NULL,
+  personalphone text NOT NULL,
+  street1 text NOT NULL,
+  street2 text NOT NULL,
+  area text NOT NULL,
+  city text NOT NULL,
+  state text NOT NULL,
+  zip text NOT NULL,
+  territory text NOT NULL,
+  industry text NOT NULL,
+  source text NOT NULL,
+  assignedto text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12;
+
+DROP TABLE IF EXISTS easecrmcontacts;
+
+CREATE TABLE IF NOT EXISTS easecrmcontacts (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  fname text NOT NULL,
+  lname text NOT NULL,
+  designation text NOT NULL,
+  workemail text NOT NULL,
+  homeemail text NOT NULL,
+  personalemail text NOT NULL,
+  workphone text NOT NULL,
+  homephone text NOT NULL,
+  personalphone text NOT NULL,
+  street1 text NOT NULL,
+  street2 text NOT NULL,
+  area text NOT NULL,
+  city text NOT NULL,
+  state text NOT NULL,
+  zip text NOT NULL,
+  territory text NOT NULL,
+  industry text NOT NULL,
+  source text NOT NULL,
+  account text NOT NULL,
+  assignedto text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=18;
+
+DROP TABLE IF EXISTS easecrmdynamicgroups;
+
+CREATE TABLE IF NOT EXISTS easecrmdynamicgroups (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  title text NOT NULL,
+  moduleid text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=69;
+
+DROP TABLE IF EXISTS easecrmdynamicgroupscriteria;
+
+CREATE TABLE IF NOT EXISTS easecrmdynamicgroupscriteria (
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  groupid text NOT NULL,
+  criteriakey text NOT NULL,
+  criteriavalue text NOT NULL,
+  operator text NOT NULL,
+  operationtype text NOT NULL,
+  issample text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS easecrmfixedgroups;
+
+CREATE TABLE IF NOT EXISTS easecrmfixedgroups (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  title text NOT NULL,
+  moduleid text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=14;
+
+DROP TABLE IF EXISTS easecrmfixedgroupsentities;
+
+CREATE TABLE IF NOT EXISTS easecrmfixedgroupsentities (
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  groupid text NOT NULL,
+  entityid text NOT NULL,
+  issample text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS easecrmindustries;
+
+CREATE TABLE IF NOT EXISTS easecrmindustries (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5;
+
+DROP TABLE IF EXISTS easecrmleads;
+
+CREATE TABLE IF NOT EXISTS easecrmleads (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  title text NOT NULL,
+  contact text NOT NULL,
+  expecteddate text NOT NULL,
+  amount text NOT NULL,
+  confidencelevel text NOT NULL,
+  tags text NOT NULL,
+  product text NOT NULL,
+  industry text NOT NULL,
+  source text NOT NULL,
+  stage text NOT NULL,
+  assignedto text NOT NULL,
+  account text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  wondate text NOT NULL,
+  lostdate text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=22;
+
+DROP TABLE IF EXISTS easecrmproducts;
+
+CREATE TABLE IF NOT EXISTS easecrmproducts (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  sku text NOT NULL,
+  price text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4;
+
+DROP TABLE IF EXISTS easecrmsources;
+
+CREATE TABLE IF NOT EXISTS easecrmsources (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4;
+
+DROP TABLE IF EXISTS easecrmstages;
+
+CREATE TABLE IF NOT EXISTS easecrmstages (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  iseditable text NOT NULL,
+  issystemstage text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6;
+
+DROP TABLE IF EXISTS easecrmtaskandactivity;
+
+CREATE TABLE IF NOT EXISTS easecrmtaskandactivity (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  title text NOT NULL,
+  addedas text NOT NULL,
+  detail text NOT NULL,
+  tasktype text NOT NULL,
+  assignedto text NOT NULL,
+  referenceid text NOT NULL,
+  moduleid text NOT NULL,
+  duedate text NOT NULL,
+  status text NOT NULL,
+  completed_at text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=92;
+
+DROP TABLE IF EXISTS easecrmtaskandactivitycomments;
+
+CREATE TABLE IF NOT EXISTS easecrmtaskandactivitycomments (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  comment text NOT NULL,
+  userid text NOT NULL,
+  taskandactivityid text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9;
+
+DROP TABLE IF EXISTS easecrmtasktypes;
+
+CREATE TABLE IF NOT EXISTS easecrmtasktypes (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  iseditable text NOT NULL,
+  issystemstage text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7;
+
+DROP TABLE IF EXISTS easetags;
+
+CREATE TABLE IF NOT EXISTS easetags (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  name text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;
+
+DROP TABLE IF EXISTS easetagsentities;
+
+CREATE TABLE IF NOT EXISTS easetagsentities (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  moduleid text NOT NULL,
+  entityid varchar(32) NOT NULL,
+  tagid varchar(32) NOT NULL,
+  issample text NOT NULL,
+  PRIMARY KEY (instance_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS easeusers;
+
+CREATE TABLE IF NOT EXISTS easeusers (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  fname text NOT NULL,
+  lname text NOT NULL,
+  email text NOT NULL,
+  username text NOT NULL,
+  pwd text NOT NULL,
+  role text NOT NULL,
+  created_by text NOT NULL,
+  updated_by text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7;
+
+DROP TABLE IF EXISTS easecrmsettings;
+
+CREATE TABLE easecrmsettings (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  settingkey text NOT NULL,
+  settingvalue text NOT NULL,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (instance_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+";
+
+                $res = $db->exec($query);
+
+                /**
+                 * Prepare sample data
+                 */
+
+//    $password = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"), 0, 6);
+                $superAdminUUID = new_uuid();
+
+                $users = array(
+                    array(
+                        "uuid" => $superAdminUUID,
+                        "fname" => $user['fname'],
+                        "lname" => $user['lname'],
+                        "email" => $user['email'],
+                        "username" => $user['user'],
+                        "pwd" => $user['pwd'],
+                        "role" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    )
+                );
+
+                $stages = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "New",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Won",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Lost",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "In Negotiation",
+                        "iseditable" => "1",
+                        "issystemstage" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Hot Lead",
+                        "iseditable" => "1",
+                        "issystemstage" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Verified",
+                        "iseditable" => "1",
+                        "issystemstage" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Cold Lead",
+                        "iseditable" => "1",
+                        "issystemstage" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "In Progress",
+                        "iseditable" => "1",
+                        "issystemstage" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    )
+                );
+
+                $sources = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Marketing",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Google AdWords",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Direct Sales",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Facebook",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Seminar",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Word of mouth",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Website",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "By Reference",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    )
+                );
+
+                $industries = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "IT",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Education",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Banking",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Insurance",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Manufacturing",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Retail",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Telecoms",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Media",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Finance",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    )
+                );
+
+                $products = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "EaseCRM Basic Edition",
+                        "sku" => "CRMBE",
+                        "price" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "EaseCRM Enterprise Edition",
+                        "sku" => "CRMEE",
+                        "price" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "EaseCRM Team Edition",
+                        "sku" => "CRMTE",
+                        "price" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "EaseCRM Corporate Edition",
+                        "sku" => "CRMCE",
+                        "price" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "EaseCRM Professional Edition",
+                        "sku" => "CRMPE",
+                        "price" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    )
+                );
+
+                $taskTypes = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Call",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Email",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Meeting",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Task",
+                        "iseditable" => "0",
+                        "issystemstage" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Money",
+                        "iseditable" => "1",
+                        "issystemstage" => "0",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => ""
+                    )
+                );
+
+                $tags = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Important",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Etelos",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "IT",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Satisfied",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Seattle",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "issample" => "1"
+                    )
+                );
+
+                $accounts = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Fortune eMarketing",
+                        "workemail" => "sales@fortune.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(458) 569 6523",
+                        "homephone" => "",
+                        "personalphone" => "",
+                        "street1" => "1150-S Grove ave",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Marleston",
+                        "state" => "South Australia",
+                        "zip" => "5033",
+                        "territory" => "South",
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-8 days"),
+                        "updated_on" => getFormattedDateFromString("-2 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Star Line Solution Pvt. Ltd.",
+                        "workemail" => "care@starLine.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(421) 551 9853",
+                        "homephone" => "(878) 454 5263",
+                        "personalphone" => "6044659181",
+                        "street1" => "15-1, Police Street",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Brush Prairie",
+                        "state" => "Washington DC",
+                        "zip" => "98661",
+                        "territory" => "West",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-5 days"),
+                        "updated_on" => getFormattedDateFromString("-4 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Ro-west Communication",
+                        "workemail" => "salse@ro-west.com",
+                        "homeemail" => "",
+                        "personalemail" => "nicholas.totten@gmail.com",
+                        "workphone" => "(413) 516 8534",
+                        "homephone" => "",
+                        "personalphone" => "6046920520",
+                        "street1" => "20th Floor, New Tower",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Vancouver",
+                        "state" => "Washington DC",
+                        "zip" => "98661",
+                        "territory" => "West",
+                        "industry" => $industries[8]['uuid'],
+                        "source" => $sources[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Tuts-ware IT Solutions",
+                        "workemail" => "care@tuts-ware.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(985) 695 5698",
+                        "homephone" => "",
+                        "personalphone" => "7783717938",
+                        "street1" => "16th Floor, 1606",
+                        "street2" => "Subrise Tower",
+                        "area" => "Calgary",
+                        "city" => "Calgary",
+                        "state" => "Washington DC",
+                        "zip" => "T1Y 1M7",
+                        "territory" => "South",
+                        "industry" => $industries[8]['uuid'],
+                        "source" => $sources[6]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-2 days"),
+                        "updated_on" => getFormattedDateFromString("today", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Tech-Square Technologies",
+                        "workemail" => "care@tech-square.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(859) 632 1452",
+                        "homephone" => "(589) 642 2365",
+                        "personalphone" => "",
+                        "street1" => "Suite 600 Sun Tower",
+                        "street2" => "1550 Bedford Hwy",
+                        "area" => "",
+                        "city" => "Bedford",
+                        "state" => "Nova Scotia",
+                        "zip" => "B4A 1E6",
+                        "territory" => "North",
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Fivestar Studio",
+                        "workemail" => "info@fivestar.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(859) 674 1223",
+                        "homephone" => "",
+                        "personalphone" => "4032858956",
+                        "street1" => "A-52/20 New Street",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Edmonton",
+                        "state" => "Alberta",
+                        "zip" => "T5A 0N5",
+                        "territory" => "South",
+                        "industry" => $industries[7]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-15 days"),
+                        "updated_on" => getFormattedDateFromString("-6 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "New Grid Row material",
+                        "workemail" => "info@newgrid.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(985) 674 5856",
+                        "homephone" => "(754) 896 5699",
+                        "personalphone" => "6042448543",
+                        "street1" => "1523 Oak Ridge Drive",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Georgetown",
+                        "state" => "ON",
+                        "zip" => "L7G 5G6",
+                        "territory" => "North",
+                        "industry" => $industries[4]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-8 days"),
+                        "updated_on" => getFormattedDateFromString("-2 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "S-Loka Group of Companies",
+                        "workemail" => "sales@s-lokaGroup.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(541) 252 3695",
+                        "homephone" => "",
+                        "personalphone" => "7783717697",
+                        "street1" => "859-A/B, Paul Tower",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Winnipeg",
+                        "state" => "Manitoba",
+                        "zip" => "R3C 3V6",
+                        "territory" => "West",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => getFormattedDateFromString("now", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "Dial-pad Services",
+                        "workemail" => "support@dial-pad.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "",
+                        "homephone" => "(587) 512 4651",
+                        "personalphone" => "6137680122",
+                        "street1" => "34764 View Tower",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Nepean",
+                        "state" => "Ontario",
+                        "zip" => "K2H 8E9",
+                        "territory" => "West",
+                        "industry" => $industries[6]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "S.S. Wood Ply",
+                        "workemail" => "support@sswoodply.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(856) 632 1545",
+                        "homephone" => "(852) 963 6522",
+                        "personalphone" => "6048559199",
+                        "street1" => "",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "",
+                        "state" => "",
+                        "zip" => "",
+                        "territory" => "East",
+                        "industry" => $industries[5]['uuid'],
+                        "source" => $sources[5]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "T-Live Gigital Cable Network",
+                        "workemail" => "sales@t-livegigital.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(754) 896 7855",
+                        "homephone" => "(306) 777-1375",
+                        "personalphone" => "6137651715",
+                        "street1" => "12th Floor",
+                        "street2" => "Kings View",
+                        "area" => "",
+                        "city" => "Burnaby",
+                        "state" => "Washington DC",
+                        "zip" => "96856",
+                        "territory" => "North",
+                        "industry" => $industries[5]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-10 days"),
+                        "updated_on" => getFormattedDateFromString("-6 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "name" => "OneLink Network",
+                        "workemail" => "support@onelink.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "(856) 974 1122",
+                        "homephone" => "(745) 896 3212",
+                        "personalphone" => "4586661426",
+                        "street1" => "8569 Mian Street",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Regina",
+                        "state" => "Seskatchewan",
+                        "zip" => "S4P 3Y2",
+                        "territory" => "East",
+                        "industry" => $industries[7]['uuid'],
+                        "source" => $sources[5]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    )
+                );
+
+                $contacts = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Johnson",
+                        "lname" => "Melancon",
+                        "designation" => "CEO",
+                        "workemail" => "johnson.melancon@gmail.com",
+                        "homeemail" => "",
+                        "personalemail" => "",
+                        "workphone" => "4585696523",
+                        "homephone" => "(604) 468-5636",
+                        "personalphone" => "7485963214",
+                        "street1" => "33 Grove ave",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Marleston",
+                        "state" => "South Australia",
+                        "zip" => "5033",
+                        "territory" => "South",
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "account" => $accounts[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-19 days"),
+                        "updated_on" => getFormattedDateFromString("-7 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Peter",
+                        "lname" => "Martin",
+                        "designation" => "President",
+                        "workemail" => "peter.martin@starline.com",
+                        "homeemail" => "peter.martin@yahoo.com",
+                        "personalemail" => "",
+                        "workphone" => "4215269853",
+                        "homephone" => "8784545263",
+                        "personalphone" => "",
+                        "street1" => "1081 Cliveden Ave",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Delta",
+                        "state" => "Washington DC",
+                        "zip" => "98606",
+                        "territory" => "West",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "account" => $accounts[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-17 days"),
+                        "updated_on" => getFormattedDateFromString("-4 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Steve",
+                        "lname" => "Hobbs",
+                        "designation" => "Business Development",
+                        "workemail" => "steve.hobbs@gmail.com",
+                        "homeemail" => "steve.hobbs12@gmail.com",
+                        "personalemail" => "steve.h@gmail.com",
+                        "workphone" => "4135168534",
+                        "homephone" => "",
+                        "personalphone" => "6046920520",
+                        "street1" => "#670 - 789 West Pender Street",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Vancouver",
+                        "state" => "Washington DC",
+                        "zip" => "98604",
+                        "territory" => "East",
+                        "industry" => $industries[8]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "account" => $accounts[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-4 days"),
+                        "updated_on" => getFormattedDateFromString("-2 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Paul",
+                        "lname" => "Murphy",
+                        "designation" => "Sales Support",
+                        "workemail" => "paul.murphy@ro-west.com",
+                        "homeemail" => "paul_murphy@outlook.com",
+                        "personalemail" => "",
+                        "workphone" => "9856955698",
+                        "homephone" => "",
+                        "personalphone" => "7783717538",
+                        "street1" => "24 Heston St N.W.",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Calgary",
+                        "state" => "Alberta",
+                        "zip" => "T2K2C1",
+                        "territory" => "East",
+                        "industry" => $industries[5]['uuid'],
+                        "source" => $sources[5]['uuid'],
+                        "account" => $accounts[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => getFormattedDateFromString("today", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Nicholas",
+                        "lname" => "Totten",
+                        "designation" => "CEO",
+                        "workemail" => "nicholas.totten@ro-west.com",
+                        "homeemail" => "nicholas.totten33@gmail.com",
+                        "personalemail" => "nicholas.t@gmail.com",
+                        "workphone" => "",
+                        "homephone" => "(589) 642 2365",
+                        "personalphone" => "8965968563",
+                        "street1" => "Suite 600 Sun Tower",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Bedford",
+                        "state" => "Nova Scotia",
+                        "zip" => "B4A 1E6",
+                        "territory" => "East",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "account" => $accounts[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-8 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Mike",
+                        "lname" => "Zhang",
+                        "designation" => "Marketing Manager",
+                        "workemail" => "mike.zhang23@oal.com",
+                        "homeemail" => "mike.z@oal.com",
+                        "personalemail" => "mike.zhang23@gmail.com",
+                        "workphone" => "(859) 674 1223",
+                        "homephone" => "",
+                        "personalphone" => "4032845687",
+                        "street1" => "10 Oak Ridge Drive",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Georgetown",
+                        "state" => "Ontario",
+                        "zip" => "L7G5G6",
+                        "territory" => "East",
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "account" => $accounts[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-6 days"),
+                        "updated_on" => getFormattedDateFromString("-4 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Stephen",
+                        "lname" => "Marcos",
+                        "designation" => "CEO",
+                        "workemail" => "stephen.marcos@gmail.com",
+                        "homeemail" => "",
+                        "personalemail" => "stephen.m@gmail.com",
+                        "workphone" => "(985) 674 5856",
+                        "homephone" => "(754) 896 5699",
+                        "personalphone" => "6042448543",
+                        "street1" => "10 RK River Drive",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Georgetown",
+                        "state" => "Ontario",
+                        "zip" => "L7G 5G9",
+                        "territory" => "South",
+                        "industry" => $industries[8]['uuid'],
+                        "source" => $sources[6]['uuid'],
+                        "account" => $accounts[3]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => getFormattedDateFromString("now", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Anthony",
+                        "lname" => "Watson",
+                        "designation" => "Marketing Executive",
+                        "workemail" => "anthony.watson@gmail.com",
+                        "homeemail" => "",
+                        "personalemail" => "anthony.w222@gmail.com",
+                        "workphone" => "5412523695",
+                        "homephone" => "",
+                        "personalphone" => "7783717697",
+                        "street1" => "333 Main Street",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Winnipeg",
+                        "state" => "Monitoba",
+                        "zip" => "R3C 3V6",
+                        "territory" => "North",
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "account" => $accounts[4]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Mathew",
+                        "lname" => "Gustafson",
+                        "designation" => "Product manager",
+                        "workemail" => "mathew.gustafson@gmail.com",
+                        "homeemail" => "",
+                        "personalemail" => "m.gustafson@gmail.com",
+                        "workphone" => "",
+                        "homephone" => "(587) 512 5636",
+                        "personalphone" => "6137683017",
+                        "street1" => "3500 Carling Avenue",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Nepean",
+                        "state" => "Ontario",
+                        "zip" => "K2H 8E9",
+                        "territory" => "South",
+                        "industry" => $industries[7]['uuid'],
+                        "source" => $sources[6]['uuid'],
+                        "account" => $accounts[5]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Alison",
+                        "lname" => "Seifer",
+                        "designation" => "Senior Engineer",
+                        "workemail" => "alison.eifer@newgrid.com",
+                        "homeemail" => "alison@hotmail.com",
+                        "personalemail" => "alison.seifer@gmail.com",
+                        "workphone" => "(859) 632 1545",
+                        "homephone" => "",
+                        "personalphone" => "6044659199",
+                        "street1" => "",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "",
+                        "state" => "",
+                        "zip" => "",
+                        "territory" => "North",
+                        "industry" => $industries[4]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "account" => $accounts[6]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-2 days"),
+                        "updated_on" => getFormattedDateFromString("today", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Elizabeth",
+                        "lname" => "Malcolm",
+                        "designation" => "CEO",
+                        "workemail" => "elizabeth.malcolm@s-lokagroup.com",
+                        "homeemail" => "elizabeth.m@outlook.com",
+                        "personalemail" => "Elizabeth.Malcolm123@gmail.com",
+                        "workphone" => "7548962142",
+                        "homephone" => "",
+                        "personalphone" => "4526356985",
+                        "street1" => "19423 Frasier Industrial WayPitt ",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Meadows",
+                        "state" => "Washington DC",
+                        "zip" => "65982",
+                        "territory" => "West",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "account" => $accounts[7]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-5 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Michael",
+                        "lname" => "White",
+                        "designation" => "Sales Support",
+                        "workemail" => "michael.white@oneline.com",
+                        "homeemail" => "michael.white@hotmail.com",
+                        "personalemail" => "",
+                        "workphone" => "7589665211",
+                        "homephone" => "(306) 777-1375",
+                        "personalphone" => "",
+                        "street1" => "12th Flr TPS 10020-100 Street",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Edmonton",
+                        "state" => "Alberta",
+                        "zip" => "T5J0N5",
+                        "territory" => "East",
+                        "industry" => $industries[7]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "account" => $accounts[11]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Melissa",
+                        "lname" => "Baptish",
+                        "designation" => "Program Manager",
+                        "workemail" => "melissa.baptish@tlivecable.com",
+                        "homeemail" => "melissa.baptish@gmail.com",
+                        "personalemail" => "",
+                        "workphone" => "8596321452",
+                        "homephone" => "(306) 777-5003",
+                        "personalphone" => "",
+                        "street1" => "1795 Willingdon Ave",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Burnaby",
+                        "state" => "BC",
+                        "zip" => "V5C5E3",
+                        "territory" => "North",
+                        "industry" => $industries[5]['uuid'],
+                        "source" => $sources[6]['uuid'],
+                        "account" => $accounts[10]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-9 days"),
+                        "updated_on" => getFormattedDateFromString("-6 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Mike",
+                        "lname" => "Brooks",
+                        "designation" => "General Manager",
+                        "workemail" => "mike.brooks@sswood.com",
+                        "homeemail" => "mike.brooks@ymail.com",
+                        "personalemail" => "",
+                        "workphone" => "8569741122",
+                        "homephone" => "(613) 765-1715",
+                        "personalphone" => "",
+                        "street1" => "8-3777 Kingsway",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Burnaby",
+                        "state" => "BC",
+                        "zip" => "V5H3Z7",
+                        "territory" => "East",
+                        "industry" => $industries[7]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "account" => $accounts[9]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "fname" => "Howard",
+                        "lname" => "Stuckey",
+                        "designation" => "Chairman",
+                        "workemail" => "howard.stuckey@dialpad.com",
+                        "homeemail" => "howard.stuckey@yahoo.com",
+                        "personalemail" => "",
+                        "workphone" => "",
+                        "homephone" => "(745) 896 3212",
+                        "personalphone" => "",
+                        "street1" => "2121 Saskatchewan Drive",
+                        "street2" => "",
+                        "area" => "",
+                        "city" => "Regina",
+                        "state" => "Seskatchewan",
+                        "zip" => "S4P3Y2",
+                        "territory" => "West",
+                        "industry" => $industries[6]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "account" => $accounts[8]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-12 days"),
+                        "updated_on" => getFormattedDateFromString("-5 days"),
+                        "issample" => "1"
+                    )
+                );
+
+
+                $leads = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Fortune eMarketing's lead",
+                        "contact" => $contacts[0]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("-5 days"),
+                        "amount" => "9.95",
+                        "confidencelevel" => "0",
+                        "product" => $products[0]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => getFormattedDateFromString("-5 days"),
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[2]['uuid'],
+                        "stage" => $stages[2]['uuid'],
+                        "account" => $accounts[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-10 days"),
+                        "updated_on" => getFormattedDateFromString("-5 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Peter Martin's lead",
+                        "contact" => $contacts[1]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("+7 days"),
+                        "amount" => "24.95",
+                        "confidencelevel" => "55",
+                        "product" => $products[1]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[5]['uuid'],
+                        "stage" => $stages[7]['uuid'],
+                        "account" => $accounts[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-7 days"),
+                        "updated_on" => getFormattedDateFromString("-4 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Paul Murphy's lead",
+                        "contact" => $contacts[3]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("+10 days"),
+                        "amount" => "49.95",
+                        "confidencelevel" => "10",
+                        "product" => $products[2]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[8]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "stage" => $stages[5]['uuid'],
+                        "account" => $accounts[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Tuts-ware IT Solutions's lead",
+                        "contact" => $contacts[6]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("today", false),
+                        "amount" => "79.95",
+                        "confidencelevel" => "100",
+                        "product" => $products[3]['uuid'],
+                        "wondate" => getFormattedDateFromString("today", false),
+                        "lostdate" => "",
+                        "industry" => $industries[5]['uuid'],
+                        "source" => $sources[5]['uuid'],
+                        "stage" => $stages[1]['uuid'],
+                        "account" => $accounts[3]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-15 days"),
+                        "updated_on" => getFormattedDateFromString("today", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Tech-Square Technologies's lead",
+                        "contact" => $contacts[7]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("yesterday"),
+                        "amount" => "129.95",
+                        "confidencelevel" => "0",
+                        "product" => $products[4]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => getFormattedDateFromString("-3 days"),
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "stage" => $stages[0]['uuid'],
+                        "account" => $accounts[4]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-9 days"),
+                        "updated_on" => getFormattedDateFromString("-3 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Mathew Gustafson's lead",
+                        "contact" => $contacts[8]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("+7 days"),
+                        "amount" => "9.95",
+                        "confidencelevel" => "65",
+                        "product" => $products[0]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[1]['uuid'],
+                        "stage" => $stages[7]['uuid'],
+                        "account" => $accounts[5]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "OneLink Network's lead",
+                        "contact" => $contacts[14]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("+12 days"),
+                        "amount" => "24.95",
+                        "confidencelevel" => "0",
+                        "product" => $products[1]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[6]['uuid'],
+                        "source" => $sources[3]['uuid'],
+                        "stage" => $stages[0]['uuid'],
+                        "account" => $accounts[11]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Melissa Baptish's lead",
+                        "contact" => $contacts[13]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("+5 days"),
+                        "amount" => "9.95",
+                        "confidencelevel" => "50",
+                        "product" => $products[0]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[3]['uuid'],
+                        "source" => $sources[5]['uuid'],
+                        "stage" => $stages[7]['uuid'],
+                        "account" => $accounts[10]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("today"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "S.S. Wood Ply's lead",
+                        "contact" => $contacts[12]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("tomorrow"),
+                        "amount" => "129.95",
+                        "confidencelevel" => "90",
+                        "product" => $products[4]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[4]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "stage" => $stages[5]['uuid'],
+                        "account" => $accounts[10]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-6 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Dial-pad Services's lead",
+                        "contact" => $contacts[11]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("-12 days"),
+                        "amount" => "79.95",
+                        "confidencelevel" => "40",
+                        "product" => $products[3]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[6]['uuid'],
+                        "source" => $sources[6]['uuid'],
+                        "stage" => $stages[6]['uuid'],
+                        "account" => $accounts[9]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-12 days"),
+                        "updated_on" => getFormattedDateFromString("-5 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Elizabeth Malcolm's lead",
+                        "contact" => $contacts[10]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("-12 days"),
+                        "amount" => "49.95",
+                        "confidencelevel" => "75",
+                        "product" => $products[2]['uuid'],
+                        "wondate" => "",
+                        "lostdate" => "",
+                        "industry" => $industries[2]['uuid'],
+                        "source" => $sources[4]['uuid'],
+                        "stage" => $stages[4]['uuid'],
+                        "account" => $accounts[7]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-12 days"),
+                        "updated_on" => getFormattedDateFromString("-5 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "New Grid Row material's lead",
+                        "contact" => $contacts[9]['uuid'],
+                        "expecteddate" => getFormattedDateFromString("-2 days"),
+                        "amount" => "24.95",
+                        "confidencelevel" => "100",
+                        "product" => $products[1]['uuid'],
+                        "wondate" => getFormattedDateFromString("yesterday"),
+                        "lostdate" => "",
+                        "industry" => $industries[8]['uuid'],
+                        "source" => $sources[6]['uuid'],
+                        "stage" => $stages[1]['uuid'],
+                        "account" => $accounts[6]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-13 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    )
+                );
+
+                $followups = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Schedule Demo Meeting",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[0]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("yesterday"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("yesterday"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-7 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Meeting with Customer for customization",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[3]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("tomorrow"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Email of Account Details",
+                        "addedas" => "2",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[3]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("-3 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-3 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-2 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Account Confirmation Mail",
+                        "addedas" => "2",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $leads[0]['uuid'],
+                        "moduleid" => "3",
+                        "duedate" => getFormattedDateFromString("-5 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-5 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Call for Demo Confirmation",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[7]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("+2 days"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Collect Due payment",
+                        "addedas" => "2",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[4]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[2]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("-6 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-6 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-5 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Send Invoice",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[3]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[5]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("+5 days"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Meeting for finalizing deal",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $leads[5]['uuid'],
+                        "moduleid" => "3",
+                        "duedate" => getFormattedDateFromString("tomorrow"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => getFormattedDateFromString("today", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Meeting for New Project",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[9]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("+3 days"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-2 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Call for Documents of Customer",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[7]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("today"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-4 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Call for Invoice confirmation",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $leads[5]['uuid'],
+                        "moduleid" => "3",
+                        "duedate" => getFormattedDateFromString("-4 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-5 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-9 days"),
+                        "updated_on" => getFormattedDateFromString("-4 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Call for online demo meeting",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[4]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("today"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Email Quote of Team Edition",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[8]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("-6 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-5 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-9 days"),
+                        "updated_on" => getFormattedDateFromString("-5 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Email of due amount",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[3]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("yesterday"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-5 days"),
+                        "updated_on" => getFormattedDateFromString("yesterday"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Schedule a meeting",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[3]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $leads[7]['uuid'],
+                        "moduleid" => "3",
+                        "duedate" => getFormattedDateFromString("-3 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-4 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-5 days"),
+                        "updated_on" => getFormattedDateFromString("-4 days"),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Send price list mail",
+                        "addedas" => "2",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[1]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("-9 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-9 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-9 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Customer ticket reply",
+                        "addedas" => "2",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[3]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[8]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("-4 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-4 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Demo Meeting",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[2]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("+5 days"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-2 days"),
+                        "updated_on" => getFormattedDateFromString("now", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Meeting for second demo",
+                        "addedas" => "2",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[2]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[4]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("-10 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-10 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-8 days"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Customer Delight call",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $leads[9]['uuid'],
+                        "moduleid" => "3",
+                        "duedate" => getFormattedDateFromString("today"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => getFormattedDateFromString("today", false),
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Send API Document",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[1]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[3]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("+6 days"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("yesterday"),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Call for finalizing meeting time",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[0]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $contacts[4]['uuid'],
+                        "moduleid" => "1",
+                        "duedate" => getFormattedDateFromString("+3 days"),
+                        "status" => "0",
+                        "completed_at" => "",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "issample" => "1"
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Visit Customer for technical problem",
+                        "addedas" => "1",
+                        "detail" => "",
+                        "tasktype" => $taskTypes[3]['uuid'],
+                        "assignedto" => $superAdminUUID,
+                        "referenceid" => $accounts[4]['uuid'],
+                        "moduleid" => "2",
+                        "duedate" => getFormattedDateFromString("-5 days"),
+                        "status" => "1",
+                        "completed_at" => getFormattedDateFromString("-6 days"),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "created_on" => getFormattedDateFromString("-8 days"),
+                        "updated_on" => getFormattedDateFromString("-6 days"),
+                        "issample" => "1"
+                    )
+                );
+
+                addArrInDB($users, "easeusers", $db);
+                addArrInDB($stages, "easecrmstages", $db);
+                addArrInDB($sources, "easecrmsources", $db);
+                addArrInDB($industries, "easecrmindustries", $db);
+                addArrInDB($products, "easecrmproducts", $db);
+                addArrInDB($taskTypes, "easecrmtasktypes", $db);
+                addArrInDB($tags, "easetags", $db);
+
+                addArrInDB($accounts, "easecrmaccounts", $db);
+                addArrInDB($contacts, "easecrmcontacts", $db);
+                addArrInDB($leads, "easecrmleads", $db);
+                addArrInDB($followups, "easecrmtaskandactivity", $db);
+
+                $fixedGroups = array(
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Important Contacts",
+                        "moduleid" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "entities" => array(
+                            $contacts[0]['uuid'],
+                            $contacts[3]['uuid'],
+                            $contacts[6]['uuid'],
+                            $contacts[8]['uuid'],
+                            $contacts[2]['uuid'],
+                            $contacts[5]['uuid'],
+                            $contacts[9]['uuid']
+                        )
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Verified Contacts",
+                        "moduleid" => "1",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "entities" => array(
+                            $contacts[6]['uuid'],
+                            $contacts[2]['uuid'],
+                            $contacts[8]['uuid'],
+                            $contacts[9]['uuid'],
+                            $contacts[11]['uuid']
+                        )
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Important Accounts",
+                        "moduleid" => "2",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "entities" => array(
+                            $accounts[0]['uuid'],
+                            $accounts[3]['uuid'],
+                            $accounts[6]['uuid'],
+                            $accounts[8]['uuid'],
+                            $accounts[2]['uuid']
+                        )
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Verified Accounts",
+                        "moduleid" => "2",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "entities" => array(
+                            $accounts[2]['uuid'],
+                            $accounts[5]['uuid'],
+                            $accounts[7]['uuid'],
+                            $accounts[3]['uuid'],
+                            $accounts[1]['uuid']
+                        )
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Important Leads",
+                        "moduleid" => "3",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("today", false),
+                        "updated_on" => "",
+                        "entities" => array(
+                            $leads[0]['uuid'],
+                            $leads[2]['uuid'],
+                            $leads[5]['uuid'],
+                            $leads[8]['uuid']
+                        )
+                    ),
+                    array(
+                        "uuid" => new_uuid(),
+                        "title" => "Verified Leads",
+                        "moduleid" => "3",
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => "",
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "entities" => array(
+                            $leads[2]['uuid'],
+                            $leads[4]['uuid'],
+                            $leads[5]['uuid'],
+                            $leads[8]['uuid'],
+                            $leads[3]['uuid']
+                        )
+                    )
+                );
+
+                addFixedGroupInDB($fixedGroups, $db);
+
+                $contacts_tags = array(
+                    array(
+                        "created_on" => $contacts[0]['created_on'],
+                        "entityid" => $contacts[0]['uuid'],
+                        "tagid" => $tags[0]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[0]['created_on'],
+                        "entityid" => $contacts[0]['uuid'],
+                        "tagid" => $tags[3]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[0]['created_on'],
+                        "entityid" => $contacts[0]['uuid'],
+                        "tagid" => $tags[4]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[3]['created_on'],
+                        "entityid" => $contacts[3]['uuid'],
+                        "tagid" => $tags[1]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[3]['created_on'],
+                        "entityid" => $contacts[3]['uuid'],
+                        "tagid" => $tags[2]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[5]['created_on'],
+                        "entityid" => $contacts[5]['uuid'],
+                        "tagid" => $tags[0]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[7]['created_on'],
+                        "entityid" => $contacts[7]['uuid'],
+                        "tagid" => $tags[4]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[9]['created_on'],
+                        "entityid" => $contacts[9]['uuid'],
+                        "tagid" => $tags[4]['uuid']
+                    ),
+                    array(
+                        "created_on" => $contacts[9]['created_on'],
+                        "entityid" => $contacts[9]['uuid'],
+                        "tagid" => $tags[2]['uuid']
+                    )
+                );
+
+                $accounts_tags = array(
+                    array(
+                        "created_on" => $accounts[0]['created_on'],
+                        "entityid" => $accounts[0]['uuid'],
+                        "tagid" => $tags[0]['uuid']
+                    ),
+                    array(
+                        "created_on" => $accounts[0]['created_on'],
+                        "entityid" => $accounts[0]['uuid'],
+                        "tagid" => $tags[3]['uuid']
+                    ),
+                    array(
+                        "created_on" => $accounts[3]['created_on'],
+                        "entityid" => $accounts[3]['uuid'],
+                        "tagid" => $tags[2]['uuid']
+                    ),
+                    array(
+                        "created_on" => $accounts[5]['created_on'],
+                        "entityid" => $accounts[5]['uuid'],
+                        "tagid" => $tags[3]['uuid']
+                    ),
+                    array(
+                        "created_on" => $accounts[6]['created_on'],
+                        "entityid" => $accounts[5]['uuid'],
+                        "tagid" => $tags[4]['uuid']
+                    ),
+                    array(
+                        "created_on" => $accounts[7]['created_on'],
+                        "entityid" => $accounts[5]['uuid'],
+                        "tagid" => $tags[4]['uuid']
+                    )
+                );
+
+                $leads_tags = array(
+                    array(
+                        "created_on" => $leads[0]['created_on'],
+                        "entityid" => $leads[0]['uuid'],
+                        "tagid" => $tags[0]['uuid']
+                    ),
+                    array(
+                        "created_on" => $leads[0]['created_on'],
+                        "entityid" => $leads[0]['uuid'],
+                        "tagid" => $tags[3]['uuid']
+                    ),
+                    array(
+                        "created_on" => $leads[1]['created_on'],
+                        "entityid" => $leads[1]['uuid'],
+                        "tagid" => $tags[2]['uuid']
+                    ),
+                    array(
+                        "created_on" => $leads[3]['created_on'],
+                        "entityid" => $leads[3]['uuid'],
+                        "tagid" => $tags[3]['uuid']
+                    ),
+                    array(
+                        "created_on" => $leads[5]['created_on'],
+                        "entityid" => $leads[5]['uuid'],
+                        "tagid" => $tags[4]['uuid']
+                    ),
+                    array(
+                        "created_on" => $leads[7]['created_on'],
+                        "entityid" => $leads[7]['uuid'],
+                        "tagid" => $tags[2]['uuid']
+                    )
+                );
+
+                $truncate_table = "truncate table easetagsentities";
+
+                $db->exec($truncate_table);
+
+                addModuleTagsInDB($contacts_tags, "1", $db);
+                addModuleTagsInDB($accounts_tags, "2", $db);
+                addModuleTagsInDB($leads_tags, "3", $db);
+
+                $dynamicGroups = array(
+                    array(
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "uuid" => new_uuid(),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "title" => "Important Contacts of Banking Industry",
+                        "moduleid" => "1",
+                        "criteria" => array(
+                            array(
+                                "created_on" => getFormattedDateFromString("-3 days"),
+                                "criteriakey" => "industry",
+                                "value" => $industries[2]['uuid'],
+                                "operator" => "is",
+                                "operationtype" => ""
+                            ),
+                            array(
+                                "created_on" => getFormattedDateFromString("-3 days"),
+                                "criteriakey" => "tags",
+                                "value" => $tags[0]['uuid'],
+                                "operator" => "",
+                                "operationtype" => "any"
+                            )
+                        )
+
+                    ),
+                    array(
+                        "created_on" => getFormattedDateFromString("-3 days"),
+                        "updated_on" => "",
+                        "uuid" => new_uuid(),
+                        "created_by" => $superAdminUUID,
+                        "updated_by" => $superAdminUUID,
+                        "title" => "Hot Leads",
+                        "moduleid" => "3",
+                        "criteria" => array(
+                            array(
+                                "created_on" => getFormattedDateFromString("-3 days"),
+                                "criteriakey" => "stage",
+                                "value" => $stages[4]['uuid'],
+                                "operator" => "is",
+                                "operationtype" => ""
+                            )
+                        )
+                    )
+                );
+
+                addDynamicGroupInDB($dynamicGroups, $db);
+
+                $setting_query = 'insert into easecrmsettings(settingkey, settingvalue) values("init", "1")';
+
+                $stmt = $db->prepare($setting_query);
+
+                $stmt->execute();
+
+                $endTime = microtime(true);
+
+                $result = array(
+                    "flag" => true,
+                    "data" => array(),
+                    "message" => "CRM Initialized successfully."
+                );
+            }
+            else
+            {
+                $result = array(
+                    "flag" => false,
+                    "error" => array(),
+                    "message" => "CRM is already initialized.<br>Please go to login page."
+                );
+            }
+        }
+    }
+}
+catch(PDOException $e)
+{
+    $msg = $e->getMessage();
+
+    $result = array(
+        "flag" => false,
+        "error" => array("code" => $e->getCode()),
+        "message" => $msg
+    );
+}
+
+echo json_encode($result);
+
+?>

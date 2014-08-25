@@ -1,0 +1,6 @@
+<# include "_authentication_user.espx" #>
+
+<#
+delete record for "easeCRMContacts.<#[url.id]#>";
+redirect to "/contacts/cleanContact?id=<# [url.id] #>";
+#>

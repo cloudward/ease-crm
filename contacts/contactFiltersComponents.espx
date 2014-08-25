@@ -1,0 +1,178 @@
+<div class="row ">
+
+            <div class="col-lg-6">
+
+                <label class="col-lg-12">Industry</label>
+
+                <div class="col-lg-4">
+                    <select class="selectpicker col-lg-12 customSelectList" id="industry_operator" >
+                        <option value="is">is</option>
+                        <option value="is not">is not</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-8">
+                    <select id="industry_val"  class="selectpicker col-lg-12 customSelectList"  multiple data-live-search="true" data-selected-text-format="count>2" >
+                        <# [industry.options] #>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+                <label class="col-lg-12">Source</label>
+
+                <div class="col-lg-4">
+                    <select class="selectpicker col-lg-12 customSelectList" id="source_operator">
+                        <option value="is">is</option>
+                        <option value="is not">is not</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-8" >
+                    <select id="source_val" class="selectpicker col-lg-12 customSelectList" multiple data-live-search="true" data-selected-text-format="count>2">
+                        <# [source.options] #>
+                    </select>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row marginTop">
+        <div class="col-lg-6">
+
+            <label class="col-lg-12">Territory</label>
+
+            <!-- <div class="col-lg-6">
+            <select name="herolist" class="select-block" id="territory_operationType" disabled="disabled">
+            <option value="or" selected="selected">Any</option>
+            <option value="and">All</option>
+            </select>
+            </div>-->
+
+            <div class="col-lg-4">
+                <select class="selectpicker col-lg-12 customSelectList" id="territory_operator">
+                    <option value="is">is</option>
+                    <option value="is not">is not</option>
+                </select>
+            </div>
+
+            <div class="col-lg-8" >
+                <select id="territory_val" class="selectpicker col-lg-12 customSelectList" multiple data-live-search="true" data-selected-text-format="count>2">
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                    <option value="Central">Central</option>
+                </select>
+            </div>
+
+        </div>
+            <# if("<# [session.role] #>" != "2"){
+                <div class="col-lg-6" >
+
+                    <label class="col-lg-12">Assigned To</label>
+
+                    <div class="col-lg-4">
+                        <select  class="selectpicker col-lg-12 customSelectList" id="assignedTo_operator">
+                        <option value="is">is</option>
+                        <option value="is not">is not</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-8" >
+                        <select  id="assignedTo_val"  class="selectpicker col-lg-12 customSelectList" multiple data-live-search="true" data-selected-text-format="count>2">
+                            <# [assignedTo.options] #>
+                        </select>
+                    </div>
+                </div>
+            }
+            #>
+
+
+        </div>
+
+        <div class="row marginTop">
+
+            <div class="col-lg-12">
+
+                <label class="col-lg-2">Tags</label>
+
+                <!--<div class="col-lg-2">
+                    <select class="selectpicker col-lg-12 customSelectList"  id="tags_operator">
+                        <option value="is">is</option>
+                        <option value="is not">is not</option>
+                    </select>
+                </div>-->
+
+                <div class="col-lg-2">
+                    <select class="selectpicker col-lg-12 customSelectList"  id="tags_operationType">
+                    <option value="any">Any</option>
+                    <option value="all">All</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-lg-8">
+                    <div style="height: 45px;width:100%" id="tagContainer">
+                         <input id="tagsinput" class="tagsinput"  style="display: none;"/>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row marginTop">
+            <div class="col-lg-12">
+
+                <label class="col-lg-2">Created On</label>
+
+                <div class="col-lg-2">
+                    <select class="selectpicker col-lg-12 customSelectList" id="created_on_operator"
+                    onchange="changeOperator('created_on')">
+                        <option value="is">is</option>
+                        <option value="<">before</option>
+                        <option value=">">after</option>
+                        <option value="between">between</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-8">
+
+                    <div id="created_on_type_1" class="col-lg-5">
+                        <span class='input-group date' id='created_on' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="created_on_input" required class="form-control" placeholder="Enter Created date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </span>
+                    </div>
+
+                    <div id="created_on_type_2" style="display: none">
+
+                        <div class="col-lg-5">
+                            <span class='input-group date' id='created_on_start' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="created_on_start_input" required class="form-control" placeholder="Enter start date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </span>
+                        </div>
+
+                        <div class="col-lg-1" style="text-align: center;">To</div>
+
+                        <div class="col-lg-5">
+                            <span class='input-group date' id='created_on_end' data-date-format="YYYY-MM-DD">
+                            <input type='text' id="created_on_end_input" required class="form-control" placeholder="Enter end date..."/>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+        </div>

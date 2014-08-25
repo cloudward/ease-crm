@@ -1,0 +1,361 @@
+<html>
+<head>
+    <title>Add Task & Activity</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/bootstrap-datetimepicker.css" rel="stylesheet" type="text/css">
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/bootstrap-datetimepicker.js"></script>
+
+    <script src="/js/easeCRMConstants.js"></script>
+    <script src="/js/easeModules/taskAndActivity/addTaskAndActivity.js"></script>
+
+    <style type="text/css">
+        .marginBottom10 {
+            margin-bottom: 10px;
+        }
+
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+
+        .elementActive {
+
+            background: #008AD5;
+            color: #fff;
+        }
+
+        .autoComplete {
+            z-index: 100;
+            position: absolute;
+            background: #fff;
+            width: 100%;
+            border: solid;
+            border-width: 1;
+            border-radius: 6px;
+            border-color: #BDC3C7;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+
+
+        $(document).ready(function() {
+
+            $(function () {
+
+               $('#dueDate').datetimepicker({
+                    useCurrent: true,
+                    pick12HourFormat: false,
+                    defaultDate:moment(),
+                    useStrict:true
+
+                })
+
+               .data("DateTimePicker")
+
+
+               $("#dueDate").on("dp.change",function (e) {
+                        var datePickerDate=$('#dueDate').data("DateTimePicker").getDate();
+                        var currentDate=moment();
+                        var addedAdVal=$('#taskOrActivity').val();
+                        var diff = datePickerDate.diff(currentDate, 'seconds');
+                        var attrdt;
+
+
+                        if((diff<3600 && addedAdVal==1) || (diff>3600 && addedAdVal==2)){
+
+                            $(".timepicker-hour").addClass('disabled');
+                            $(".timepicker-minute").addClass('disabled');
+                          //  $(".timepicker-hour").unbind("action");
+                           // attrdt=$(".timepicker-hour");
+                            //console.log(attrdt);
+                            //$(".timepicker-hour").removeAttr('data-action');
+
+                        }
+                        else{
+                            $(".timepicker-hour").removeClass('disabled');
+                            $(".timepicker-minute").removeClass('disabled');
+                           // $(".timepicker-hour").attr({'data-action':showHours});
+                        }
+
+
+
+               });
+
+
+            if("<# [url.id]#>" == ""){
+                 $('#dueDate').data("DateTimePicker").setMinDate(new Date().toDateString());
+
+                 $("#note").val("");
+            }else{
+                setDueDateInRenderFormat();
+                setMaxAndMinOfDTPicker();
+            }
+
+            });
+        });
+
+
+
+
+    </script>
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<#
+
+    if("<#[url.redirectUrl]#>"=="3"){
+    set redirectVal to "/taskAndActivities/details?id=<# [url.id] #>&redirectUrl=1";
+    }
+    elseif("<#[url.redirectUrl]#>"=="4"){
+        set redirectVal to "/taskAndActivities/details?id=<# [url.id] #>&redirectUrl=2";
+    }
+    elseif("<#[url.redirectUrl]#>"=="2" ){
+        set redirectVal to "/callList";
+    }
+    elseif("<#[url.redirectUrl]#>"=="" ){
+        set redirectVal to "/taskAndActivities";
+    }
+    else{
+        set redirectVal to "/taskAndActivities";
+    }
+
+#>
+
+
+
+<div style="width: 800px;margin: 0 auto">
+
+<h3>Add Task/Activity</h3>
+
+
+
+<# start list for easeusers;
+sort by fname;
+save to assignedTo.options;
+#>
+
+    <# start row #>
+        <option value="<# uuid #>"><# fname as html #> <# lname as html #></option>
+    <# end row #>
+
+<# end list #>
+
+
+
+<# start list for easeCRMTaskTypes;
+    sort by name;
+    save to tasktype.options;
+#>
+    <# start row #>
+        <option value="<# uuid #>"><# name as html #></option>
+    <# end row #>
+
+<# end list #>
+
+<#
+    if("<#[url.id]#>"==""){
+       set referenceId to 1;
+    }
+#>
+
+<# start form for easeCRMTaskAndActivity <#[url.id]#> ;
+
+when creating call setRemainingField() ;
+when creating set easeCRMTaskAndActivity.created_by to "<# [session.useruuid]#>";
+when creating set easeCRMTaskAndActivity.updated_by to "<# [session.useruuid]#>";
+
+when updating call setRemainingFieldAtUpdate() ;
+when updating set easeCRMTaskAndActivity.updated_by to "<# [session.useruuid]#>";
+
+when creating redirect to "<# [redirectVal]#>";
+
+when updating redirect to "<# [redirectVal]#>";
+
+when deleting redirect to "<# [redirectVal]#>";
+
+#>
+
+
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label class="control-label">Task Or Activity </label>
+                    <div>
+                        <select id="taskOrActivity" class="form-control marginBottom10" <# addedAs #> onchange="setDateRangeForDueDate(event,'<# addedAs #>');">
+                            <option value="1">Task</option>
+                            <option value="2">Activity</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                  <div class="form-group col-lg-6" >
+                                <label class="control-label">Title</label>
+                                <div>
+                                    <input type="text" class="form-control  " required placeholder="Title" <# title #>/>
+                                </div>
+                            </div>
+            </div>
+
+
+        <div class="row">
+
+            <div class="form-group col-lg-12" >
+
+                    <label class="radio col-lg-3 customRadio"  onclick="disableReference(false)">
+                        <input type="radio" name="moduleId" checked="checked"
+                         data-toggle="radio" value="1" id="moduleId-1">
+                        Contact
+                     </label>
+                     <label class="radio col-lg-3 customRadio" onclick="disableReference(false)" >
+                        <input type="radio" name="moduleId"
+                         data-toggle="radio" value="2" id="moduleId-2">
+                        Account
+                     </label>
+                     <label class="radio col-lg-3 customRadio" onclick="disableReference(false)">
+                        <input type="radio" name="moduleId"
+                        data-toggle="radio" value="3" id="moduleId-3">
+                        Sales Pipeline
+                     </label>
+                     <label class="radio col-lg-3  customRadio" onclick="disableReference(true)">
+                        <input type="radio" name="moduleId"
+                        data-toggle="radio" value="-1" id="moduleId--1">
+                        Other
+                     </label>
+
+            </div>
+            <input id="module-id-input" type="hidden" <# moduleid #> >
+
+
+
+
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-6" id="reference">
+
+                <label class="control-label">Select Reference</label>
+
+                <div class="">
+                    <input id="reference-id-auto-complete" onkeyup="onReferenceAutoComplete(event)" type="text" class="form-control" autocomplete="off"  />
+                    <input id="reference-id-auto-input"  type="hidden"   <# referenceId #> />
+                </div>
+                <div id="reference-id-auto-complete-div"
+                             class="autoComplete" style="width: 384px;border-top: 0;display:none;">
+                </div>
+            </div>
+
+
+            <div class="form-group col-lg-6">
+                <label class="control-label">Type</label>
+                <div class="">
+                    <select class="form-control marginBottom10" <# taskType #>>
+                        <#[taskType.options]#>
+                    </select>
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div class="row">
+
+
+            <div class="form-group col-lg-6">
+                <label class="control-label">Assigned To</label>
+
+                <div class="">
+                    <select class="form-control marginBottom10" <# assignedTo #>>
+                       <#[assignedTo.options]#>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="control-label">Select Due Date</label>
+                <span class='input-group date' id='dueDate' data-date-format="YYYY-MM-DD hh:mm A"  >
+                                   <input type='text' id="dueDateInput" required class="form-control" <# dueDate #> />
+                                   <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                                   </span>
+                </span>
+
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="form-group col-lg-12">
+                <label class="control-label">Note</label>
+
+                <div>
+                    <textarea type="text" rows="2" id="note" class="form-control  " placeholder="Add Note..."
+                    <# detail #> style="height:80px;resize: vertical;">
+                    </textarea>
+                </div>
+            </div>
+
+        </div>
+
+
+         <input id="completed_at"  type="hidden" <#completed_at#>>
+
+         <input id="status"  type="hidden" <#status#>>
+
+     <script type="text/javascript">
+
+            (function(){
+                if("<#[url.id]#>"!=""){
+                    prepareModuleField();
+                    prepareReferenceField();
+                      //setMaxAndMinOfDTPicker("<# addedAs #>");
+                      //prepareDueDateField();
+                }
+            })();
+
+
+    </script>
+
+
+        <div class="row demo-row ">
+            <div class="col-lg-4">
+                <input type="button" class="btn btn-block btn-lg btn-primary" <# Create button #> Create />
+            </div>
+
+            <div class="col-lg-4">
+                <input type="button" class="btn btn-block btn-lg btn-primary" <# Update button #> Update />
+            </div>
+
+            <div class="col-lg-4">
+                <input type="button" class="btn btn-block btn-lg btn-danger" <# Delete button #> Delete />
+            </div>
+        </div>
+    </div>
+
+
+    <# end form #>
+</div>
+
+
+</body>
+</html>

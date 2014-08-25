@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contacts</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="js/commonResource.js"></script>
+
+    <link href="css/bootstrap-datetimepicker.css" rel="stylesheet" type="text/css">
+    <link href="css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="js/moment.min.js"></script>
+    <script src="js/bootstrap-datetimepicker.js"></script>
+
+    <script src="js/easeCRMConstants.js"></script>
+    <script src="js/easeModules/contacts/contactsList.js"></script>
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<div style="margin: 20px;">
+
+    <div class="row" style="margin-left: 0px; margin-right: -15px;">
+        <div class="col-lg-12" style="display:block;padding-left:0px;">
+            <div class="col">
+                <div style=" float:left;padding-left:0;width:350px">
+
+                    <input class="form-control" id="search-input" type='text' name='search' value="<#[url.search as html]#>" class="marginBottom10" onkeyup="retrieveContactData();" placeholder="Search Contact"/>
+
+
+                </div>
+            </div>
+
+
+            <div class="col" id="clearFilterContainer" >
+                <button class="pull-right btn btn-default" onclick="clearFilter()" style="margin-left:10px" >
+                    Clear Filters
+                </button>
+            </div>
+            <div class="col">
+                <button class="col-lg-1 pull-right btn btn-primary" data-toggle="modal" data-target="#contactFilter"
+                style="margin-left:10px">
+                    Filters
+                </button>
+            </div>
+
+        </div>
+
+
+         <div id="contactsTableContainer" class="col-lg-12" style="padding-left:0px;margin-top:20px">
+         </div>
+
+</div>
+
+<# include "/contacts/contactFilter.espx" #>
+
+<input type="hidden" id="hiddenFilterParam" value='<# [session.contact_filter] #>' />
+
+</body>
+</html>

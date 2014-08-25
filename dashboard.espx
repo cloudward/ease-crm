@@ -1,0 +1,701 @@
+<html>
+<head>
+    <title>EaseCRM</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="js/commonResource.js"></script>
+
+    <link href="css/customCSS.css" rel="stylesheet" type="text/css">
+    <script src="js/util.js"></script>
+    <script src="js/moment.min.js"></script>
+    <script type="text/javascript" src="js/highcharts.js"></script>
+
+    <style>
+        .customH1Header {
+            text-align: center;
+        }
+        .customNavigation{
+            width: 84%;
+            margin: 40px auto;
+        }
+
+    </style>
+
+     <script>
+            var urlVal, parameterObj, keysOfParameter;
+
+            function changeDate(timeRange){
+                var startDate,endDate;
+
+                if(timeRange==1){
+                    startDate=moment().startOf('Day').format("YYYY-MM-DD HH:mm:ss");
+                    endDate=moment().endOf('Day').format("YYYY-MM-DD HH:mm:ss");
+                }
+                else if(timeRange==2){
+                    startDate=moment().subtract(1, 'd').startOf('Day').format("YYYY-MM-DD HH:mm:ss");
+                    endDate=moment().subtract(1, 'd').endOf('Day').format("YYYY-MM-DD HH:mm:ss");
+                }
+                else if(timeRange==3){
+                    startDate=moment().startOf('month').format("YYYY-MM-DD HH:mm:ss");
+                    endDate=moment().endOf('month').format("YYYY-MM-DD HH:mm:ss");
+                }
+
+                window.location.href="/dashboard?startDate="+startDate+"&endDate="+endDate+"&tr="+timeRange;
+            }
+
+            $(document).ready(function () {
+                urlVal = window.location.pathname;
+
+                function getParameterToJSON() {
+                    if (location.search == "") {
+                        return {};
+                    }
+                    var pairs = location.search.slice(1).split('&');
+
+                    console.log(pairs);
+
+                    var result = {};
+                    pairs.forEach(function (pair) {
+                        pair = pair.split('=');
+                        result[pair[0]] = decodeURIComponent(pair[1] || '');
+
+                    });
+
+                    return JSON.parse(JSON.stringify(result));
+                }
+
+                parameterObj = getParameterToJSON() || {};
+
+                keysOfParameter = Object.keys(parameterObj);
+                if(parameterObj['tr']){
+                    $("#timeRange-"+parameterObj['tr']).addClass("active");
+                }else{
+                    $("#timeRange-1").addClass("active");
+                }
+                var startDate= parameterObj['startDate'] || moment().startOf('Day').format("YYYY-MM-DD HH:mm:ss");;
+                var endDate= parameterObj['endDate'] || moment().endOf('Day').format("YYYY-MM-DD HH:mm:ss");
+
+                function getNewLeadCount(){
+
+                    var timeRange={startDate:startDate, endDate:endDate};
+                    var setMarker=false,isDataFound;
+                    $.post("retrieve_newLead_count_data",timeRange,function(data,status){
+
+                        if(status=="success"){
+                            data=JSON.parse(data);
+
+                            if(!data.categories.length){
+                                isDataFound=false;
+                            }
+                            else if(data.categories.length==1 && data.values.length==1){
+                                setMarker=true;
+                                isDataFound=true;
+                            }else{
+                                setMarker=false;
+                                isDataFound=true;
+                            }
+
+                            if(isDataFound){
+                                $("#newLeadCount").css("display","block");
+                                $('#newLeadCount').highcharts({
+                                    chart:{
+                                        type: 'spline'
+                                    },
+                                    title: {
+                                        text: '',
+                                        x: -20 //center
+                                    },
+                                    xAxis: {
+                                        categories:  data['categories'],
+                                        labels: {
+                                            enabled: false
+                                        }
+                                    },
+                                    yAxis: {
+                                        min: 0,
+                                        allowDecimals: false,
+                                        title: {
+                                            text: 'Leads'
+                                        },
+                                        plotLines: [{
+                                            value: 0,
+                                            width: 1,
+                                            color: '#808080'
+                                        }]
+                                    },
+                                    legend: {
+                                        enabled:false
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                            marker: {
+                                                enabled: setMarker ? true : false
+                                            }
+                                            }},
+                                    exporting: {
+                                        enabled: false
+                                    }, credits: {
+                                        enabled: false
+                                    },
+                                    series: [{
+                                        name: 'Leads',
+                                        data: data['values']
+                                    }]
+                                });
+
+                            }else{
+                                $("#noLeadCount").css("display","block");
+                            }
+                        }
+                    })
+                }
+                 function getNewLeadSum(){
+
+                    var timeRange={startDate:startDate, endDate:endDate};
+                    var setMarker=false,isDataFound;
+                     $.post("retrieve_newLead_sum_data",timeRange,function(data,status){
+
+                     if(status=="success"){
+
+                        data=JSON.parse(data);
+
+
+                        if(!data.categories.length){
+                        isDataFound=false;
+                        }
+                        else if(data.categories.length==1 && data.values.length==1){
+                        setMarker=true;
+                        isDataFound=true;
+                        }else{
+                        setMarker=false;
+                        isDataFound=true;
+                        }
+
+                        if(isDataFound){
+                            $("#newLeadSum").css("display","block");
+
+                            $('#newLeadSum').highcharts({
+                                chart:{
+                                    type: 'spline'
+                                },
+                                title: {
+                                    text: '',
+                                    x: -20 //center
+                                },
+                                xAxis: {
+                                    categories:  data['categories'],
+                                    labels: {
+                                                                enabled: false
+                                                            }
+                                },
+                                yAxis: {
+                                    min: 0,
+                                    allowDecimals: false,
+                                    title: {
+                                        text: 'Amount'
+                                    },
+                                    plotLines: [{
+                                        value: 0,
+                                        width: 1,
+                                        color: '#808080'
+                                    }]
+                                },
+                                tooltip: {
+
+                                    valuePrefix: '$ '
+                                },
+                                legend: {
+                                    enabled:false
+                                },
+                                plotOptions: {
+
+                                                        series: {
+                                                            marker: {
+                                                                enabled: setMarker ? true : false
+                                                            }
+                                                            }},
+                                exporting: {
+                                    enabled: false
+                                }, credits: {
+                                    enabled: false
+                                },
+                                series: [{
+                                    name: 'Amount',
+                                    data: data['values']
+                                }]
+                            });
+
+                        }else{
+                        $("#noLeadSum").css("display","block");
+                        }
+                        }
+
+                        })
+                }
+
+
+                getNewLeadCount();
+                getNewLeadSum();
+            })
+        </script>
+
+</head>
+
+<body>
+ <div>
+        <# include "easeCRMHeader.espx"; #>
+    </div>
+    <#
+        if("<# [url.startDate]#>" =="" and "<# [url.endDate]#>" ==""){
+            set timeRange.startDate to "<# [system.date]#> 00:00:00";
+            set timeRange.endDate to "<# [system.date]#> 23:59:59";
+
+        }else{
+            set timeRange.startDate to "<# [url.startDate]#>";
+            set timeRange.endDate to "<# [url.endDate]#>";
+
+        }
+    #>
+
+
+    <div>
+        <div class="col-lg-12">
+            <h6 style="display:inline-block">Dashboard</h6>
+            <div style="display:inline-block" class="pull-right">
+                <div class="btn-group">
+                  <button type="button" id="timeRange-1" class="btn btn-primary" onclick="changeDate(1)">Today</button>
+                  <button type="button" id="timeRange-2" class="btn btn-primary" onclick="changeDate(2)">Yesterday</button>
+                  <button type="button" id="timeRange-3" class="btn btn-primary" onclick="changeDate(3)">This Month</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin: 20px;">
+        <div class="row col-lg-12">
+            <div class="col-lg-5" style="padding-right:40px">
+
+                <div class="row">
+
+
+                    <div>
+                        <div style="text-align:center">New Lead</div>
+                        <div id="newLeadCount" style="width: 100%;height:40%;display:none"></div>
+                        <div id="noLeadCount" style="display:none;margin-top:20px;margin-bottom:20px;">
+                            No Leads Found!!
+                        </div>
+                    </div>
+                    <div>
+                        <div style="text-align:center">New Lead Amount</div>
+                        <div id="newLeadSum" style="width: 100%%;height:40%;margin-top:20px;display:none"></div>
+                        <div id="noLeadSum" style="display:none;margin-top:20px;margin-bottom:20px;">
+                            No Leads Found!!
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3">
+
+
+
+                <div class="row" style="margin-left: -30px;margin-right: 0px;">
+                    <div class="col-lg-12" style='border: 1px solid #dadada;margin-bottom:20px;'>
+                        <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>Completed Tasks</div>
+                    <# start list for easecrmtasktypes;
+                     relate easecrmtasktypes.uuid to easecrmtaskandactivity.tasktype;
+                    include when (easeCRMTaskAndActivity.created_by == "<# [session.useruuid]#>" or easeCRMTaskAndActivity.assignedTo == "<# [session.useruuid]#>") and easeCRMTaskAndActivity.status =="1" and (easeCRMTaskAndActivity.created_on >= "<# [timeRange.startDate] #>" and easeCRMTaskAndActivity.created_on <= "<# [timeRange.endDate] #>");
+                     #>
+                        <# start header#>
+
+                             <#
+                                set current.taskType to "";
+                                #>
+                        <# end header#>
+                        <# start row #>
+
+                            <# if("<# current.taskType#>" == "<# uuid#>" ){
+                                set <# previous.totalCount #> to <# previous.totalCount #> + 1;
+
+                            } #>
+
+                            <# if("<# current.taskType#>" != "" and "<# current.taskType#>" != "<# uuid#>" ){
+                                <div style="line-height:40px">
+                                <span> <# previous.totalCount #></span>
+                                <span  style='margin-left: 25px;color: #BBB;font-weight:bold'><# previous.taskTypeName #></span>
+                                </div>
+                            } #>
+
+
+                            <# if("<# current.taskType#>" == "" or "<# current.taskType #>"!="<# uuid #>"){
+                                set <# current.taskType#> to "<# uuid #>" ;
+                                set <# previous.taskTypeName #> to "<# name #>" ;
+                                set <# previous.totalCount #> to 1;
+                            }
+
+                            #>
+
+
+
+                        <# end row #>
+                        <# start footer#>
+                             <div style="line-height:40px">
+                            <span ><# previous.totalCount  #></span>
+                            <span  style='margin-left: 25px;color: #BBB;font-weight:bold'><# previous.taskTypeName  #></span>
+
+                            </div>
+
+                        <# end footer#>
+                        <# start no results#>
+                            <div style="line-height:40px">
+                            No Tasks Found!!
+                            </div>
+
+                        <# end no results#>
+
+
+                    <# end list #>
+
+                            </div>
+                </div>
+
+                <div class="row" style="margin-left: -30px;margin-right: 0px;">
+                     <div class="col-lg-12" style='border: 1px solid #dadada;margin-bottom:20px;'>
+                        <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>Pending Tasks</div>
+                    <# start list for easecrmtasktypes;
+                    relate easecrmtasktypes.uuid to easecrmtaskandactivity.tasktype;
+                    include when (easeCRMTaskAndActivity.created_by == "<# [session.useruuid]#>" or easeCRMTaskAndActivity.assignedTo == "<# [session.useruuid]#>") and easeCRMTaskAndActivity.status =="0" and (easeCRMTaskAndActivity.created_on >= "<# [timeRange.startDate] #>" and easeCRMTaskAndActivity.created_on <= "<# [timeRange.endDate] #>");
+                     #>
+                        <# start header#>
+
+                             <#
+                                set current.taskType to "";
+                                #>
+                        <# end header#>
+                        <# start row #>
+
+                            <# if("<# current.taskType#>" == "<# uuid#>" ){
+                                set <# previous.totalCount #> to <# previous.totalCount #> + 1;
+
+                            } #>
+
+                            <# if("<# current.taskType#>" != "" and "<# current.taskType#>" != "<# uuid#>" ){
+                                <div style="line-height:40px">
+                                <span> <# previous.totalCount #></span>
+                                <span  style='margin-left: 25px;color: #BBB;font-weight:bold'><# previous.taskTypeName #></span>
+                                </div>
+                            } #>
+
+
+                            <# if("<# current.taskType#>" == "" or "<# current.taskType #>"!="<# uuid #>"){
+                                set <# current.taskType#> to "<# uuid #>" ;
+                                set <# previous.taskTypeName #> to "<# name #>" ;
+                                set <# previous.totalCount #> to 1;
+                            }
+
+                            #>
+
+
+
+                        <# end row #>
+                        <# start footer#>
+                             <div style="line-height:40px">
+                            <span ><# previous.totalCount  #></span>
+                            <span  style='margin-left: 25px;color: #BBB;font-weight:bold'><# previous.taskTypeName  #></span>
+
+                            </div>
+
+                        <# end footer#>
+                        <# start no results#>
+                            <div style="line-height:40px">
+                            No Tasks Found!!
+                            </div>
+
+                        <# end no results#>
+                    <# end list #>
+
+                    </div>
+                </div>
+
+                <div  class="row" style="margin-left: -30px;margin-bottom:20px;margin-right: 0px;">
+
+                                    <# start list for easecrmleads;
+                                        include when (easecrmleads.created_on >= "<# [timeRange.startDate] #>" and easecrmleads.created_on <= "<# [timeRange.endDate] #>");
+                                        set overall_total to total of easecrmleads.amount;
+                                    #>
+
+                                    <# start row #>
+                                    <# end row #>
+
+                                    <# start footer #>
+                                        <div class="col-lg-12" style='border: 1px solid #dadada;'>
+                                          <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>New Leads</div>
+                                            <div  style="line-height:40px">
+
+                                                <span style="font-size:30px; color:#679FE5"><# easecrmleads.overall_total as dollars #></span>
+                                            </div>
+                                            <div style="line-height:40px">
+                                                <# numberofrows#> Leads
+
+                                            </div>
+                                        </div>
+                                    </table>
+                                    <# end footer #>
+
+                                    <# no results #>
+                                       <div class="col-lg-12" style='border: 1px solid #dadada;'>
+                                         <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>New Leads</div>
+                                           <div  style="line-height:40px">
+                                               <span style="font-size:30px; color:#679FE5">$ 0</span>
+                                           </div>
+                                           <div  style="line-height:40px">
+                                               0 Leads
+
+                                           </div>
+                                       </div>
+                                    <# end no results #>
+
+                                    <# end list #>
+
+                                </div>
+
+
+                               <div  class="row" style="margin-left: -30px;margin-bottom:20px;margin-right: 0px;">
+
+                                    <# start list for easecrmleads;
+                                        relate easecrmleads.stage to easecrmstages.uuid;
+                                        include when easecrmstages.name=="Won" and (easecrmleads.wondate >= "<# [timeRange.startDate] #>" and easecrmleads.wondate <= "<# [timeRange.endDate] #>");
+                                        set overall_total to total of easecrmleads.amount;
+                                    #>
+
+                                    <# start row #>
+                                    <# end row #>
+
+                                    <# start footer #>
+                                        <div class="col-lg-12" style='border: 1px solid #dadada;'>
+                                          <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>Won Leads</div>
+                                            <div  style="line-height:40px">
+
+                                                <span style="font-size:30px; color:#36A03A"><# easecrmleads.overall_total as dollars #></span>
+                                            </div>
+                                            <div  style="line-height:40px">
+                                                <# numberofrows#> Leads
+
+                                            </div>
+                                        </div>
+                                    </table>
+                                    <# end footer #>
+
+                                    <# no results #>
+                                       <div class="col-lg-12" style='border: 1px solid #dadada;'>
+                                         <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>Won Leads</div>
+                                           <div  style="line-height:40px">
+
+                                               <span style="font-size:30px; color:#36A03A">$ 0</span>
+                                           </div>
+                                           <div  style="line-height:40px">
+                                               0 Leads
+
+                                           </div>
+                                       </div>
+                                    <# end no results #>
+
+                                    <# end list #>
+
+                                </div>
+
+                                <div  class="row" style="margin-left: -30px;margin-bottom:20px;margin-right: 0px;">
+
+                                    <# start list for easecrmleads;
+                                        relate easecrmleads.stage to easecrmstages.uuid;
+                                        include when easecrmstages.name=="Lost" and (easecrmleads.lostdate >= "<# [timeRange.startDate] #>" and easecrmleads.lostdate <= "<# [timeRange.endDate] #>");
+                                        set overall_total to total of easecrmleads.amount;
+                                    #>
+
+                                    <# start row #>
+                                    <# end row #>
+
+                                    <# start footer #>
+                                        <div class="col-lg-12" style='border: 1px solid #dadada;'>
+                                          <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>Lost Leads</div>
+                                            <div  style="line-height:40px">
+
+                                                <span style="font-size:30px; color:#D83030"><# easecrmleads.overall_total as dollars #></span>
+                                            </div>
+                                            <div  style="line-height:40px">
+                                                <# numberofrows#> Leads
+
+                                            </div>
+                                        </div>
+                                    </table>
+                                    <# end footer #>
+
+                                    <# no results #>
+                                       <div class="col-lg-12" style='border: 1px solid #dadada;'>
+                                         <div style='border-bottom: 1px solid #dadada;line-height: 50px;color:#585655'>Lost Leads</div>
+                                           <div  style="line-height:40px">
+
+                                               <span style="font-size:30px; color:#D83030">$ 0</span>
+                                           </div>
+                                           <div  style="line-height:40px">
+                                               0 Leads
+
+                                           </div>
+                                       </div>
+                                    <# end no results #>
+
+                                    <# end list #>
+
+                                </div>
+
+
+
+            </div>
+            <div class="col-lg-4">
+
+                <div class="row">
+                    <div style="color: #585655;margin-bottom:10px"> Most Recent Leads </div>
+                    <# start list for easecrmleads;
+                    relate easeCRMLeads.contact to easeCRMContacts.uuid;
+                    relate easeCRMLeads.assignedto to easeusers.uuid;
+                    include when easecrmleads.created_by == "<# [session.useruuid]#>" or easecrmleads.assignedTo == "<# [session.useruuid]#>";
+                    sort by easecrmleads.created_on in "descending" order;
+                    #>
+                        <# start header#>
+                            <div class="col-lg-12" style="border:1px solid #dadada;padding:0px">
+                        <# end header#>
+                        <# start row #>
+                            <# set <# total #> to <# total #> +1;#>
+
+                            <# if("<#total as number #>" < "6"){
+                                <div class="col-lg-12" style="border-bottom:1px solid #dadada;padding-top:5px;padding-bottom:5px;">
+                                        <div style="margin-left:5px">
+                                        <a href="/leads/details?id=<# easecrmleads.uuid#>&redirectUrl=15"><# easecrmleads.title#></a>
+
+                                        </div>
+                                        <div style="margin:2px;"
+                                        >
+                                        <span id="amount-<# uuid#>"></span>
+                                        <span class="pull-right" style="font-size: 14px;color: #999;margin-top:5px"><# easeusers.fname#> <# easeusers.lname#> </span>
+
+                                            <script>(function(){
+                                                 var num=properNumberFormat("<# easecrmleads.amount#>");
+                                                 $('#amount-<# uuid#>   ').html("$ "+num);
+                                             })();</script>
+
+                                        </div>
+                                </div>
+
+
+                            } #>
+                        <# end row #>
+                        <# start footer#>
+                            </div>
+                        <# end footer#>
+                        <# no results #>
+                            No Leads found !
+                         <# end no results #>
+                    <# end list #>
+                </div>
+                <div class="row" style="margin-top:20px" >
+                    <div style="color: #585655;margin-bottom:10px">My Today's Tasks</div>
+
+                    <# start list for easecrmtaskandactivity;
+
+                    relate easecrmtaskandactivity.referenceId to easecrmaccounts.uuid;
+                    relate easecrmtaskandactivity.referenceId to easecrmcontacts.uuid;
+                    relate easecrmtaskandactivity.referenceId to easecrmleads.uuid;
+                    include when (easeCRMTaskAndActivity.created_by == "<# [session.useruuid]#>" or easeCRMTaskAndActivity.assignedTo == "<# [session.useruuid]#>") and easeCRMTaskAndActivity.status =="0" and easeCRMTaskAndActivity.dueDate >= "<# [system.date]#> 00:00:00 " and easeCRMTaskAndActivity.dueDate <= "<# [system.date]#> 23:59:59 " ;
+
+                    sort by easecrmtaskandactivity.duedate;
+                    #>
+                        <# start header#>
+                            <div class="col-lg-12" style="border:1px solid #dadada;padding:0px">
+
+                        <# end header#>
+                        <# start row #>
+                            <# set <# total #> to <# total #> +1;#>
+
+
+                               <div class="col-lg-12" style="border-bottom:1px solid #dadada;padding-top:5px;padding-bottom:5px;">
+                                    <div>
+                                       <# if("<#total as number #>" < "6"){
+                                            <a href="/taskAndActivities/details?id=<# easecrmtaskandactivity.uuid#>&redirectUrl=15"><# easecrmtaskandactivity.title#></a>
+
+                                        }
+                                        #>
+                                    </div>
+                                    <div style="font-size: 15px;">
+                                    <#
+                                        if(("<# easecrmtaskandactivity.moduleId #>" == "1") and ("<# [session.role]#>"=="2") and ("<# easecrmcontacts.created_by #>" != "<# [session.useruuid]#>") and ("<# easecrmcontacts.assignedTo#>" != "<# [session.useruuid]#>") and "<#total as number #>" < "6"){
+
+                                            <# easecrmcontacts.fname#>  <# easecrmcontacts.lname#>
+
+                                        }elseif("<# easecrmtaskandactivity.moduleId #>" == "1" and "<#total as number #>" < "6"){
+                                            <a href="/contacts/details?id=<# easecrmcontacts.uuid #>&redirectUrl=15" >
+                                                <# easecrmcontacts.fname#>  <# easecrmcontacts.lname#>
+                                            </a>
+                                        }
+                                     #>
+                                     <#   if(("<# easecrmtaskandactivity.moduleId #>"== "2") and ("<# [session.role]#>"=="2") and ("<# easecrmaccounts.created_by #>" != "<# [session.useruuid]#>") and ("<# easecrmaccounts.assignedTo#>" != "<# [session.useruuid]#>") and "<#total as number #>" < "6"){
+                                                     <# easecrmaccounts.name as html#>
+
+                                        }elseif("<# easecrmtaskandactivity.moduleId #>"== "2" and "<#total as number #>" < "6"){
+                                                  <a href="/accounts/details?id=<# easecrmaccounts.uuid #>&redirectUrl=15" >
+                                                    <# easecrmaccounts.name as html#>
+                                                  </a>
+                                        }
+                                     #>
+
+                                       <# if(("<# easecrmtaskandactivity.moduleId #>"== "3") and ("<# [session.role]#>"=="2") and ("<# easecrmleads.created_by #>" != "<# [session.useruuid]#>") and ("<# easecrmleads.assignedTo#>" != "<# [session.useruuid]#>") and "<#total as number #>" < "6"){
+                                                 <# easecrmleads.title as html#>
+
+                                        }
+                                        elseif("<# easecrmtaskandactivity.moduleId #>"== "3" and "<#total as number #>" < "6" ){
+                                               <a href="/leads/details?id=<# easecrmleads.uuid #>&redirectUrl=15" >
+                                                    <# easecrmleads.title as html#>
+                                               </a>
+                                        }
+                                     #>
+                                    <#
+                                        if("<# easecrmtaskandactivity.moduleId #>"== "-1" and "<#total as number #>" < "6"){
+                                            print "--";
+                                        }
+                                    #>
+                                    <# if("<#total as number #>" < "6"){
+                                        <span id="dueDate-<# uuid#>" class="pull-right" style="font-size: 14px;color: #999;"></span>
+                                                                                     <script  style="text/javascript">
+                                                                                       (function(){
+                                                                                          var date=moment("<# easecrmtaskandactivity.dueDate #>","YYYY-MM-DD HH:mm:ss");
+                                                                                          $('#dueDate-<# uuid#>').html(date.format("hh:mm A"));
+                                                                                       })();
+                                                                                        </script>
+                                    }#>
+
+                                    </div>
+                                </div>
+
+
+
+                        <# end row #>
+                        <# start footer#>
+                            </div>
+                        <# end footer#>
+                         <# no results #>
+                            No Tasks found !
+                         <# end no results #>
+                    <# end list #>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+
+</html>

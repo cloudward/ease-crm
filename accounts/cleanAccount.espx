@@ -1,0 +1,40 @@
+<# include "_authentication_user.espx" #>
+
+<?php
+
+$contactTable="easecrmcontacts";
+$leadTable="easecrmleads";
+$taskAndActivityTable="easecrmtaskandactivity";
+
+if(isSet($_GET['id'])){
+
+    $accountId=$_GET['id'];    // Get account id from url
+
+    // update contact
+    $updateContact= "UPDATE $contactTable SET account='' WHERE account='$accountId'";
+    $resultContact = ease_db_exec($updateContact);
+
+    // update lead
+    $updateLead = "UPDATE $leadTable SET account='' WHERE account='$accountId'";
+    $resultLead = ease_db_exec($updateLead);
+
+
+    // update taskAndActivity
+    $updateTaskAndActivity = "UPDATE $taskAndActivityTable SET referenceid='' WHERE referenceid='$accountId' and moduleid='2'";
+    $resultTaskAndActivity = ease_db_exec($updateTaskAndActivity);
+
+    // delete record of account from FixedGroup
+
+    $deleteFromFixedGroup="DELETE FROM $fixedGroupEntity where entityid='$accountId'";
+    $resultDeleteFromFixedGroup= ease_db_exec($deleteFromFixedGroup);
+
+    // delete record of contact from easeTagsEntities
+
+    $deleteFromTagEntity="DELETE FROM easetagsentities where entityid='$accountId' and moduleid='2'";
+    $resultDeleteFromTagEntity= ease_db_exec($deleteFromTagEntity);
+
+
+    header('Location: /accounts');      // redirect to listAccount page
+}
+
+?>

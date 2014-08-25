@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Fixed Group</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/easeCRMConstants.js"></script>
+    <script src="/js/easeModules/groups/editFixedGroup.js"></script>
+
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# if("<# [url.redirectUrl]#>"=="2"){
+        set redirectUrlVal to "/groups/fixedGroups/leads/details?id=<# [url.id]#>";
+    }
+    else{
+        set redirectUrlVal to "/groups/fixedGroups/leads";
+    }
+
+#>
+
+
+<# apply easecrmfixedGroups.<#[url.id]#> as "easecrmfixedgroupobj"; #>
+
+<div class="addContactFixedGroupBody">
+<div class="form-group">
+<label>Group Title</label>
+    <input class="form-control" value="<# [easecrmfixedgroupobj.title]#>" id="fixedGroupTitle"
+    required placeholder="Enter group title...">
+</div>
+
+<div class="row col-lg-12"  >
+
+<# start list for easecrmleads;
+    if("<# [session.role]#>"=="2"){
+        include when (easecrmleads.created_by == "<# [session.useruuid]#>" or easecrmleads.assignedTo == "<# [session.useruuid]#>");
+    }
+    sort by easecrmleads.title;
+#>
+<# start header #>
+    <label>
+        Accounts
+        <span class="badge" style="margin-left:5px"><# numberofrows#></span>
+    </label>
+<# end header #>
+<# start row #>
+    <div class="col-lg-12">
+        <label class="checkbox" for="checkbox2" id="checkboxLabel-<# easecrmleads.uuid #>">
+            <input type="checkbox" class="leads" data-toggle="checkbox"
+            name="<# easecrmleads.uuid #>" >
+            <# easecrmleads.title#>
+        </label>
+    </div>
+
+<# end row #>
+
+<# no results #>
+    No Leads Exits!!
+<# end no results #>
+
+<# end list #>
+
+    <div>
+        <a class="btn btn-default pull-right" href="<# [redirectUrlVal]#>">Cancel</a>
+        <button class="btn btn-primary pull-right edit" onclick="editLeadsIntoFixedGroup('<# [redirectUrlVal]#>');"
+         style="margin-right:10px">Save</button>
+
+    </div>
+
+</div>
+
+</div>
+
+</body>
+</html>

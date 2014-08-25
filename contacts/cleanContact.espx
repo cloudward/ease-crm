@@ -1,0 +1,38 @@
+<# include "_authentication_user.espx" #>
+
+<?php
+
+$accountTable="easecrmaccounts";
+$leadTable="easecrmleads";
+$taskAndActivityTable="easecrmtaskandactivity";
+$fixedGroupEntity="easecrmfixedgroupsentities";
+
+if(isSet($_GET['id'])){
+
+    $contactId=$_GET['id'];    // Get Contact id from url
+
+    // update lead
+    $updateLead = "UPDATE $leadTable SET contact='' WHERE contact='$contactId'";
+    $resultLead = ease_db_exec($updateLead);
+
+
+    // update taskAndActivity
+    $updateTaskAndActivity = "UPDATE $taskAndActivityTable SET referenceid='',moduleid='' WHERE referenceid='$contactId' and moduleid='1'";
+
+    $resultTaskAndActivity = ease_db_exec($updateTaskAndActivity);
+
+    // delete record of contact from FixedGroup
+
+    $deleteFromFixedGroup="DELETE FROM $fixedGroupEntity where entityid='$contactId'";
+    $resultDeleteFromFixedGroup= ease_db_exec($deleteFromFixedGroup);
+
+    // delete record of contact from easeTagsEntities
+
+    $deleteFromTagEntity="DELETE FROM easetagsentities where entityid='$contactId' and moduleid='1'";
+    $resultDeleteFromTagEntity= ease_db_exec($deleteFromTagEntity);
+
+
+    header('Location: /contacts');  // redirect to Listcontacts page
+}
+
+?>

@@ -1,0 +1,7 @@
+<# include "_authentication_user.espx" #>
+<#
+
+delete record for "easeCRMTaskAndActivityComments.<#[url.id]#>";
+redirect to "/taskAndActivities/details?id=<# [url.taskAndActivityId] #>&redirectUrl=<#[url.redirectUrl]#>";
+
+#>

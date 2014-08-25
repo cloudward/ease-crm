@@ -1,0 +1,7 @@
+<# include "_authentication_user.espx" #>
+<#
+
+delete record for "easeUsers.<#[url.id]#>";
+redirect to "/listUsers";
+
+#>

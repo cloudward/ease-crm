@@ -1,0 +1,124 @@
+<html>
+<head>
+    <title>Add New Product</title>
+    <# include "_authentication_user.espx" #>
+    <script src="/js/commonResource.js"></script>
+
+    <style type="text/css">
+        .marginBottom10 {
+            margin-bottom: 10px;
+        }
+
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+
+    </style>
+
+    <script type="text/javascript">
+        $(function(){
+
+        });
+    </script>
+
+
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<# if("<#[url.id]#>"=="") {
+    set formMethod to "Add";
+}
+else
+{
+    set formMethod to "Edit";
+}
+#>
+<div style="width: 600px;margin: 0 auto">
+<h3><#[formMethod]#> Product</h3>
+
+<# start form for easecrmproducts <#[url.id]#>;
+
+    when creating set easecrmproducts.created_by to "<# [session.useruuid]#>";
+    when creating set easecrmproducts.updated_by to "<# [session.useruuid]#>";
+
+
+    when updating set easecrmproducts.updated_by to "<# [session.useruuid]#>";
+
+    when creating redirect to "/settings/products";
+    when updating redirect to "/settings/products";
+    when deleting redirect to "/settings/products";
+#>
+
+    <form method="POST" action="" style="margin-bottom: 0px">
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">Name:</label>
+
+                <div>
+                    <input type="text" class="form-control" required placeholder="Name" <# name #>/>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">SKU:</label>
+
+                <div>
+                    <input type="text" class="form-control" required placeholder="SKU" <# sku #>/>
+                </div>
+            </div>
+        </div>
+
+       <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="control-label">Price:</label>
+
+                <div>
+                    <input type="text" class="form-control" required numeric placeholder="Price" <# price #>/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row demo-row ">
+                        <div class="" style="margin-top: 8px">
+                <p style="color:red"><#[url.msg]#></p>
+            </div>
+
+
+            <div class="col-lg-6">
+                <input type="button" class="btn btn-block btn-lg btn-primary" <# Update button #> Update />
+            </div>
+
+            <div class="col-lg-6">
+                <input type="button" class="btn btn-block btn-lg btn-danger" <# Delete button #> Delete />
+            </div>
+             <div class="col-lg-6">
+                <input type="submit" class="btn btn-block btn-lg btn-primary" <# Create button #> Create />
+            </div>
+
+
+        </div>
+
+    </form>
+
+    <# end form #>
+
+</div>
+
+</body>
+</html>

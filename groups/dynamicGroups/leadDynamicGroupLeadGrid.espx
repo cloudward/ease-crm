@@ -1,0 +1,182 @@
+<?php
+
+require_once "EaseQueryBuilder.php";
+
+$easeText = "";
+
+//use role will be retrieved from session
+$userRole = ease_get_value('session.role');
+
+function defaultIncludeCondition($userRole)
+{
+
+    if($userRole == "2")
+        $easeText = '(easeCRMLeads.created_by == "<# [session.useruuid]#>" or easeCRMLeads.assignedTo == "<# [session.useruuid]#>")';
+    else
+        $easeText ="";
+
+    return $easeText;
+}
+
+// criteria from post params
+
+$criteriaStr = $_POST['criteria'];
+
+$criteria = json_decode($criteriaStr, true);
+
+if($criteria && sizeof($criteria)>0){
+
+    if($userRole == "2")
+        $easeText .= '(easeCRMLeads.created_by == "<# [session.useruuid]#>" or easeCRMLeads.assignedTo == "<# [session.useruuid]#>") and ';
+    else
+        $easeText .= "";
+
+    foreach($criteria as &$criteriaObj)
+            {
+                if($criteriaObj['key'] == "tags")
+                {
+                    $tagsArr = $criteriaObj['value'];
+
+                    $criteriaObj['value'] = EaseQueryBuilder::retrieveTagEntitiesId($tagsArr, $this, "3");
+
+                    break;
+                }
+            }
+
+
+    $easeText .= EaseQueryBuilder::prepareQuery($criteria,3);
+
+}else{
+
+    $easeText = defaultIncludeCondition($userRole);
+
+}
+
+// set it in variable, and then print that variable in ease
+
+ease_set_value('filterConditions', $easeText);
+
+?>
+
+
+<# start list for easeCRMLeads;
+    relate easeCRMLeads.product to easeCRMProducts.uuid;
+    relate easeCRMLeads.industry to easeCRMIndustries.uuid;
+    relate easeCRMLeads.source to easeCRMSources.uuid;
+    relate easeCRMLeads.stage to easeCRMStages.uuid;
+    relate easeCRMLeads.assignedTo to easeUsers.uuid;
+    relate easeCRMLeads.contact to easeCRMContacts.uuid;
+    relate easeCRMLeads.account to easeCRMAccounts.uuid;
+
+    if("<# [filterConditions]#>"!=""){
+        include when <# [filterConditions] #>;
+    }
+
+    show 10 rows per page;
+    sort by easecrmleads.title;
+#>
+
+<table class="table table-bordered" style="margin-top: 20px;">
+
+<# start header #>
+
+    <thead>
+    <tr>
+        <th >Title</th>
+        <th >Contact</th>
+        <th >Role</th>
+        <th>Account</th>
+        <th >Expected Date</th>
+        <th >Amount</th>
+        <th >Confidence Level</th>
+        <th >Industry</th>
+        <th >Source</th>
+        <th >Stage</th>
+        <th >Product</th>
+        <th >Assigned To</th>
+    </tr>
+    </thead>
+<# end header #>
+
+<tbody>
+<# start row #>
+    <tr>
+        <td>
+        <a href="/leads/details?id=<# uuid#>&redirectUrl=10&dynamicGroupId=<# [url.id] #>">
+            <# easeCRMLeads.title #>
+        </a>
+        <td>
+        <#
+            if(("<# [session.role]#>"=="2") and ("<# easeCRMContacts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMContacts.assignedTo#>" != "<# [session.useruuid]#>")){
+                 <# easeCRMContacts.fname as html#>  <# easeCRMContacts.lname as html#>
+
+            }else{
+                <a href="/contacts/details?id=<#easeCRMContacts.uuid#>&redirectUrl=10&dynamicGroupId=<# [url.id] #>">
+                    <# easeCRMContacts.fname as html#>  <# easeCRMContacts.lname as html#>
+                </a>
+            }
+        #>
+        </td>
+        <td><# easeCRMContacts.designation#> </td>
+        <td><#
+            if(("<# [session.role]#>"=="2") and ("<# easeCRMAccounts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMAccounts.assignedTo#>" != "<# [session.useruuid]#>")){
+                 <# easeCRMAccounts.name #>
+
+            }else{
+                <a href="/accounts/details?id=<#easeCRMAccounts.uuid#>&redirectUrl=10&dynamicGroupId=<# [url.id]#>">
+                    <# easeCRMAccounts.name #>
+                </a>
+            }
+            #>
+        </td>
+        <td id="expectedDate-<# uuid#>">
+            <script>
+                (function(){
+                    var date=moment("<# easeCRMLeads.expectedDate#>","YYYY-MM-DD");
+                    $("#expectedDate-<# uuid#>").html(date.format("DD MMM, YYYY"));
+                })();
+            </script>
+
+        </td>
+        <td id="amount-<# uuid#>">
+            <script>
+            (function(){
+                var num=properNumberFormat("<# easeCRMLeads.amount #>");
+                $('#amount-<# uuid#>').html(num);
+            })();
+            </script>
+        </td>
+        <td><# easeCRMLeads.confidenceLevel #></td>
+        <td><# easeCRMIndustries.name #></td>
+        <td><# easeCRMSources.name #></td>
+        <td><# easeCRMStages.name #></td>
+        <td><# easeCRMProducts.name #></td>
+        <td><# easeUsers.fname #> <# easeUsers.lname #></td>
+        </tr>
+
+
+
+<# end row #>
+
+
+<# start footer #>
+    </table>
+
+    <script>
+        (function(){
+            $("#dynamicGroupEntities").html("<# numberofrows#>");
+        })();
+    </script>
+
+<# end footer #>
+
+<# no results #>
+    <div>
+        <span>No Leads Found!!</span>
+    </div>
+<# end no results #>
+
+<# end list #>
+
+
+

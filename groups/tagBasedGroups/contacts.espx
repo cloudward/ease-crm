@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tag Based Contact Groups</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+<# apply easetags.<#[url.id]#> as "easecrmtagobj"; #>
+
+<div class="col-lg-12">
+    <div class="">
+    <h6 style="color:#16a085;display:inline-block">
+        <# [easecrmtagobj.name]#>
+        <span class="badge " style="vertical-align:middle" id="tagGroupEntities">0</span>
+    </h6>
+
+    <div class="pull-right " style="display:inline-block">
+
+        <a class="col btn btn-default" href="/groups/tagBasedGroups">Back</a>
+    </div>
+    </div>
+    <div style="margin-top:10px" >
+
+        <# start list for easecrmcontacts;
+        relate easecrmcontacts.uuid to easetagsentities.entityId;
+        relate easeCRMContacts.industry to easeCRMIndustries.uuid;
+        relate easeCRMContacts.source to easeCRMSources.uuid;
+        relate easeCRMContacts.account to easeCRMAccounts.uuid;
+        relate easeCRMContacts.assignedTo to easeusers.uuid;
+
+        include when easetagsentities.tagid	 == "<# [url.id]#>";
+        sort by easecrmcontacts.fname;
+
+        show 10 rows per page;
+
+        #>
+
+        <# start header #>
+        <table class="table table-bordered" style="margin-top: 20px;">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Account</th>
+                    <th>Work Email</th>
+                    <th>Work Phone</th>
+                    <th >Territory</th>
+                    <th >Industry</th>
+                    <th >Source</th>
+                    <th >Assigned To </th>
+                </tr>
+            </tbody>
+        <# end header #>
+
+        <# start row #>
+            <tr>
+                <td>
+                    <a href="/contacts/details?id=<#easeCRMContacts.uuid#>&redirectUrl=11&tagId=<# [url.id]#>">
+                        <# easeCRMContacts.fname #> <# easeCRMContacts.lname #>
+                    </a>
+                </td>
+                <td><# easeCRMContacts.designation #></td>
+                <td>
+                    <#
+                        if(("<# [session.role]#>"=="2") and ("<# easeCRMAccounts.created_by #>" != "<# [session.useruuid]#>") and ("<# easeCRMAccounts.assignedTo#>" != "<# [session.useruuid]#>")){
+                             <# easeCRMAccounts.name #>
+
+                        }else{
+                            <a href="/accounts/details?id=<#easeCRMAccounts.uuid#>&redirectUrl=12&tagId=<# [url.id] #>">
+                                <# easeCRMAccounts.name #>
+                            </a>
+                        }
+                    #>
+
+                </td>
+                <td>
+                    <a href="mailto:<# easeCRMContacts.workEmail #>" target="_top">
+                        <# easeCRMContacts.workEmail #>
+                    </a>
+                </td>
+                <td><# easeCRMContacts.workPhone #></td>
+                <td><# easeCRMContacts.territory #></td>
+                <td><# easeCRMIndustries.name #></td>
+                <td><# easeCRMSources.name #></td>
+                <td><# easeusers.fname #> <# easeusers.lname #></td>
+            </tr>
+        <# end row #>
+
+        <# start footer #>
+            </table>
+            <script>
+
+                (function(){
+                    $("#tagGroupEntities").html('<# numberofrows#>');
+                })()
+            </script>
+
+        <# end footer #>
+
+        <# start no results #>
+            No Contact Found!!
+        <# end no results #>
+
+        <# end list #>
+    </div>
+ </div>
+
+</body>
+</html>

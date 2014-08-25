@@ -1,0 +1,492 @@
+<html>
+<head>
+    <title>Account Profile</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="/js/commonResource.js"></script>
+
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/util.js"></script>
+
+    <script src="/js/easeCRMConstants.js"></script>
+
+
+    <style type="text/css">
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+        .tags{
+        border-radius: 4px;
+          background-color: #1abc9c;
+          color: #ffffff;
+          font-size: 14px;
+          cursor: pointer;
+          display: inline-block;
+          margin-right: 5px;
+          margin-bottom: 5px;
+          overflow: hidden;
+          line-height: 15px;
+          padding: 8px 13px 8px 13px;;
+          position: relative;
+          vertical-align: middle;
+          -webkit-transition: 0.25s linear;
+          transition: 0.25s linear;
+          }
+    </style>
+
+    <script type="text/javascript">
+        var urlVal, parameterObj, keysOfParameter;
+        $(document).ready(function () {
+            urlVal = window.location.pathname;
+
+            function getParameterToJSON() {
+                if (location.search == "") {
+                    return {};
+                }
+                var pairs = location.search.slice(1).split('&');
+
+                console.log(pairs);
+                console.log(location.search);
+                var result = {};
+                pairs.forEach(function (pair) {
+                    pair = pair.split('=');
+                    result[pair[0]] = decodeURIComponent(pair[1] || '');
+                });
+
+                return JSON.parse(JSON.stringify(result));
+            }
+
+            parameterObj = getParameterToJSON() || {};
+            keysOfParameter = Object.keys(parameterObj);
+
+            if (keysOfParameter.length) {
+                for (var i = 0, len = keysOfParameter.length; i < len; i++) {
+                    $('#combo-' + keysOfParameter[i]).val(parameterObj[keysOfParameter[i]]);
+                }
+            }
+
+        })
+
+        function onDeleteAccount(accountId)
+        {
+            if (confirm("Are you sure, you want to delete this account ?") == true) {
+                window.location.href = "/accounts/deleteAccount?id=" + accountId;
+            }
+        }
+
+        function changeStatus(id,status){
+
+            status=(status==1)?0:1;
+            var currentTime="";
+            if(status==1){
+            currentTime=moment().format('YYYY-MM-DD HH:mm:ss');
+            }
+
+            var url="/taskAndActivities/updateStatusOfTaskAndActivity.espx?id="+id+"&status="+status;
+            url+="&valueForRedirect=/accounts/details?id=<# [url.id]#>&currentTime="+currentTime;
+            window.location.href=url;
+        }
+
+
+        function activateTab(event,tabId){
+            $('.customContactProfileTab').removeClass('customActive');
+            $('#'+tabId).addClass('customActive');
+
+            if(tabId=="tab-task"){
+                $("#timelineList").css({"display":"none"});
+                $("#taskList").css({"display":"block"});
+            }
+            else{
+                $("#taskList").css({"display":"none"});
+                $("#timelineList").css({"display":"block"});
+            }
+        }
+
+    </script>
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<#
+if("<# [url.redirectUrl]#>"=="15" ){
+    set redirectUrlVal to "/dashboard";   // redirect to Dashboard
+}
+elseif("<# [url.redirectUrl]#>"=="14" && "<# [url.contactId]#>" !="" ){
+    set redirectUrlVal to "/contacts/details?id=<# [url.contactId]#>";   // redirect to tag Lead group page
+}
+elseif("<# [url.redirectUrl]#>"=="13" && "<# [url.tagId]#>" !="" ){
+    set redirectUrlVal to "/groups/tagBasedGroups/leads?id=<# [url.tagId]#>";   // redirect to tag Lead group page
+}elseif("<# [url.redirectUrl]#>"=="12" && "<# [url.tagId]#>" !="" ){
+    set redirectUrlVal to "/groups/tagBasedGroups/contacts?id=<# [url.tagId]#>";   // redirect to tag contact group page
+}elseif("<# [url.redirectUrl]#>"=="11" && "<# [url.tagId]#>" !="" ){
+    set redirectUrlVal to "/groups/tagBasedGroups/accounts?id=<# [url.tagId]#>";   // redirect to tag account group page
+}
+elseif("<# [url.redirectUrl]#>"=="10" && "<# [url.dynamicGroupId]#>" !="" ){
+    set redirectUrlVal to "/groups/dynamicGroups/leads/details?id=<# [url.dynamicGroupId]#>";   // redirect to dynamic Lead group page
+}
+elseif("<# [url.redirectUrl]#>"=="9" && "<# [url.dynamicGroupId]#>" !="" ){
+    set redirectUrlVal to "/groups/dynamicGroups/contacts/details?id=<# [url.dynamicGroupId]#>";   // redirect to dynamic contact group page
+}
+elseif("<# [url.redirectUrl]#>"=="8" && "<# [url.dynamicGroupId]#>" !="" ){
+    set redirectUrlVal to "/groups/dynamicGroups/accounts/details?id=<# [url.dynamicGroupId]#>";   // redirect to dynamic account group page
+}
+elseif("<# [url.redirectUrl]#>"=="7" && "<# [url.fixedGroupId]#>" !="" ){
+    set redirectUrlVal to "/groups/fixedGroups/leads/details?id=<# [url.fixedGroupId]#>";   // redirect to fixed Lead group page
+}
+elseif("<# [url.redirectUrl]#>"=="6" && "<# [url.fixedGroupId]#>"!=""){
+    set redirectUrlVal to "/groups/fixedGroups/contacts/details?id=<# [url.fixedGroupId]#>";   // redirect to Fixed contact Group page
+}
+elseif("<# [url.redirectUrl]#>"=="5" && "<# [url.fixedGroupId]#>"!=""){
+    set redirectUrlVal to "/groups/fixedGroups/accounts/details?id=<# [url.fixedGroupId]#>";   // redirect to Fixed Account Group page
+}
+elseif("<# [url.redirectUrl]#>"=="4"){
+    set redirectUrlVal to "/taskAndActivities";     // redirect to taskAndActivity page
+}
+elseif("<# [url.redirectUrl]#>"=="3"){
+    set redirectUrlVal to "/leads";     // redirect to Lead page
+}
+elseif("<# [url.redirectUrl]#>"=="2"){
+    set redirectUrlVal to "/contacts";  // redirect to list of Contacts page
+}
+else{
+    set redirectUrlVal to "/accounts";  // redirect to list of Account page
+}
+#>
+
+<# start list for easetagsentities;
+    relate easetagsentities.tagid to easetags.uuid;
+    include when entityid=="<# [url.id] #>" and moduleid=="2";
+    save to tags.value;
+#>
+
+<# start row #>
+    <#easetags.name#>
+    <# if("<# lastrow#>"=="yes"){
+    }else{,}#>
+<# end row #>
+<# end list #>
+
+<div style="margin: 20px;">
+    <div style="display:block;height:50px">
+        <span class="pull-right btn btn-default" onclick="onDeleteAccount('<# [url.id]#>')" style="margin-right:10px;">
+             <span class="">Delete</span>
+        </span>
+        <a class="pull-right btn btn-default" href="/accounts/edit?id=<#[url.id]#>&redirectUrl=2" style="margin-right:10px">
+            <span class="">Update</span>
+        </a>
+        <a class="pull-right btn btn-default" href="<# [redirectUrlVal] #>" style="margin-right:10px">
+            Back
+        </a>
+    </div>
+  <div style="width:100%;height:90%;border:1px solid #dadada">
+    <div class="row fullHeight">
+        <div class="col-lg-5 fullHeight rightBorder paddingForContactProfile" style="width:45%">
+
+            <# start list for easecrmaccounts;
+
+            relate easecrmaccounts.industry to easecrmindustries.uuid;
+            relate easecrmaccounts.source to easecrmsources.uuid;
+            relate easecrmaccounts.assignedTo to easeusers.uuid;
+
+            include when  (easecrmaccounts.uuid == "<#[url.id]#>" );
+            #>
+
+
+                <#  start row #>
+                    <div class="contactProfileGroupMargin form-group col-lg-12 col-sm-12 ">
+                        <span class="col-sm-3 col-lg-3 contactProfileLabel">Name: </span>
+                        <div class="col-sm-9 col-lg-9 paddingLeftForProfile">
+                            <div> <# easecrmaccounts.name#> </div>
+                        </div>
+                    </div>
+
+                    <div class="contactProfileGroupMargin form-group col-lg-12 ">
+                      <span for="inputEmail3" class="col-sm-3 col-lg-3 contactProfileLabel">Email: </span>
+                        <div class="col-sm-9 col-lg-9 paddingLeftForProfile">
+
+                        <#
+                        if("<# easecrmaccounts.workemail #>" != ""){
+                        print "<div class='contactProfileEmail'><# easecrmaccounts.workemail#>
+                        <span style='font-size:15px'>(Work)<span> </div>";
+                        } #>
+                        <#
+                        if("<# easecrmaccounts.homeemail #>" != ""){
+                        print "<div class='contactProfileEmail'><# easecrmaccounts.homeemail#>
+                        <span style='font-size:15px'>(Home) </div>";
+                        } #>
+                        <#
+                        if("<# easecrmaccounts.personalemail #>" != ""){
+                        print "<div class='contactProfileEmail'><# easecrmaccounts.personalemail #>
+                        <span style='font-size:15px'>(Personal) </span></div>";
+                        } #>
+
+                        </div>
+                    </div>
+                    <div class="contactProfileGroupMargin form-group col-lg-12 ">
+                        <span for="inputEmail3" class="col-sm-3 col-lg-3 contactProfileLabel">Phone: </span>
+                        <div class="col-sm-9 col-lg-9 paddingLeftForProfile">
+
+                            <#
+                            if("<# easecrmaccounts.workphone #>" != ""){
+                            print "<div class='contactProfileEmail'><# easecrmaccounts.workphone#>
+                            <span style='font-size:15px'>(Work)<span> </div>";
+
+                            } #>
+
+                            <#
+                            if("<# easecrmaccounts.homephone #>" != ""){
+                            print "<div class='contactProfileEmail'><# easecrmaccounts.homephone #>
+                            <span style='font-size:15px'>(Home) </span> </div>";
+                            } #>
+
+                            <#
+                            if("<# easecrmaccounts.personalphone #>" != ""){
+                            print "<div class='contactProfileEmail'><# easecrmaccounts.personalphone #>
+                            <span style='font-size:15px'>(Personal) </span> </div>";
+                            } #>
+
+                        </div>
+                    </div>
+
+                    <#
+
+                        if( "<# easecrmaccounts.street1 #>" != "" or "<# easecrmaccounts.street2 #>" != "" or
+                        "<# easecrmaccounts.area #>" != "" or "<# easecrmaccounts.city #>" != "" or
+                        "<# easecrmaccounts.zip #>" != "" or "<# easecrmaccounts.state #>" != "" ){
+
+                            <div class="contactProfileGroupMargin form-group col-lg-3  contactProfileLabel">
+                                <span for="inputEmail3" class="col-lg-12 col-sm-12">Address: </span>
+                            </div>
+                        }
+                    #>
+
+                     <div class="col-lg-9 paddingLeftForProfile" style="padding:0px">
+                    <#
+                      if("<# easecrmaccounts.street1 #>" != "" or "<# easecrmaccounts.street2#>" != ""){
+                          <div class='contactProfileGroupMargin form-group col-lg-12' style='padding-left: 10px;'>
+
+                      }
+
+                      #>
+                      <# if("<# easecrmaccounts.street1 #>" != "" ){
+                              <div class='contactProfilePadding' style="margin-bottom:0px;display:inline-block;margin-right:3px"><span><# easecrmaccounts.street1#><span></div>
+                          }
+
+                      #>
+
+                       <# if("<# easecrmaccounts.street1 #>" != "" and "<# easecrmaccounts.street2 #>" != ""){
+                                              <span style="margin-right:3px">,</span>
+                                          }
+                                         #>
+                      <#     if("<# easecrmaccounts.street2 #>" != "" ){
+                            <div style="margin-bottom:0px;display:inline-block;margin-right:3px"><span><# easecrmaccounts.street2#><span></div>
+                          }
+
+                      #>
+                      <#
+                          if("<# easecrmaccounts.street1 #>" != "" or "<# easecrmaccounts.street2#>" != ""){
+                              </div>
+                          }
+                      #>
+
+
+                      <#
+                      if("<# easecrmaccounts.area #>" != "" or "<# easecrmaccounts.city#>" != ""){
+                          <div class='contactProfileGroupMargin form-group col-lg-12' style='padding-left: 10px;'>
+
+                      }
+
+                      #>
+                      <# if("<# easecrmaccounts.area #>" != "" ){
+                              <div class=' contactProfilePadding' style="margin-bottom:0px;display:inline-block;margin-right:3px"><span><# easecrmaccounts.area#><span></div>
+                          }
+
+                      #>
+
+                      <# if("<# easecrmaccounts.area #>" != "" and "<# easecrmaccounts.city #>" != ""){
+                            <span style="margin-right:3px">,</span>
+                        }
+                       #>
+                      <#     if("<# easecrmaccounts.city #>" != "" ){
+                            <div  style="margin-bottom:0px;display:inline-block;margin-right:3px"><span><# easecrmaccounts.city#><span></div>
+                          }
+
+                      #>
+                      <#
+                          if("<# easecrmaccounts.area #>" != "" or "<# easecrmaccounts.city#>" != ""){
+                              </div>
+                          }
+                      #>
+
+                      <#
+                      if("<# easecrmaccounts.state #>" != "" or "<# easecrmaccounts.zip#>" != ""){
+                          <div class='contactProfileGroupMargin form-group col-lg-12' style='padding-left: 10px;'>
+
+                      }
+
+                      #>
+                      <# if("<# easecrmaccounts.state #>" != "" ){
+                              <div class='contactProfilePadding' style="margin-bottom:0px;display:inline-block;margin-right:3px"><span><# easecrmaccounts.state#><span></div>
+                          }
+                      #>
+
+                      <# if("<# easecrmaccounts.state #>" != "" and "<# easecrmaccounts.zip #>" != ""){
+                            <span style="margin-right:3px">,</span>
+                        }
+                       #>
+
+                      <#     if("<# easecrmaccounts.zip #>" != "" ){
+                            <div  style="margin-bottom:0px;display:inline-block;margin-right:3px"><span><# easecrmaccounts.zip#><span></div>
+                          }
+
+                      #>
+                      <#
+                          if("<# easecrmaccounts.state #>" != "" or "<# easecrmaccounts.zip#>" != ""){
+                              </div>
+                          }
+                      #>
+                    </div>
+                    <div class="contactProfileGroupMargin form-group col-lg-12 " >
+
+                        <span for="inputEmail3" class="col-lg-3 col-sm-3  contactProfileLabel">Territory:</span>
+                        <div class="col-lg-9 col-sm-9 paddingLeftForProfile">
+                        <span><# easecrmaccounts.territory#></span>
+                        </div>
+
+
+                    </div>
+                    <div class="contactProfileGroupMargin form-group col-lg-12 " >
+
+                        <span for="inputEmail3" class="col-lg-3 col-sm-3  contactProfileLabel">Industry: </span>
+                        <div class="col-lg-9 col-sm-9 paddingLeftForProfile">
+                        <span><# easecrmindustries.name#></span>
+                        </div>
+
+
+                    </div>
+                    <div class="contactProfileGroupMargin form-group col-lg-12 " >
+
+                        <span for="inputEmail3" class="col-lg-3 col-sm-3  contactProfileLabel">Source:</span>
+                        <div class="col-lg-9 col-sm-9 paddingLeftForProfile">
+                        <span><# easecrmsources.name#></span>
+                        </div>
+
+
+                    </div>
+
+                     <div class="contactProfileGroupMargin form-group col-lg-12 " >
+
+                        <span for="inputEmail3" class="col-lg-3 col-sm-3  contactProfileLabel">Assigned To:</span>
+                        <div class="col-lg-9 col-sm-9 paddingLeftForProfile">
+                        <span><# easeusers.fname#> <# easeusers.lname#></span>
+                        </div>
+
+
+                    </div>
+                    <div class="contactProfileGroupMargin form-group col-lg-12 ">
+
+                        <span for="inputEmail3" class="col-lg-3 col-sm-3 contactProfileLabel">Created On:</span>
+                        <div class="col-lg-9 col-sm-9 paddingLeftForProfile">
+                            <span id="createdOn-<#easecrmaccounts.uuid #>" >
+
+                                <script type="text/javascript">
+
+                                   (function(){
+                                   var date=moment("<#easecrmaccounts.created_on#>","YYYY-MM-DD hh:mm:ss");
+                                   $("#createdOn-<# uuid#>").html(moment(date).fromNow());
+                                   })();
+                                </script>
+                            </span>
+                        </div>
+
+                    </div>
+                <#
+
+                if("<# [tags.value] #>" != ""){
+                <div class="contactProfileGroupMargin form-group col-lg-12 ">
+
+                    <span for="inputEmail3" class="col-lg-3 col-sm-3  contactProfileLabel">Tags:</span>
+                    <div class="col-lg-9 col-sm-9 paddingLeftForProfile " style="height:75px;overflow:auto">
+
+                        <input id="tagsOnlyHidden" class="tagsOnly" type="hidden"  style="width:100%" value="<# [tags.value]#>"/>
+                        <div id="tagsOnly"></div>
+                        <script type="text/javascript">
+                                var tags=$("#tagsOnlyHidden").val().split(',');
+                                    var tagHtml="";
+                                    for(var i=0;i<tags.length;i++){
+                                        $('<span>').addClass('tags').text(tags[i]).appendTo('#tagsOnly');
+                                    }
+                        </script>
+
+
+                    </div>
+
+
+                </div>
+                }
+                #>
+
+
+                <#  end row #>
+            <# end list #>
+        </div>
+        <div class="col-lg-7 fullHeight " style="padding:0px;padding-right:15px;width:55%">
+            <div>
+                <div style="height:45px;border-bottom:1px solid #dadada">
+                    <div class="pull-left">
+                        <div id="tab-task" class="customContactProfileTab customActive" onclick="activateTab(event,'tab-task')" >
+                        TASK
+                            <div id="countOfTask" style="vertical-align: middle;font-size:15px;margin-left:5px;" class="badge">0</div>
+                            </div>
+                        <div id="tab-timeline"  class="customContactProfileTab" onclick="activateTab(event,'tab-timeline')"
+                            style="margin-left:-3px">TIMELINE
+                            <div id="countOfTimeline" style="vertical-align: middle;font-size:15px;margin-left:5px"
+                            class="badge">0</div>
+                        </div>
+                    </div>
+                    <a class="pull-right" style="padding:7px 14px;cursor:pointer" href="/taskAndActivities/addTaskAndActivityFromModule?referenceId=<#[url.id]#>&moduleId=2">
+                        <span class="fui-plus" style="font-size:16px"></span>
+                    </a>
+                </div>
+
+                <div id="taskList" style="padding:15px" class="customTabContent">
+                     <script>
+                        (function(event){
+                            $.get('/taskAndActivities/_taskAndActivity_list_for_module.espx?moduleId=2&referenceId=<# [url.id]#>&status=0',function(data){
+                                $("#taskList").html(data);
+                            })
+                        })()
+                     </script>
+
+                </div>
+                <div id="timelineList" style="display:none" class="customTabContent">
+                     <script>
+                        (function(event){
+                            $.get('/taskAndActivities/_taskAndActivity_list_for_module.espx?moduleId=2&referenceId=<# [url.id]#>&status=1',function(data){
+                                $("#timelineList").html(data);
+                            })
+                        })()
+                     </script>
+
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+</div>
+
+
+</body>
+</html>

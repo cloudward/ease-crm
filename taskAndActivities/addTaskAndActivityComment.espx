@@ -1,0 +1,80 @@
+<# include "_authentication_user.espx"; #>
+
+<# start form for easecrmtaskandactivitycomments <#[url.id]#>;
+    when creating set easecrmtaskandactivitycomments.userid to "<# [session.useruuid]#>";
+    when creating set easecrmtaskandactivitycomments.taskandactivityid to "<# [url.taskAndActivityId]#>";
+    when creating set easecrmtaskandactivitycomments.created_by to "<# [session.useruuid]#>";
+    when creating set easecrmtaskandactivitycomments.updated_by to "<# [session.useruuid]#>";
+
+    when creating call trimComment();
+    when updating call trimComment();
+
+    when updating set easecrmtaskandactivitycomments.updated_by to "<# [session.useruuid]#>";
+
+    if("<# [url.redirectUrl] #>"!=""){
+        when creating redirect to "/taskAndActivities/details?id=<#[url.taskAndActivityId]#>&redirectUrl=<#[url.redirectUrl]#>";
+        when updating redirect to "/taskAndActivities/details?id=<#[url.taskAndActivityId]#>&redirectUrl=<#[url.redirectUrl]#>";
+        when deleting redirect to "/taskAndActivities/details?id=<#[url.taskAndActivityId]#>&redirectUrl=<#[url.redirectUrl]#>";
+    }else{
+        when creating redirect to "/taskAndActivities/details?id=<#[url.taskAndActivityId]#>";
+        when updating redirect to "/taskAndActivities/details?id=<#[url.taskAndActivityId]#>";
+        when deleting redirect to "/taskAndActivities/details?id=<#[url.taskAndActivityId]#>";
+    }
+
+
+
+#>
+    <div style="margin-bottom:0px">
+    <form method="POST" class="marginBottom" action="" >
+
+        <div style="padding:20px;padding-bottom:12px">
+
+                <div>
+                    <textarea autofocus class="form-control" id="comment-<# [url.id]#>" required placeholder="Add Comment..."
+                    <# comment#> required style="max-height:200px;height:100px;width:100%;overflow:auto;resize: none;">
+                    </textarea>
+
+
+                </div>
+
+
+        </div>
+
+        <div >
+            <# if("<#[url.id] #>"!="") {
+                <div class="col-lg-2" style="float:right;">
+                    <input type="button" class="btn btn-block btn-sm" <# Update button #> value="Update" />
+                </div>
+            }#>
+
+            <#
+                if("<#[url.id] #>"=="") {
+                    <div class="col-lg-2" style="float:right;margin-right:5px">
+                        <input type="submit" class="btn btn-block btn-sm " <# Create button #> value="Post"/>
+                    </div>
+                }
+            #>
+
+
+
+
+
+
+        </div>
+
+    </form>
+    </div>
+<# end form #>
+
+<script>
+    function trimComment(){
+        var commentVal=jQuery.trim($("#comment-<# [url.id] #>").val());
+        $("#comment-<# [url.id] #>").val(commentVal);
+    }
+
+    $(document).ready(function(){
+        if("<# [url.id]#>"==""){
+            $("#comment-").val("");
+        }
+    });
+</script>

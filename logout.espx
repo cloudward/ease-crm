@@ -1,0 +1,9 @@
+<#
+	if("<#[session.sessionid]#>"!="")
+    {
+        set session.sessionid to "";
+        set cookie.fname to "";
+        set cookie.lname to "";
+        redirect to "/login";
+    }
+#>

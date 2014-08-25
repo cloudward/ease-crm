@@ -1,0 +1,17 @@
+ <# start list for easeCRMContacts;
+    must relate easeCRMContacts.account to easeCRMAccounts.uuid;
+    include when uuid contains "<#[url.id]#>";
+#>
+
+    <# start row #>
+            <# easeCRMAccounts.name #>
+    <# end row #>
+
+     <# no results #>
+     
+        
+    <# end no results #>
+
+
+<# end list #>
+

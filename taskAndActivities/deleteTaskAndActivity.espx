@@ -1,0 +1,22 @@
+
+
+
+<# include "_authentication_user.espx" #>
+
+<#
+    if("<# [url.redirectUrl]#>"=="2"){
+        set redirectVal to "/callList";
+    }else{
+        set redirectVal to "/taskAndActivities";
+    }
+
+#>
+
+
+
+<#
+
+delete record for "easeCRMTaskAndActivity.<#[url.id]#>";
+redirect to "<# [redirectVal]#>";
+
+#>

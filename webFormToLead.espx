@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Form to Lead</title>
+    <script src="js/commonResource.js"></script>
+
+    <link href="css/customCSS.css" rel="stylesheet" type="text/css">
+    <link href="/css/prism.css" rel="stylesheet" type="text/css">
+    <script src="/js/prism.js" ></script>
+
+    <style>
+        .customH1Header {
+            text-align: center;
+        }
+
+        .loginCustom {
+            border: 1px solid #dadada;
+            background-color:#F1F1F1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 0 auto;
+            margin-top: 50px;
+            width: 650px;
+
+        }
+
+    </style>
+
+    <script>
+        function saveWebForm(){
+            var fname,lname,name,emailId,phoneNumber,industry,product;
+            var typeValue=$("#typeOfUser").val();
+            if(typeValue==1){
+                fname=$("#fname").val();
+                lname=$("#lname").val();
+            }else if(typeValue==2){
+                name=$("#name").val();
+            }
+            emailId=$("#emailId").val();
+            phoneNumber=$("#phoneNumber").val();
+            product=$("#product").val();
+            industry=$("#industry").val();
+
+            if(((typeValue==1 || fname=="" || lname=="") || (typeValue==2 && name=="" )) && emailId=="" && product=="" && industry==""){
+                return false;
+            }
+            else if(((typeValue==1 && fname!="" && lname!="")|| (typeValue==2 && name!="" )) && emailId!="" && product!="" && industry!=""){
+                var userObj={
+                    email:emailId,
+                    product:product,
+                    industry:industry,
+                    phoneNumber:phoneNumber
+                };
+
+                if(typeValue==1){
+                    userObj.userType=1;
+                    userObj.fname=fname;
+                    userObj.lname=lname;
+                }else if(typeValue==2){
+                    userObj.userType=2;
+                    userObj.name=name;
+                }
+
+                $.post('http://<# [syste.host_url ]#>/addWebFormToLead',userObj,function(data,status){
+                    if(status=="success"){
+                        if(data!=""){
+                            data=JSON.parse(data);
+                            if(!data.flag){
+                                $("#errorMsg").html(data.message);
+                            }else{
+                                alert(data.message);
+                            }
+                        }
+                    }
+                })
+            }
+        }
+
+        function typeChange(){
+            var typeValue=$("#typeOfUser").val();
+
+            if(typeValue==1){
+                $("#personContainer").css("display","block");
+                $("#organizationContainer").css("display","none");
+                $("#name").removeAttr('required');
+                $('#fname').prop('required', true);
+                $('#lname').prop('required', true);
+            }else if(typeValue==2){
+                $("#personContainer").css("display","none");
+                $("#organizationContainer").css("display","block");
+                $("#fname").removeAttr('required');
+                $("#lname").removeAttr('required');
+                $('#name').prop('required', true);
+            }
+        }
+
+
+
+        $("document").ready(function(){
+            var html=$("#webFormToLeadContainer").html()
+            html=html.replace(/\</g,'&lt;');
+           $("#webFormToLeadCode").html(html);
+        })
+    </script>
+</head>
+
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+<# start list for easecrmindustries;
+    sort by name;
+    save to industry.options;#>
+    <# start row#>
+            <option value="<# uuid #>"><# name as html #></option>
+    <# end row#>
+<# end list#>
+
+<# start list for easecrmproducts;
+    sort by name;
+    save to product.options;#>
+    <# start row#>
+            <option value="<# uuid #>"><# name as html #></option>
+    <# end row#>
+<# end list#>
+
+<div style="width: 70%;margin: 30px 50px;top:50px;bottom:40px;position:absolute;">
+    <h4 >Web Form To Lead</h4>
+    <pre style="height:100%;overflow:auto">
+    <code class="language-markup">
+        &lt;script>
+        function saveWebForm(){
+            var fname,lname,name,emailId,phoneNumber,industry,product;
+            var typeValue=$("#typeOfUser").val();
+            if(typeValue==1){
+                fname=$("#fname").val();
+                lname=$("#lname").val();
+            }else if(typeValue==2){
+                name=$("#name").val();
+            }
+            emailId=$("#emailId").val();
+            phoneNumber=$("#phoneNumber").val();
+            product=$("#product").val();
+            industry=$("#industry").val();
+
+            if(((typeValue==1 || fname=="" || lname=="") || (typeValue==2 && name=="" )) && emailId=="" && product=="" && industry==""){
+                return false;
+            }
+            else if(((typeValue==1 && fname!="" && lname!="")|| (typeValue==2 && name!="" )) && emailId!="" && product!="" && industry!=""){
+                var userObj={
+                    email:emailId,
+                    product:product,
+                    industry:industry,
+                    phoneNumber:phoneNumber
+                };
+
+                if(typeValue==1){
+                    userObj.userType=1;
+                    userObj.fname=fname;
+                    userObj.lname=lname;
+                }else if(typeValue==2){
+                    userObj.userType=2;
+                    userObj.name=name;
+                }
+
+                $.post('<#[system.host_url]#>/addWebFormToLead',userObj,function(data,status){
+                    if(status=="success"){
+                        if(data!=""){
+                            data=JSON.parse(data);
+                            if(!data.flag){
+                                $("#errorMsg").html(data.message);
+                            }else{
+                                alert(data.message);
+                            }
+                        }
+                    }
+                })
+            }
+        }
+
+        function typeChange(){
+            var typeValue=$("#typeOfUser").val();
+
+            if(typeValue==1){
+                $("#personContainer").css("display","block");
+                $("#organizationContainer").css("display","none");
+                $("#name").removeAttr('required');
+                $('#fname').prop('required', true);
+                $('#lname').prop('required', true);
+            }else if(typeValue==2){
+                $("#personContainer").css("display","none");
+                $("#organizationContainer").css("display","block");
+                $("#fname").removeAttr('required');
+                $("#lname").removeAttr('required');
+                $('#name').prop('required', true);
+            }
+        }
+
+        &lt;/script>
+    </code>
+
+    <code class="language-markup" >
+    &lt;link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    &lt;script src="http://code.jquery.com/jquery-1.11.0.min.js">&lt;/script>
+    &lt;script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">&lt;/script>
+    </code>
+
+    <code id="webFormToLeadCode" class="language-markup" >
+    </code>
+    </pre>
+
+    <div id="webFormToLeadContainer" style="visibility:hidden;display:none" >
+    <form name="user-form"  action="javascript:saveWebForm()" style="width:600px;margin:auto auto">
+        <div class="row">
+            <div class="col-lg-6">
+                   <div class="form-group">
+                        <select class="form-control" onchange="typeChange()" id="typeOfUser">
+                            <option value="1" selected="selected">Individual</option>
+                            <option value="2">Organization</option>
+                        </select>
+                   </div>
+            </div>
+        </div>
+        <div class="row" id="personContainer" >
+            <div class="col-lg-6 login-form1">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label >First Name</label>
+                    <input type="text" class="form-control  " placeholder="Enter First Name" id="fname" required>
+                </div>
+            </div>
+            <div class="col-lg-6 " >
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" class="form-control  " placeholder="Enter Last Name" id="lname" required>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="organizationContainer" style="display:none">
+            <div class="col-lg-12 login-form1" >
+                <div class="form-group">
+                    <label >Name</label>
+                    <input type="text" class="form-control  " placeholder="Enter First Name" id="name">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 " >
+                <div class="form-group" >
+                    <label >Phone Number</label>
+                    <input type="number" class="form-control  " placeholder="Enter User Name" id="phoneNumber">
+                </div>
+            </div>
+            <div class="col-lg-6 ">
+                <div class="form-group" >
+                    <label >Email Id</label>
+                        <input type="email" class="form-control  " placeholder="Enter Email Id" id="emailId"
+                        required>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 " >
+                <div class="form-group">
+                    <label >Product</label>
+                    <select id="product" class="form-control">
+                        <# [product.options] #>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-6 " >
+                <div class="form-group" >
+                    <label >Industry</label>
+                    <select id="industry" class="form-control">
+                        <# [industry.options] #>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+            <div class="col-lg-8" style="margin-top: 8px">
+                <p style="color:red" id="errorMsg"></p>
+            </div>
+            <div class="col-lg-4 pull-right">
+                <input type="submit" class="btn btn-primary btn-block " value="Save"/>
+            </div>
+        </div>
+    </form>
+
+    </div>
+</div>
+
+</body>
+</html>

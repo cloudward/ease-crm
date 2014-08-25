@@ -1,0 +1,189 @@
+<# include "__double_check_init.espx"; #>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup your EaseCRM</title>
+    <script src="js/commonResource.js"></script>
+
+    <link href="css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <style>
+        .customH1Header {
+            text-align: center;
+        }
+
+        .loginCustom {
+            border: 1px solid #dadada;
+            background-color:#F1F1F1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 0 auto;
+            margin-top: 50px;
+            width: 650px;
+
+        }
+        .customFontSize{
+            font-size: 15px;
+        }
+
+
+
+    </style>
+
+    <script>
+
+
+        function initializeEaseCRM(){
+            var fname,lname,emailId,userName,password,cfPassword;
+            fname=$("#fname").val();
+            lname=$("#lname").val();
+            emailId=$("#emailId").val();
+            userName=$("#userName").val();
+            password=$("#passwordVal").val();
+            cfPassword=$("#cfPasswordVal").val();
+
+             if(fname=="" || lname=="" || emailId=="" || userName=="" || password=="" || cfPassword==""){
+                $("#errorMsg").html("");
+                return false;
+            }else if(password!=cfPassword){
+                 $("#errorMsg").html("Password Not Matched!!");
+                 return false;
+            }
+            else if(fname!="" && lname!="" && emailId!="" && userName!="" && password!="" && password==cfPassword){
+                var userObj={fname:fname,
+                            lname:lname,
+                            email:emailId,
+                            user:userName,
+                            pwd:password};
+
+                var startUpObj={
+                    user:JSON.stringify(userObj)
+                }
+                $('body').addClass('customLoader positionForBodyLoader modal-backdrop fade in ');
+
+                $.post('_init_startup',startUpObj,function(data,status){
+                    if(status=="success"){
+                        if(data!=""){
+
+                            $('body').removeClass('customLoader positionForBodyLoader modal-backdrop fade in');
+
+                            data=JSON.parse(data);
+                            if(data.flag){
+                                window.location.href="/login";
+                            }else{
+                                $("#errorMsg").html(data.message);
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+</head>
+
+<body>
+<h1 class="customH1Header">Welcome to EaseCRM !</h1>
+
+
+<div class="loginCustom">
+
+        <div class="row ">
+            <div class="col-lg-12" style="text-align:center">
+                <label style="font-weight:bold;font-size:18px">Create Your First Admin User</label>
+            </div>
+        </div>
+    <form name="user-form"  action="javascript:initializeEaseCRM()">
+        <div class="row">
+            <div class="col-lg-6 login-form1" style="margin-bottom: -10px">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label class="customFontSize">First Name</label>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control customFontSize " placeholder="Enter First Name" id="fname"
+                        required>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 login-form1" style="margin-bottom: -10px">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label class="customFontSize">Last Name</label>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control customFontSize " placeholder="Enter Last Name" id="lname"
+                        required>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 login-form1" style="margin-bottom: -10px">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label class="customFontSize">User Name</label>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control customFontSize " placeholder="Enter User Name" id="userName"
+                        required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 login-form1" style="margin-bottom: -10px">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label class="customFontSize">Email Id</label>
+
+                    <div class="form-group">
+                        <input type="email" class="form-control customFontSize " placeholder="Enter Email Id" id="emailId"
+                        required>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 login-form1" style="margin-bottom: -10px">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label class="customFontSize">Password</label>
+
+                    <div class="form-group">
+                        <input type="password" class="form-control customFontSize " placeholder="Enter Password" id="passwordVal"
+                        required>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 login-form1" style="margin-bottom: -10px">
+                <div class="form-group" style="margin-bottom: 0px">
+                    <label class="customFontSize">Confirmed Password</label>
+
+                    <div class="form-group">
+                        <input type="password" class="form-control customFontSize " placeholder="Enter Confirmed Password" id="cfPasswordVal"
+                        required>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row" style="margin-top: 10px">
+            <div class="col-lg-8" style="margin-top: 8px">
+                <p style="color:red" id="errorMsg"></p>
+            </div>
+
+            <div class="col-lg-4 pull-right">
+                <input type="submit" class="btn btn-primary btn-block customFontSize" value="Initialize EaseCRM"
+                />
+            </div>
+
+        </div>
+    </form>
+</div>
+
+
+
+</body>
+</html>

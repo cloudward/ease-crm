@@ -1,0 +1,135 @@
+<# include "_authentication_user.espx" #>
+
+<?php
+	$uuid=$this->core->new_uuid();
+	ease_set_value('account.uuid',$uuid);
+?>
+
+
+<# create record for "easecrmaccounts" reference as "account";
+       set account.name to "<#[post.name]#>";
+       set account.workemail to "<#[post.workemail]#>";
+       set account.homeemail to "<#[post.homeemail]#>";
+       set account.personalemail to "<#[post.personalemail]#>";
+       set account.workphone to "<#[post.workphone]#>";
+       set account.homephone to "<#[post.homephone]#>";
+       set account.personalphone to "<#[post.personalphone]#>";
+       set account.street1 to "<#[post.street1]#>";
+       set account.street2 to "<#[post.street2]#>";
+       set account.area to "<#[post.area]#>";
+       set account.city to "<#[post.city]#>";
+       set account.state to "<#[post.state]#>";
+       set account.zip to "<#[post.zip]#>";
+       set account.territory to "<#[post.territory]#>";
+       set account.industry to "<#[post.industry]#>";
+       set account.source to "<#[post.source]#>";
+       set account.assignedto to "<#[post.assignedto]#>";
+       set account.created_by to "<#[session.useruuid]#>";
+       set account.updated_by to "<#[session.useruuid]#>";
+       set account.uuid to <# [account.uuid] #>;
+       #>
+
+
+<?php
+
+//echo "<pre>";
+
+$tags=$_POST['tags'];
+
+if($tags!=""){
+      //echo "\n\nPost Tags : ".$tags;
+
+      $tagsArr = explode(",", $tags);
+
+      $tagsCommaStr = "";
+
+      foreach($tagsArr as $tagStr)
+      {
+          $tagsCommaStr .= $this->core->db->quote(trim($tagStr)) . ",";
+      }
+
+
+      $tagsCommaStr = substr($tagsCommaStr, 0, strlen($tagsCommaStr) - 1);
+
+      $bindParams = array(":tags" => $tagsCommaStr);
+
+      $query = "select uuid, name from easetags where name in ($tagsCommaStr)";
+
+      $stmt = ease_db_query($query);
+
+      $res = ease_db_fetch_all($stmt);
+
+      //echo "\n\nExisting Tags:";
+      //print_r($res);
+
+      $resTags = array();
+
+      $contactTags = array();
+
+      foreach($res as $resObj)
+      {
+          $resTags[] = $resObj['name'];
+          $contactTags[] = $resObj['uuid'];
+      }
+
+      if(sizeof($tagsArr) != sizeof($resTags))
+      {
+          $newTags = array();
+
+          foreach($tagsArr as $inputTag)
+          {
+              if(array_search($inputTag, $resTags) === false)
+                  $newTags[] = $inputTag;
+          }
+
+      //    echo "\n\nNew tags to be created:";
+      //    print_r($newTags);
+
+          $newTagsObjsArr = array();
+
+          $userId=ease_get_value('session.useruuid');;
+
+          $newTagInsert="insert into easetags (uuid,name,created_by,updated_by) values";
+
+          foreach($newTags as $newTagToCreate)
+          {
+              $tagObj = array();
+              $tagObj['uuid'] = $this->core->new_uuid();
+              $tagObj['name'] = $newTagToCreate;
+
+              $newTagInsert.= "('$tagObj[uuid]','$tagObj[name]','$userId','$userId'),";
+
+              $contactTags[] = $tagObj['uuid'];
+              $newTagsObjsArr[] = $tagObj;
+          }
+
+          if($newTagInsert[strlen($newTagInsert)-1] == ",")
+          	$newTagInsert = substr($newTagInsert, 0, -1);
+
+          $newTagInsertResult = ease_db_exec($newTagInsert);
+
+      //    echo "\n\nNew Tags Object array:";
+      //    print_r($newTagsObjsArr);
+
+      }
+
+      if(sizeof($contactTags)){
+      	
+      	$insertTagEntity="insert into easetagsentities (tagid,moduleid,entityid) values";
+
+      	$contactId=ease_get_value('account.uuid');
+      	foreach($contactTags as $newContactTag){
+      		$insertTagEntity.="('$newContactTag','2','$contactId'),";
+      	}
+
+      	if($insertTagEntity[strlen($insertTagEntity)-1] == ",")
+          	$insertTagEntity= substr($insertTagEntity, 0, -1);
+
+          $inserTagEntityResult = ease_db_exec($insertTagEntity);
+            
+      }
+
+}
+?>
+
+<# redirect to "/accounts"; #>

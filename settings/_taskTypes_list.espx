@@ -1,0 +1,76 @@
+<# start list for easecrmtasktypes;
+    show 10 rows per page;
+#>
+
+   <table class="table table-bordered">
+        <# start header #>
+
+        <div class="row" style=" margin-left: 0px; margin-right: -15px;">
+            <div class="pull-left" style="display: inline-block; float:left;">
+                <h6>Task Types
+                    <div class="badge" style="vertical-align: middle;font-size:15px;margin-left:5px"><# numberofrows #></div>
+                </h6>
+            </div>
+            <div class="pull-right" style="display: inline-block; float:right; margin-right:15px">
+                <h6 style="font-size:19px;">
+                    <a href="/settings/taskTypes/add">New Task Type</a>
+                </h6>
+            </div>
+
+
+            <thead>
+            <tr>
+                <th>Title</th>
+
+
+                <th style="width:50px">Actions</th>
+            </tr>
+            </thead>
+        <# end header #>
+
+        <tbody>
+        <# start row #>
+
+            <tr>
+                <td><# easecrmtasktypes.name #> </td>
+
+                <td>
+                    <# if("<# easecrmtasktypes.iseditable#>"=="1"){
+                        <a href="/settings/taskTypes/edit?id=<# easecrmtasktypes.uuid #>">
+                            <span class="fui-new"></span>
+                        </a>
+                    }#>
+                    <# if("<# easecrmtasktypes.issystemstage#>"=="0"){
+                        <a href="#">
+                            <span class="fui-cross" style="margin-left:15px;color:red;" onclick="onDeleteStage('<# easecrmtasktypes.uuid #>')"></span>
+                        </a>
+                    }
+                    #>
+                    <#  if("<# easecrmtasktypes.issystemstage#>"!="0" and "<# easecrmtasktypes.iseditable#>"!="1"){
+                       <span style="margin-left:25px">-</span>
+                   }
+                    #>
+                </td>
+            </tr>
+        <# end row #>
+        </tbody>
+
+        <# start footer #>
+        </table>
+        <# end footer #>
+
+    <# no results #>
+        <div>
+            <span>No Task Types Found!!</span>
+
+        </div>
+        <div class="row" style=" margin-left: 0px; margin-right: -15px;">
+            <div class="pull-left" style="display: inline-block; float:right; margin-right:15px">
+                <h6 style="font-size:19px;">
+                    <a href="/settings/taskTypes/add">Add New Task Type</a>
+                </h6>
+            </div>
+        </div>
+
+    <# end no results #>
+<# end list #>

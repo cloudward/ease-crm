@@ -1,0 +1,48 @@
+<# start list for easeUsers;
+include when (username is "<#[post.user]#>" or email is "<#[post.email]#>") and uuid is not "<#[url.id]#>";
+#>
+
+    <# start row #>
+    <#
+        redirect to "/users/edit?msg=Error Validating User&&id=<#[url.id]#>";
+    #>
+    <# end row #>
+
+    <# no results #>
+    <#
+        
+    #>
+    <# end no results #>
+<# end list #>
+
+<# if("<#[post.pwd]#>" != "") {
+    update record for "easeusers.<#[url.id]#>" reference as "var1";
+    set var1.fname to "<#[post.fname]#>";
+    set var1.lname to "<#[post.lname]#>";
+    set var1.email to "<#[post.email]#>";
+    set var1.username to "<#[post.user]#>";
+    set var1.pwd to "<#[post.pwd]#>";
+    set var1.role to "<#[post.role]#>";
+
+    set var1.updated_by to "<# [session.useruuid]#>";
+
+} else {
+    update record for "easeusers.<#[url.id]#>" reference as "var1";
+    set var1.fname to "<#[post.fname]#>";
+    set var1.lname to "<#[post.lname]#>";
+    set var1.email to "<#[post.email]#>";
+    set var1.username to "<#[post.user]#>";
+    set var1.role to "<#[post.role]#>";
+
+    set var1.updated_by to "<# [session.useruuid]#>";
+}
+#>
+
+<script>
+    console.log("<#[post.role]#>");
+    alert("hii");
+</script>
+
+<#
+redirect to "/users";
+#>

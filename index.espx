@@ -1,0 +1,10 @@
+<#
+    if("<#[session.sessionid]#>"=="")
+    {
+        redirect to "/login";
+    }
+    else
+    {
+    	redirect to "/dashboard";
+	}
+#>

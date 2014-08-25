@@ -1,0 +1,138 @@
+<# include "_authentication_user.espx" #>
+
+<?php
+	$uuid=$this->core->new_uuid();
+	ease_set_value('contact.uuid',$uuid);
+?>
+
+
+<# create record for "easecrmcontacts" reference as "contact";
+       set contact.fname to "<#[post.fname]#>";
+       set contact.lname to "<#[post.lname]#>";
+       set contact.designation to "<#[post.designation]#>";
+       set contact.workemail to "<#[post.workemail]#>";
+       set contact.homeemail to "<#[post.homeemail]#>";
+       set contact.personalemail to "<#[post.personalemail]#>";
+       set contact.workphone to "<#[post.workphone]#>";
+       set contact.homephone to "<#[post.homephone]#>";
+       set contact.personalphone to "<#[post.personalphone]#>";
+       set contact.street1 to "<#[post.street1]#>";
+       set contact.street2 to "<#[post.street2]#>";
+       set contact.area to "<#[post.area]#>";
+       set contact.city to "<#[post.city]#>";
+       set contact.state to "<#[post.state]#>";
+       set contact.zip to "<#[post.zip]#>";
+       set contact.territory to "<#[post.territory]#>";
+       set contact.industry to "<#[post.industry]#>";
+       set contact.source to "<#[post.source]#>";
+       set contact.account to "<#[post.account]#>";
+       set contact.assignedto to "<#[post.assignedto]#>";
+       set contact.created_by to "<#[session.useruuid]#>";
+       set contact.updated_by to "<#[session.useruuid]#>";
+       set contact.uuid to <# [contact.uuid] #>;
+       #>
+
+
+<?php
+
+//echo "<pre>";
+
+$tags=$_POST['tags'];
+
+//echo "\n\nPost Tags : ".$tags;
+
+if($tags!=""){
+      $tagsArr = explode(",", $tags);
+
+      $tagsCommaStr = "";
+
+      foreach($tagsArr as $tagStr)
+      {
+          $tagsCommaStr .= $this->core->db->quote(trim($tagStr)) . ",";
+      }
+
+
+      $tagsCommaStr = substr($tagsCommaStr, 0, strlen($tagsCommaStr) - 1);
+
+      $bindParams = array(":tags" => $tagsCommaStr);
+
+      $query = "select uuid, name from easetags where name in ($tagsCommaStr)";
+
+      $stmt = ease_db_query($query);
+
+      $res = ease_db_fetch_all($stmt);
+
+      //echo "\n\nExisting Tags:";
+      //print_r($res);
+
+      $resTags = array();
+
+      $contactTags = array();
+
+      foreach($res as $resObj)
+      {
+          $resTags[] = $resObj['name'];
+          $contactTags[] = $resObj['uuid'];
+      }
+
+      if(sizeof($tagsArr) != sizeof($resTags))
+      {
+          $newTags = array();
+
+          foreach($tagsArr as $inputTag)
+          {
+              if(array_search($inputTag, $resTags) === false)
+                  $newTags[] = $inputTag;
+          }
+
+      //    echo "\n\nNew tags to be created:";
+      //    print_r($newTags);
+
+          $newTagsObjsArr = array();
+
+          $userId=ease_get_value('session.useruuid');;
+
+          $newTagInsert="insert into easetags (uuid,name,created_by,updated_by) values";
+
+          foreach($newTags as $newTagToCreate)
+          {
+              $tagObj = array();
+              $tagObj['uuid'] = $this->core->new_uuid();
+              $tagObj['name'] = $newTagToCreate;
+
+              $newTagInsert.= "('$tagObj[uuid]','$tagObj[name]','$userId','$userId'),";
+
+              $contactTags[] = $tagObj['uuid'];
+              $newTagsObjsArr[] = $tagObj;
+          }
+
+          if($newTagInsert[strlen($newTagInsert)-1] == ",")
+          	$newTagInsert = substr($newTagInsert, 0, -1);
+
+          $newTagInsertResult = ease_db_exec($newTagInsert);
+
+      //    echo "\n\nNew Tags Object array:";
+      //    print_r($newTagsObjsArr);
+
+      }
+
+      if(sizeof($contactTags)){
+      	
+      	$insertTagEntity="insert into easetagsentities (tagid,moduleid,entityid) values";
+
+      	$contactId=ease_get_value('contact.uuid');
+      	foreach($contactTags as $newContactTag){
+      		$insertTagEntity.="('$newContactTag','1','$contactId'),";
+      	}
+
+      	if($insertTagEntity[strlen($insertTagEntity)-1] == ",")
+          	$insertTagEntity= substr($insertTagEntity, 0, -1);
+
+          $inserTagEntityResult = ease_db_exec($insertTagEntity);
+            
+      }
+
+}
+?>
+
+<# redirect to "/contacts"; #>

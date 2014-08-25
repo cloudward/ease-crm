@@ -1,0 +1,18 @@
+<# include "_authentication_user.espx" #>
+<#
+
+delete record for "easeCRMProducts.<#[url.id]#>";
+#>
+
+
+<?php
+
+$productId=$_GET["id"];
+
+// update lead
+$updateLead= "UPDATE easecrmleads SET product='' WHERE product='$productId'";
+$resultLead = ease_db_exec($updateLead);
+
+?>
+
+<# redirect to "/settings/products";#>

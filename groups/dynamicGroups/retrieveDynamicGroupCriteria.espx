@@ -1,0 +1,47 @@
+<?php
+
+function convertIntoRenderFormat($key,$value)
+{
+    switch ($key) {
+        case "industry":
+        case "source":
+        case "territory":
+        case "tags":
+        case "assignedTo":
+        case "stage":
+        case "taskType":
+            $renderValue = split(',' , $value);
+            break;
+        case "created_on":
+        case "expectedDate":
+        case "dueDate":
+        case "confidenceLevel":
+        case "amount":
+            $renderValue = json_decode($value,true);
+            break;
+    }
+
+    return $renderValue;
+}
+
+
+$groupId=$_POST['groupId'];
+
+if($groupId!=""){
+    $query = "SELECT criteriakey as 'key',criteriavalue as 'value',operator,operationtype as 'operationType'  FROM easecrmdynamicgroupscriteria WHERE groupid=:groupId";
+    $param=array(':groupId'=>$groupId);
+
+    $result=ease_db_query_params($query,$param);
+
+    if($row = ease_db_fetch_all($result)) {
+
+        for ($x=0; $x < sizeof($row); $x++) {
+          $row[$x]['value']=convertIntoRenderFormat($row[$x]['key'],$row[$x]['value']);
+        }
+
+        echo json_encode($row);
+    }
+}
+
+
+?>

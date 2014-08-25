@@ -1,0 +1,72 @@
+<?php
+
+$sqlGroupTable="easecrmfixedgroups";    // Group table
+$sqlEntityTable="easecrmfixedgroupsentities";   // Relation of group with entity
+
+
+$useruuid=ease_get_value('session.useruuid');   //get user Id
+
+$title = $_POST['title'];   // title of fixed group
+
+$moduleId = $_POST['moduleId']; // fixed group for contact, account or taskAndActivity
+
+$groupId = $_POST['groupId'];
+
+$entities = json_decode($_POST['entities'],true);
+
+
+// New entities added into table
+if( sizeof($entities['newEntities'])>0 ){
+
+    $newEntities = $entities['newEntities'];
+
+    $insertQuery="insert into $sqlEntityTable (groupid,entityid) values ";
+
+    foreach($newEntities as $entity){
+
+        $insertQuery .= "('$groupId','$entity'),";
+
+    }
+
+    if($insertQuery[strlen($insertQuery)-1] == ",")
+            $insertQuery = substr($insertQuery, 0, -1);
+
+    $insertQuery .=';';
+
+    $result = ease_db_exec($insertQuery);
+
+}
+
+// deleted entities delete from table
+if( sizeof($entities['deletedEntities'])>0 ){
+
+    $deletedEntities = $entities['deletedEntities'];
+
+    $deleteQuery="DELETE FROM $sqlEntityTable WHERE (groupid,entityid) IN (";
+
+    foreach($deletedEntities as $entity){
+
+        $deleteQuery .= "('$groupId','$entity'),";
+
+    }
+
+    if($deleteQuery[strlen($deleteQuery)-1] == ",")
+            $deleteQuery = substr($deleteQuery, 0, -1);
+
+    $deleteQuery .=');';
+
+    $result = ease_db_exec($deleteQuery);
+
+}
+
+// update title of group
+
+if($title !=""){
+
+    $params=array(":uuid"=>$groupId,":title"=>$title);
+    $query = $this->core->db->prepare("UPDATE $sqlGroupTable SET title=:title WHERE uuid=:uuid;");
+    $query->execute($params);
+
+}
+
+?>

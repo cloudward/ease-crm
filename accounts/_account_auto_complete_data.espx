@@ -1,0 +1,26 @@
+
+<# start list for easeCRMAccounts;
+	include when name contains "<#[url.search]#>" ;
+    show 10 rows per page;
+    hide both pagers;
+ #>
+
+  <# start row #>
+	
+		
+		<div onmouseover="onMouseOverElement(event)" onmouseout="onMouseOutElement(event)"  onclick="onAccountClick(event, '<# easeCRMAccounts.name #>','<# easeCRMAccounts.uuid #>')">
+
+			<# easeCRMAccounts.name #> 
+		</div>
+
+
+	<# end row #>
+
+	 <# no results #>
+     
+        
+    <# end no results #>
+
+
+<# end list #>
+

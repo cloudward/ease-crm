@@ -1,0 +1,30 @@
+<# include "_authentication_user.espx" #>
+
+<?php
+
+
+$taskAndActivityTable="easecrmtaskandactivity";
+
+if(isSet($_GET['id'])){
+
+    $leadId=$_GET['id'];    // Get lead id from url
+
+    // update taskAndActivity
+    $updateTaskAndActivity = "UPDATE $taskAndActivityTable SET referenceid='' WHERE referenceid='$leadId' and moduleid='2'";
+    $resultTaskAndActivity = ease_db_exec($updateTaskAndActivity);
+
+    // delete record of lead from FixedGroup
+
+    $deleteFromFixedGroup="DELETE FROM $fixedGroupEntity where entityid='$leadId'";
+    $resultDeleteFromFixedGroup= ease_db_exec($deleteFromFixedGroup);
+
+    // delete record of contact from easeTagsEntities
+
+    $deleteFromTagEntity="DELETE FROM easetagsentities where entityid='$leadId' and moduleid='3'";
+    $resultDeleteFromTagEntity= ease_db_exec($deleteFromTagEntity);
+
+
+    header('Location: /leads');     // redirect to listLeads page
+}
+
+?>

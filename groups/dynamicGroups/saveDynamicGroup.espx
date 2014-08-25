@@ -1,0 +1,88 @@
+<?php
+
+require_once "EaseQueryBuilder.php";
+
+$sqlDynamicGroupCriteriaTable='easecrmdynamicgroupscriteria';
+$sqlDynamicGroupsTable ='easecrmdynamicgroups';
+
+$useruuid=ease_get_value('session.useruuid');   //get user Id
+
+$uuid = $this->core->new_uuid(); // unique id at addition time
+
+$title = $_POST['title'];   // title of fixed group
+
+$moduleId = $_POST['moduleId']; // dynamic group for contact, account or taskAndActivity
+
+$criteria = json_decode($_POST['criteria'],true);
+
+
+$params=array(":uuid"=>$uuid,":title"=>$title,":moduleid"=>$moduleId,":useruuid"=>$useruuid);
+
+$query = $this->core->db->prepare("insert into $sqlDynamicGroupsTable SET uuid=:uuid,title=:title,moduleid=:moduleid,created_by=:useruuid,updated_by=:useruuid");
+
+$query->execute($params);
+
+function convertIntoAddFormat($key,$value,$ease)
+{
+    switch ($key) {
+        case "industry":
+        case "source":
+        case "territory":
+        case "assignedTo":
+        case "stage":
+        case "taskType":
+            $savedValue = join(',' , $value);
+            break;
+        case "tags":
+            //$savedValue = mysql_real_escape_string(join(',', $value));
+            $value=EaseQueryBuilder::replaceTagId($value,$ease);
+            $savedValue = join(',', $value);
+            break;
+        case "created_on":
+        case "expectedDate":
+        case "dueDate":
+        case "confidenceLevel":
+        case "amount":
+            $savedValue = json_encode($value);
+            break;
+    }
+
+    return $savedValue;
+}
+
+
+
+if(sizeof($criteria)>0 ){
+
+        // insert all Criteria into easeCRMDynamicGroupsCriteria
+
+        $insertQuery = $this->core->db->prepare("insert into $sqlDynamicGroupCriteriaTable SET groupid=:groupid,criteriakey=:criteriakey,criteriavalue=:value,operator=:operator,operationtype=:operationtype ;");
+
+        foreach($criteria as $singleCriteria){
+
+            $value= convertIntoAddFormat($singleCriteria['key'],$singleCriteria[value],$this);
+
+            if($singleCriteria[operator]!="")
+                $operator= $singleCriteria[operator];
+            else{
+                $operator="";
+            }
+
+            if($singleCriteria[operationType]!=""){
+                $operationType= $singleCriteria[operationType];
+            }
+            else{
+                $operationType= "";
+            }
+
+
+            $insertParams=array(":groupid"=>$uuid,":criteriakey"=>$singleCriteria[key],":value"=>$value,":operator"=>$operator,":operationtype"=>$operationType);
+            $insertQuery ->execute($insertParams);
+
+        }
+
+        $responseObj = array("flag"=>"true","id"=>$uuid);
+        echo json_encode($responseObj);
+}
+
+?>

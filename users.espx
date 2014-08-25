@@ -1,0 +1,157 @@
+<html>
+<head>
+    <title>Users</title>
+    <# include "_authentication_user.espx" #>
+    <# restrict access to adminSettings using dashboard #>
+
+    <script src="js/commonResource.js"></script>
+    <link href="css/customCSS.css" rel="stylesheet" type="text/css">
+
+
+    <style type="text/css">
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var urlVal, parameterObj, keysOfParameter;
+        $(document).ready(function () {
+            urlVal = window.location.pathname;
+
+            function getParameterToJSON() {
+                if (location.search == "") {
+                    return {};
+                }
+                var pairs = location.search.slice(1).split('&');
+
+                console.log(pairs);
+                console.log(location.search);
+                var result = {};
+                pairs.forEach(function (pair) {
+                    pair = pair.split('=');
+                    result[pair[0]] = decodeURIComponent(pair[1] || '');
+                });
+
+                return JSON.parse(JSON.stringify(result));
+            }
+
+            parameterObj = getParameterToJSON() || {};
+            keysOfParameter = Object.keys(parameterObj);
+
+            if (keysOfParameter.length) {
+                for (var i = 0, len = keysOfParameter.length; i < len; i++) {
+                    $('#combo-' + keysOfParameter[i]).val(parameterObj[keysOfParameter[i]]);
+                }
+            }
+
+        })
+        /*
+        function prepareUrl(field) {
+            var url = urlVal, flagForQuestion = false;
+
+            url += '?';
+            if (keysOfParameter.length) {
+
+                for (var i = 0, len = keysOfParameter.length; i < len; i++) {
+                    if (keysOfParameter[i] != field) {
+                        url += keysOfParameter[i] + '=' + parameterObj[keysOfParameter[i]] + '&';
+                    }
+
+                }
+            }
+            return url;
+        }
+
+        function prepareUrlForEmpty(field) {
+            var url = urlVal, flagForQuestion = false;
+
+
+            if (keysOfParameter.length) {
+                url += '?';
+                for (var i = 0, len = keysOfParameter.length; i < len; i++) {
+                    if (keysOfParameter[i] != field) {
+                        url += keysOfParameter[i] + '=' + parameterObj[keysOfParameter[i]];
+                        if (i < len - 1) {
+                            url += '&';
+                        }
+                    }
+                }
+            }
+            if (url.substring(url.length - 1,url.length) == "&") {
+                url = url.substring(0, url.length - 1);
+            }
+            return url;
+        }
+
+        */
+
+        function onDeleteUser(contactId)
+        {
+            if (confirm("Are you sure, you want to delete this contact ?") == true) {
+                window.location.href = "/users/deleteUser?id=" + contactId;
+            }
+        }
+
+        function appendOpt(val)
+        {
+        	console.log('appended');
+        	$('#combo-terr').append("<option val="+ val +">"+val+"</option>")
+        }
+
+        function onSearchChange() {
+
+            var search = $('#search-input').val();
+/*
+            $(document).append('<# start list for searchresult;
+
+                include when fname contains "<# ' + search + '#>" or lname contains "<#[url.search]#>" or body contains "<# '+ search + '#>"
+                    save to easeUsers;
+                #><# start row #><# end row #> <# end list #>'
+                );
+*/
+
+            $.get("_users_list?search="+search, function(data, status) {
+
+                console.log(data);
+
+                $("#tableContainer").html(data);
+            })
+        }
+    </script>
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<div id="main-container" style="margin: 20px;">
+
+    <form method='get' action='?'>
+        <div class="row">
+            <div class="form-group" style="width:350px">
+        <input id="search-input" type='text' name='search' value="<#[url.search as html]#>" placeholder="Search User"  onkeyup="onSearchChange()" class="form-control"/>
+        </div>
+        </div>
+    </form>
+
+    <div id="tableContainer">
+        <# include "_users_list.espx"; #>
+    </div>
+
+
+</form>
+
+
+</div>
+
+
+</body>
+</html>

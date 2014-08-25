@@ -1,0 +1,43 @@
+<# apply easeusers.<# [url.createdBy] #> as "easeuserobj"; #>
+
+
+<?php
+
+$fixedGroupEntity ="easecrmfixedgroupsentities";
+$fixedGroup ="easecrmfixedgroups";
+$easeUser="easeusers";
+
+if(isSet($_GET['createdBy'])){
+
+    $createdBy=$_GET['createdBy'];
+
+    if(ease_get_value("easeuserobj.role") == "2"){
+
+        $query="SELECT uuid from $fixedGroup where created_by='$createdBy'";
+
+        $resultOfGroup= ease_db_query($query);
+
+        if($row = ease_db_fetch_all($resultOfGroup)) {
+
+            $entityId=$_GET['entityId'];
+
+            for ($x=0; $x < sizeof($row); $x++) {
+
+                $groupId=$row[$x][uuid];
+                $deleteFromFixedGroup="DELETE FROM $fixedGroupEntity where entityid='$entityId' and groupid='$groupId'";
+                $resultOfEntity= ease_db_exec($deleteFromFixedGroup);
+
+
+            }
+
+        }
+
+    }
+
+}
+
+?>
+
+
+
+

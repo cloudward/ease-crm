@@ -1,0 +1,46 @@
+<# start list for easeUsers;
+    include when username is "<# [request.user] #>" and pwd is "<#[request.pwd]#>";
+#>
+    <# start row #>
+
+
+    <#
+        set session.sessionid to "<# easeUsers.username #>";
+        set cookie.fname to "<# easeUsers.fname #>";
+        set cookie.lname to "<# easeUsers.lname #>";
+        set session.role to "<# easeUsers.role#>";
+        set session.useruuid to "<# easeUsers.uuid#>";
+
+    #>
+
+
+    <# end row #>
+
+    <# no results #>
+    <#
+        redirect to "/login?msg=Invalid Username or Password";
+    #>
+    <# end no results #>
+<# end list #>
+
+<#
+    if("<#[session.role]#>" == "1" or "<#[session.role]#>" == "0"){
+       grant access to adminSettings;
+    }
+
+#>
+
+
+<#
+
+if("<# [request.redirectUrl]#>" != ""){
+     set redirectUrlVal to "/<# [request.redirectUrl]#>";
+}
+else{
+    set redirectUrlVal to "/";
+}
+#>
+
+<#
+    redirect to "<# [redirectUrlVal ] #>";
+#>

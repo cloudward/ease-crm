@@ -1,0 +1,34 @@
+application: ease-crm
+version: 1
+runtime: php
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /bootstrap
+  static_dir: bootstrap
+
+- url: /css
+  static_dir: css
+
+- url: /images
+  static_dir: images
+
+- url: /fonts
+  static_dir: fonts
+
+- url: /js
+  static_dir: js
+
+- url: /less
+  static_dir: less
+
+- url: /(.*)_test\.php
+  script: \1_test.php
+
+- url: .*
+  script: main.php

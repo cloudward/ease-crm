@@ -1,0 +1,78 @@
+<html>
+<head>
+    <title>Task & Activities</title>
+    <# include "_authentication_user.espx" #>
+
+    <script src="js/commonResource.js"></script>
+
+    <link href="css/bootstrap-datetimepicker.css" rel="stylesheet" type="text/css">
+    <link href="css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <script src="js/moment.min.js"></script>
+    <script src="js/bootstrap-datetimepicker.js"></script>
+
+    <script src="js/util.js"></script>
+    <script src="js/easeModules/taskAndActivity/taskAndActivityList.js"></script>
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+
+
+
+
+<div style="margin: 20px;">
+
+    <div class="row" style=" margin-left: 0px; margin-right: -15px;">
+
+        <div class="col">
+            <div style=" float:left;padding-left:0;width:350px">
+                <input class="form-control" id="search-input" type='text' name='search' value="<#[url.search as html]#>" class="marginBottom10" onkeyup="retrieveTaskAndActivityData()" placeholder="Search Task & Activity"/>
+
+
+            </div>
+        </div>
+
+        <div class="col">
+            <button class="pull-right btn btn-default" onclick="clearFilter()">
+                Clear Filters
+            </button>
+        </div>
+
+        <div class="col">
+                <button class="col-lg-1 pull-right btn btn-primary" data-toggle="modal" data-target="#taskAndActivityFilter" style="margin-right:10px">
+                    Filters
+                </button>
+        </div>
+
+        <div class="col">
+            <div class="col-lg-2" style=" float: right;padding-left:0;">
+                <select class="form-control marginBottom10" id="combo-status" onchange="retrieveTaskAndActivityData()">
+
+                    <option value="-1" >All Tasks</option>
+                    <option value="0" selected="selected">Active Tasks</option>
+                    <option value="1"  >Completed Tasks</option>
+
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="taskAndActivityTableContainer">
+
+
+    </div>
+
+
+</div>
+
+<# include "/taskAndActivities/taskAndActivityFilter.espx" #>
+
+<input type="hidden" id="hiddenFilterParam" value='<# [session.taskandactivity_filter] #>' />
+</body>
+</html>

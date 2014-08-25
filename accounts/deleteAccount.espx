@@ -1,0 +1,6 @@
+<# include "_authentication_user.espx" #>
+
+<#
+delete record for "easeCRMAccounts.<#[url.id]#>";
+redirect to "/accounts/cleanAccount?id=<# [url.id] #>";
+#>

@@ -1,0 +1,112 @@
+<# start list for easeCRMIndustries;
+    sort by name;
+    save to industry.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>" <# if ("<#[url.industry]#>" == "<# uuid #>"){
+                            print "selected='selected'";
+                        }#> ><# name as html #></option>
+<# end row #>
+<# end list #>
+
+
+
+<# start list for easeCRMSources;
+    sort by name;
+    save to source.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>" <# if ("<#[url.source]#>" == "<# uuid #>"){
+                            print "selected='selected'";
+                        }#> ><# name as html #></option>
+<# end row #>
+<# end list #>
+
+<# start list for easeUsers;
+    sort by fname;
+    save to assignedTo.options;
+#>
+
+<# start row #>
+    <option value="<# uuid #>" <# if ("<#[url.source]#>" == "<# uuid #>"){
+                            print "selected='selected'";
+                        }#> ><# fname as html #><# lname as html #></option>
+<# end row #>
+<# end list #>
+
+
+<div class="modal fade" id="filterForDynamicGroupContact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="width:900px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Contact Filters</h4>
+      </div>
+        <div class="modal-body">
+
+            <# include "/contacts/contactFiltersComponents.espx" #>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary pull-left" onclick="editContactsIntoDynamicGroup()"
+            data-dismiss="modal">Save</button>
+
+            <button type="button" class="btn btn-primary pull-left" data-target="#addDynamicGroup"
+            data-toggle="modal">Save as New Group</button>
+
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"
+            onclick="applyFilterInContact();">Apply</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+<# include "/groups/dynamicGroups/addDynamicGroupPopup.espx" #>
+
+<script>
+    //$(".tagsinputFilter").tagsInput();
+
+    $(".selectpicker").selectpicker();
+
+    $('#created_on').datetimepicker({
+        pickTime: false,
+        maxDate: moment()
+    })
+
+    $('#created_on_start').datetimepicker({
+        pickTime: false,
+        maxDate: moment()
+    })
+
+    $('#created_on_end').datetimepicker({
+        pickTime: false,
+        maxDate: moment()
+    })
+    validOnDateInFilter('created_on');
+
+
+</script>
+<style>
+    .marginTop {
+        margin-top: 15px;
+    }
+
+    .customSelectList{
+        padding:0px
+    }
+
+    .dropdown-menu li.selected > a{
+        background: #f3f4f5;
+        color: #797878;
+    }
+    .open > .dropdown-menu{
+        margin-top: 10px !important;
+    }
+    .dropdown-menu{
+        display:none;
+    }
+</style>

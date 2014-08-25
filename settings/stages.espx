@@ -1,0 +1,94 @@
+<html>
+<head>
+    <title>Stages</title>
+    <# include "_authentication_user.espx" #>
+    <# restrict access to adminSettings using dashboard #>
+
+    <script src="/js/commonResource.js"></script>
+    <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
+
+    <style type="text/css">
+        .customInputForAddress {
+            margin-bottom: 10px;
+        }
+
+        .customNavBar {
+            border-radius: 0px;
+            margin-bottom: 0px;
+        }
+    </style>
+
+
+    <script type="text/javascript">
+        var urlVal, parameterObj, keysOfParameter;
+        $(document).ready(function () {
+            urlVal = window.location.pathname;
+
+            function getParameterToJSON() {
+                if (location.search == "") {
+                    return {};
+                }
+                var pairs = location.search.slice(1).split('&');
+
+                console.log(pairs);
+                console.log(location.search);
+                var result = {};
+                pairs.forEach(function (pair) {
+                    pair = pair.split('=');
+                    result[pair[0]] = decodeURIComponent(pair[1] || '');
+                });
+
+                return JSON.parse(JSON.stringify(result));
+            }
+
+            parameterObj = getParameterToJSON() || {};
+            keysOfParameter = Object.keys(parameterObj);
+
+            if (keysOfParameter.length) {
+                for (var i = 0, len = keysOfParameter.length; i < len; i++) {
+                    $('#combo-' + keysOfParameter[i]).val(parameterObj[keysOfParameter[i]]);
+                }
+            }
+
+        })
+
+        function onDeleteStage(stageId)
+        {
+            if (confirm("Are you sure, you want to delete this Stage ?") == true) {
+                window.location.href = "/settings/stages/deleteStage?id=" + stageId;
+            }
+        }
+
+        function appendOpt(val)
+        {
+        	console.log('appended');
+        	$('#combo-terr').append("<option val="+ val +">"+val+"</option>")
+        }
+
+    </script>
+
+</head>
+<body>
+
+<div>
+    <# include "easeCRMHeader.espx"; #>
+</div>
+
+<div id="main-container" style="margin: 20px;">
+
+
+
+    <div id="tableContainer">
+        <# include "/settings/_stages_list.espx"; #>
+    </div>
+
+
+
+</form>
+
+
+</div>
+
+
+</body>
+</html>

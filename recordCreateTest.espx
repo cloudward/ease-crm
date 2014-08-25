@@ -1,0 +1,6 @@
+<#
+	create new record for "easeusers";
+	set fname to "test";
+	set lname to "test";
+	redirect to "/listUsers";
+#>

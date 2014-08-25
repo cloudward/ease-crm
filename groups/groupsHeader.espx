@@ -1,0 +1,61 @@
+<ul class="nav nav-tabs col-lg-12" role="tablist">
+  <li id="fixedGroups-nav-li"><a href="/groups/fixedGroups/contacts">Fixed Groups</a></li>
+  <li id="dynamicGroups-nav-li"><a href="/groups/dynamicGroups/contacts">Dynamic Groups</a></li>
+  <li id="tagGroups-nav-li"><a href="/groups/tagBasedGroups">Tag Based Groups</a></li>
+</ul>
+
+<ul class="nav nav-pills nav-stacked col-lg-3" style="display:none;margin-top:20px"
+id="fixedGroups-nav-pills">
+  <li id="contactFixed-nav-pills-li" ><a href="/groups/fixedGroups/contacts">Contacts Groups</a> </li>
+  <li id="accountFixed-nav-pills-li"><a href="/groups/fixedGroups/accounts">Accounts Groups</a></li>
+  <li id="leadFixed-nav-pills-li"><a href="/groups/fixedGroups/leads">Leads Groups</a></li>
+</ul>
+<ul class="nav nav-pills nav-stacked col-lg-3" style="display:none;margin-top:20px"
+id="dynamicGroups-nav-pills">
+  <li id="contactDynamic-nav-pills-li"><a href="/groups/dynamicGroups/contacts">Contacts Groups</a> </li>
+  <li id="accountDynamic-nav-pills-li"><a href="/groups/dynamicGroups/accounts">Accounts Groups</a></li>
+  <li id="leadDynamic-nav-pills-li"><a href="/groups/dynamicGroups/leads">Leads Groups</a></li>
+</ul>
+
+
+<script>
+
+    $(document).ready(function(){
+        var url=window.location.pathname;
+
+        url= url.substr(url.indexOf('/')+1,url.length-1);
+//        console.log(url)
+
+
+        if(url=='groups/fixedGroups/contacts' || url=='groups/fixedGroups/accounts' || url=='groups/fixedGroups/leads'){
+            if(url=='groups/fixedGroups/contacts'){
+                $("#contactFixed-nav-pills-li").addClass('active');
+            }else if(url=='groups/fixedGroups/accounts'){
+                $("#accountFixed-nav-pills-li").addClass('active');
+            }else if(url=='groups/fixedGroups/leads'){
+                $("#leadFixed-nav-pills-li").addClass('active');
+            }
+            $("#fixedGroups-nav-li").addClass('active');
+            $("#fixedGroups-nav-pills").css("display","block");
+
+
+        }else if(url=='groups/dynamicGroups/contacts' || url=='groups/dynamicGroups/accounts' || url=='groups/dynamicGroups/leads'){
+
+            $("#dynamicGroups-nav-li").addClass('active');
+            $("#dynamicGroups-nav-pills").css("display","block");
+
+            if(url=='groups/dynamicGroups/contacts'){
+                $("#contactDynamic-nav-pills-li").addClass('active');
+            }else if(url=='groups/dynamicGroups/accounts'){
+                $("#accountDynamic-nav-pills-li").addClass('active');
+            }else if(url=='groups/dynamicGroups/leads'){
+                $("#leadDynamic-nav-pills-li").addClass('active');
+            }
+
+        }else if(url=='groups/tagBasedGroups'){
+          $("#tagGroups-nav-li").addClass('active');
+        }
+
+    })
+
+</script>
