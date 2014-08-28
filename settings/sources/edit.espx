@@ -76,7 +76,7 @@ else
 
 
         <div class="row demo-row ">
-                        <div class="col-lg-8" style="margin-top: 8px">
+            <div class="col-lg-12" style="margin-top: 8px">
                 <p style="color:red"><#[url.msg]#></p>
             </div>
 

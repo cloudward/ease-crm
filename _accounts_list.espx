@@ -22,7 +22,7 @@ function defaultIncludeCondition($userRole)
 {
 
     if($userRole == "2")
-        $easeText = '(easeCRMContacts.created_by == "<# [session.useruuid]#>" or easeCRMContacts.assignedTo == "<# [session.useruuid]#>")';
+        $easeText = '(easeCRMAccounts.created_by == "<# [session.useruuid]#>" or easeCRMAccounts.assignedTo == "<# [session.useruuid]#>")';
     else
         $easeText = "";
 
@@ -172,7 +172,7 @@ ease_set_value('filterConditions', $easeText);
                     <td><# previousAccount.source #></td>
                     <td><# previousAccount.assignedTo#></td>
                     <td>
-                       <a href="editAccount?id=<# previousAccount.uuid #>">
+                       <a href="/accounts/edit?id=<# previousAccount.uuid #>">
                            <span class="fui-new"></span>
                        </a>
                        <a href="#">
@@ -257,7 +257,7 @@ ease_set_value('filterConditions', $easeText);
 
     <# no results #>
         <div>
-            <span>No Accounts Found!!</span>
+            <span>No Accounts Found.</span>
         </div>
         <div class="row" style=" margin-left: 0px; margin-right: -15px;">
             <div class="pull-left" style="display: inline-block; float:right; margin-right:15px">

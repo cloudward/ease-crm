@@ -158,7 +158,7 @@
         <# end footer #>
 
         <# start no results #>
-            No Accounts Found!!
+            No Accounts Found.
         <# end no results #>
 
         <# end list #>

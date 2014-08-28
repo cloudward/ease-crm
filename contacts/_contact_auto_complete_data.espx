@@ -18,7 +18,7 @@
 
 	 <# no results #>
       <#:  <div>
-            <span>No Contacts Found!!</span>
+            <span>No Contacts Found.</span>
         </div> :#>
         
     <# end no results #>

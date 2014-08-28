@@ -52,7 +52,7 @@
 
     <# no results #>
         <div>
-            <span>No Tag Found!!</span>
+            <span>No Tag Found.</span>
 
         </div>
         <div class="row" style=" margin-left: 0px; margin-right: -15px;">

@@ -61,7 +61,7 @@
 
     <# no results #>
         <div>
-            <span>No Task Types Found!!</span>
+            <span>No Task Types Found.</span>
 
         </div>
         <div class="row" style=" margin-left: 0px; margin-right: -15px;">

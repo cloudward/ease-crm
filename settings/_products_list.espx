@@ -56,7 +56,7 @@
 
     <# no results #>
         <div>
-            <span>No Product Found!!</span>
+            <span>No Product Found.</span>
 
         </div>
         <div class="row" style=" margin-left: 0px; margin-right: -15px;">

@@ -72,7 +72,7 @@
 	    <# end footer #>
 
 	    <# no results #>
-	    <div><span>No Users Found!!</span></div>
+	    <div><span>No Users Found.</span></div>
 	    <div class="row" style=" margin-left: 0px; margin-right: -15px;">
 	        <div class="pull-left" style="display: inline-block; float:right; margin-right:15px">
 	            <h6 style="font-size:19px;">

@@ -1,8 +1,8 @@
 <html>
 <head>
     <title>Contact Profile</title>
-    <# include "_authentication_user.espx" #>
 
+    <# include "_authentication_user.espx" #>
     <script src="/js/commonResource.js"></script>
 
     <link href="/css/customCSS.css" rel="stylesheet" type="text/css">
@@ -158,32 +158,35 @@
     <# include "easeCRMHeader.espx"; #>
 </div>
 <#
-if("<# [url.redirectUrl]#>"=="15"){
+if("<# [url.redirectUrl]#>"=="16" and "<# [url.leadId]#>" !="" ){
+    set redirectUrlVal to "/leads/details?id=<# [url.leadId]#>";   // redirect to lead Details
+}
+elseif("<# [url.redirectUrl]#>"=="15"){
     set redirectUrlVal to "/dashboard";   // redirect to Dashboard
 }
-elseif("<# [url.redirectUrl]#>"=="13" && "<# [url.tagId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="13" and "<# [url.tagId]#>" !="" ){
     set redirectUrlVal to "/groups/tagBasedGroups/leads?id=<# [url.tagId]#>";   // redirect to tag Lead group page
-}elseif("<# [url.redirectUrl]#>"=="12" && "<# [url.tagId]#>" !="" ){
+}elseif("<# [url.redirectUrl]#>"=="12" and "<# [url.tagId]#>" !="" ){
     set redirectUrlVal to "/groups/tagBasedGroups/accounts?id=<# [url.tagId]#>";   // redirect to tag account group page
-}elseif("<# [url.redirectUrl]#>"=="11" && "<# [url.tagId]#>" !="" ){
+}elseif("<# [url.redirectUrl]#>"=="11" and "<# [url.tagId]#>" !="" ){
     set redirectUrlVal to "/groups/tagBasedGroups/contacts?id=<# [url.tagId]#>";   // redirect to tag contact group page
 }
-elseif("<# [url.redirectUrl]#>"=="10" && "<# [url.dynamicGroupId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="10" and "<# [url.dynamicGroupId]#>" !="" ){
     set redirectUrlVal to "/groups/dynamicGroups/leads/details?id=<# [url.dynamicGroupId]#>";   // redirect to dynamic Lead group page
 }
-elseif("<# [url.redirectUrl]#>"=="9" && "<# [url.dynamicGroupId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="9" and "<# [url.dynamicGroupId]#>" !="" ){
     set redirectUrlVal to "/groups/dynamicGroups/accounts/details?id=<# [url.dynamicGroupId]#>";   // redirect to dynamic account group page
 }
-elseif("<# [url.redirectUrl]#>"=="8" && "<# [url.dynamicGroupId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="8" and "<# [url.dynamicGroupId]#>" !="" ){
     set redirectUrlVal to "/groups/dynamicGroups/contacts/details?id=<# [url.dynamicGroupId]#>";   // redirect to dynamic contact group page
 }
-elseif("<# [url.redirectUrl]#>"=="7" && "<# [url.fixedGroupId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="7" and "<# [url.fixedGroupId]#>" !="" ){
     set redirectUrlVal to "/groups/fixedGroups/leads/details?id=<# [url.fixedGroupId]#>";   // redirect to fixed Lead group page
 }
-elseif("<# [url.redirectUrl]#>"=="6" && "<# [url.fixedGroupId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="6" and "<# [url.fixedGroupId]#>" !="" ){
     set redirectUrlVal to "/groups/fixedGroups/accounts/details?id=<# [url.fixedGroupId]#>";   // redirect to fixed account group page
 }
-elseif("<# [url.redirectUrl]#>"=="5" && "<# [url.fixedGroupId]#>" !="" ){
+elseif("<# [url.redirectUrl]#>"=="5" and "<# [url.fixedGroupId]#>" !="" ){
     set redirectUrlVal to "/groups/fixedGroups/contacts/details?id=<# [url.fixedGroupId]#>";   // redirect to fixed contact group page
 }
 elseif("<# [url.redirectUrl]#>"=="4"){
@@ -495,7 +498,7 @@ else{
                 <div style="height:45px;border-bottom:1px solid #dadada">
                     <div class="pull-left">
                         <div id="tab-task" class="customContactProfileTab customActive" onclick="activateTab(event,'tab-task')" >
-                        TASK
+                        TASKS
                             <div id="countOfTask" style="vertical-align: middle;font-size:15px;margin-left:5px;" class="badge">0</div>
                             </div>
                         <div id="tab-timeline"  class="customContactProfileTab" onclick="activateTab(event,'tab-timeline')"

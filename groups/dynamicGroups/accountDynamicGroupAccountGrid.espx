@@ -190,7 +190,7 @@ ease_set_value('filterConditions', $easeText);
 
     <# no results #>
         <div>
-            <span>No Accounts Found!!</span>
+            <span>No Accounts Found.</span>
         </div>
     <# end no results #>
 

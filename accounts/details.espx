@@ -119,7 +119,10 @@
 </div>
 
 <#
-if("<# [url.redirectUrl]#>"=="15" ){
+if("<# [url.redirectUrl]#>"=="16" and "<# [url.leadId]#>" !="" ){
+    set redirectUrlVal to "/leads/details?id=<# [url.leadId]#>";   // redirect to lead Details
+}
+elseif("<# [url.redirectUrl]#>"=="15" ){
     set redirectUrlVal to "/dashboard";   // redirect to Dashboard
 }
 elseif("<# [url.redirectUrl]#>"=="14" && "<# [url.contactId]#>" !="" ){
@@ -446,7 +449,7 @@ else{
                 <div style="height:45px;border-bottom:1px solid #dadada">
                     <div class="pull-left">
                         <div id="tab-task" class="customContactProfileTab customActive" onclick="activateTab(event,'tab-task')" >
-                        TASK
+                        TASKS
                             <div id="countOfTask" style="vertical-align: middle;font-size:15px;margin-left:5px;" class="badge">0</div>
                             </div>
                         <div id="tab-timeline"  class="customContactProfileTab" onclick="activateTab(event,'tab-timeline')"

@@ -172,7 +172,7 @@ ease_set_value('filterConditions', $easeText);
 
 <# no results #>
     <div>
-        <span>No Leads Found!!</span>
+        <span>No Leads Found.</span>
     </div>
 <# end no results #>
 

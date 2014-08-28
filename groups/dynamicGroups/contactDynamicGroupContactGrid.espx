@@ -142,7 +142,7 @@ ease_set_value('filterConditions', $easeText);
 
     <# no results #>
         <div>
-            <span>No Contacts Found!!</span>
+            <span>No Contacts Found.</span>
         </div>
     <# end no results #>
 

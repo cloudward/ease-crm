@@ -139,7 +139,7 @@
         <# end footer #>
 
         <# start no results #>
-            No Leads Found!!
+            No Leads Found.
         <# end no results #>
 
         <# end list #>

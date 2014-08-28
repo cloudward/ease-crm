@@ -52,7 +52,7 @@
 
     <# no results #>
         <div>
-            <span>No Source Found!!</span>
+            <span>No Source Found.</span>
 
         </div>
         <div class="row" style=" margin-left: 0px; margin-right: -15px;">
