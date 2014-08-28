@@ -69,6 +69,10 @@
                                 $("#errorMsg").html(data.message);
                             }else{
                                 alert(data.message);
+                                $("#fname").val("");
+                                $("#lname").val("");
+                                $("#phoneNumber").val("");
+                                $("#emailId").val("");
                             }
                         }
                     }
@@ -174,6 +178,10 @@
                                 $("#errorMsg").html(data.message);
                             }else{
                                 alert(data.message);
+                                $("#fname").val("");
+                                $("#lname").val("");
+                                $("#phoneNumber").val("");
+                                $("#emailId").val("");
                             }
                         }
                     }
