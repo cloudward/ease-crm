@@ -613,6 +613,24 @@ CREATE TABLE IF NOT EXISTS easeusers (
   UNIQUE KEY uuid (uuid)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7;
 
+DROP TABLE IF EXISTS easecrmattachments;
+
+CREATE TABLE easecrmattachments (
+  instance_id int(11) NOT NULL AUTO_INCREMENT,
+  created_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_on timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  uuid varchar(32) NOT NULL,
+  file_drive_web_url text NOT NULL,
+  file text NOT NULL,
+  file_web_url text NOT NULL,
+  file_drive_url text NOT NULL,
+  created_by text NOT NULL,
+  moduleid text NOT NULL,
+  referenceid text NOT NULL,
+  PRIMARY KEY (instance_id),
+  UNIQUE KEY uuid (uuid)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
 DROP TABLE IF EXISTS easecrmsettings;
 
 CREATE TABLE easecrmsettings (
