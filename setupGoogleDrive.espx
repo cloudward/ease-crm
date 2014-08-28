@@ -1,0 +1,31 @@
+<# include "__double_check_init.espx"; #>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Drive</title>
+    <link href='/bootstrap/css/bootstrap.css' rel='stylesheet' type='text/css'>
+    <link href="/css/flat-ui.css" rel="stylesheet" type="text/css">
+    <script type='text/javascript' src='/js/jquery-1.8.3.min.js'></script>
+    <script type='text/javascript' src='/js/bootstrap.min.js'></script>
+ </head>
+<body>
+<h1 style="text-align:center">Welcome to EaseCRM !!</h1>
+<div id="googleDriveSetUpContent" style="margin-top:40px">
+<script>
+(function(){
+    $.get("_setup_google_drive",function(data,status){
+        if(status=="success"){
+            data=data.replace(/\h1/g,"h3");
+            data=data.replace(/\<button/g,"<button class='btn btn-primary' id='nextBtn'");
+            $("#googleDriveSetUpContent").html(data);
+            $("#nextBtn").removeAttr("style")
+        }
+    })
+})();
+</script>
+
+</div>
+</body>
+
+</html>
