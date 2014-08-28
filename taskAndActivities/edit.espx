@@ -268,7 +268,8 @@ when deleting redirect to "<# [redirectVal]#>";
             <div class="form-group col-lg-6">
                 <label class="control-label">Type</label>
                 <div class="">
-                    <select class="form-control marginBottom10" <# taskType #>>
+                    <select class="form-control marginBottom10" <# taskType #> required>
+                        <option value="" >Select</option>
                         <#[taskType.options]#>
                     </select>
                 </div>
@@ -285,7 +286,8 @@ when deleting redirect to "<# [redirectVal]#>";
                 <label class="control-label">Assigned To</label>
 
                 <div class="">
-                    <select class="form-control marginBottom10" <# assignedTo #>>
+                    <select class="form-control marginBottom10" <# assignedTo #> required>
+                      <option value="" >Select</option>
                        <#[assignedTo.options]#>
                     </select>
                 </div>

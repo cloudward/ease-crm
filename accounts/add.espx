@@ -100,7 +100,9 @@
     sort by name;
     save to industry.options;
 #>
-
+<# start header#>
+    <option>Select Industry</option>
+<# end header#>
 <# start row #>
     <option value="<# uuid #>"><# name as html #></option>
 <# end row #>
@@ -245,8 +247,9 @@
             <label class="  control-label">Territory: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="territory">
-                    <option value="East" selected="selected">East</option>
+                <select class="form-control marginBottom10" name="territory" >
+                    <option value="" >Select</option>
+                    <option value="East">East</option>
                     <option value="West">West</option>
                     <option value="North">North</option>
                     <option value="South">South</option>
@@ -260,8 +263,8 @@
             <label class=" control-label">Industry: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="industry">
-
+                <select class="form-control marginBottom10" name="industry" >
+                    <option value="" >Select</option>
                     <#[industry.options]#>
                 </select>
             </div>
@@ -277,8 +280,8 @@
         <div class="form-group col-lg-6">
            <label class=" control-label">Source: </label>
            <div class="">
-               <select class="form-control marginBottom10" name="source">
-
+               <select class="form-control marginBottom10" name="source" >
+                    <option value="" >Select</option>
                    <#[source.options]#>
                </select>
            </div>
@@ -286,8 +289,8 @@
          <div class="form-group col-lg-6">
            <label class=" control-label">Assigned To: </label>
            <div class="">
-               <select class="form-control marginBottom10" id="assignedTo" name="assignedto">
-
+               <select class="form-control marginBottom10" id="assignedTo" name="assignedto" required>
+                    <option value="" >Select</option>
                    <#[assignedTo.options]#>
                </select>
 

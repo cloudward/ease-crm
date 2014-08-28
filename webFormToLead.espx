@@ -265,7 +265,7 @@
             <div class="col-lg-6 " >
                 <div class="form-group">
                     <label >Product</label>
-                    <select id="product" class="form-control">
+                    <select id="product" class="form-control" required>
                         <# [product.options] #>
                     </select>
                 </div>
@@ -273,7 +273,7 @@
             <div class="col-lg-6 " >
                 <div class="form-group" >
                     <label >Industry</label>
-                    <select id="industry" class="form-control">
+                    <select id="industry" class="form-control" required>
                         <# [industry.options] #>
                     </select>
                 </div>

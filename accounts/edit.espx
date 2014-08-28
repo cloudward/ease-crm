@@ -260,11 +260,12 @@
 
             <div class="">
                 <select class="form-control marginBottom10" name="territory" >
-                    <option value="East" <# if("<# [easecrmcontactobj.territory]#>"=="East" ) {print "selected='selected'";} #>>East</option>
-                    <option value="West" <# if("<# [easecrmcontactobj.territory]#>"=="West" ) {print "selected='selected'";} #>>West</option>
-                    <option value="North" <# if("<# [easecrmcontactobj.territory]#>"=="North" ) {print "selected='selected'";} #>>North</option>
-                    <option value="South" <# if("<# [easecrmcontactobj.territory]#>"=="South" ) {print "selected='selected'";} #>>South</option>
-                    <option value="Central" <# if("<# [easecrmcontactobj.territory]#>"=="central" ) {print "selected='selected'";} #>>Central</option>
+                    <option value="" >Select</option>
+                    <option value="East" <# if("<# [easecrmaccountobj.territory]#>"=="East" ) {print "selected='selected'";} #>>East</option>
+                    <option value="West" <# if("<# [easecrmaccountobj.territory]#>"=="West" ) {print "selected='selected'";} #>>West</option>
+                    <option value="North" <# if("<# [easecrmaccountobj.territory]#>"=="North" ) {print "selected='selected'";} #>>North</option>
+                    <option value="South" <# if("<# [easecrmaccountobj.territory]#>"=="South" ) {print "selected='selected'";} #>>South</option>
+                    <option value="Central" <# if("<# [easecrmaccountobj.territory]#>"=="central" ) {print "selected='selected'";} #>>Central</option>
                 </select>
             </div>
         </div>
@@ -274,8 +275,8 @@
             <label class=" control-label">Industry: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="industry">
-
+                <select class="form-control marginBottom10" name="industry" >
+                    <option value="" >Select</option>
                     <#[industry.options]#>
                 </select>
             </div>
@@ -291,8 +292,8 @@
         <div class="form-group col-lg-6">
            <label class=" control-label">Source: </label>
            <div class="">
-               <select class="form-control marginBottom10" name="source">
-
+               <select class="form-control marginBottom10" name="source" >
+                    <option value="" >Select</option>
                    <#[source.options]#>
                </select>
            </div>
@@ -300,8 +301,8 @@
          <div class="form-group col-lg-6">
            <label class=" control-label">Assigned To: </label>
            <div class="">
-               <select class="form-control marginBottom10" id="assignedTo" name="assignedto">
-
+               <select class="form-control marginBottom10" id="assignedTo" name="assignedto" required>
+                   <option value="" >Select</option>
                    <#[assignedTo.options]#>
                </select>
            </div>

@@ -273,8 +273,8 @@ else
             <label class="  control-label">Product: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="product">
-                   <option> Select Product</option>
+                <select class="form-control marginBottom10" name="product" required>
+                   <option value="" >Select</option>
                     <#[product.options]#>
                 </select>
             </div>
@@ -284,8 +284,8 @@ else
             <label class="control-label">Industry: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="industry">
-
+                <select class="form-control marginBottom10" name="industry" >
+                    <option value="" >Select</option>
                     <#[industry.options]#>
                 </select>
             </div>
@@ -295,8 +295,8 @@ else
             <label class=" control-label">Source: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="source">
-
+                <select class="form-control marginBottom10" name="source" >
+                    <option value="" >Select</option>
                     <#[source.options]#>
                 </select>
             </div>
@@ -307,8 +307,8 @@ else
             <label class=" control-label">Stage: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" id="stage" name="stage">
-
+                <select class="form-control marginBottom10" id="stage" name="stage" required>
+                    <option value="" >Select</option>
                     <#[stage.options]#>
                 </select>
 
@@ -319,8 +319,8 @@ else
             <label class=" control-label">Assign To: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" id="assignedTo" name="assignedto">
-
+                <select class="form-control marginBottom10" id="assignedTo" name="assignedto" required>
+                    <option value="" >Select</option>
                     <#[assignedTo.options]#>
                 </select>
 

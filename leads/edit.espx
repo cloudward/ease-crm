@@ -152,7 +152,6 @@
     sort by name;
     save to stage.options;
 #>
-
 <# start row #>
     <option value="<# uuid #>" <# if("<# [easecrmleadobj.stage]#>"=="<# uuid#>" ) {print "selected='selected'";} #> ><# name as html #></option>
 <# end row #>
@@ -163,7 +162,6 @@
     sort by fname;
     save to assignedTo.options;
 #>
-
 <# start row #>
     <option value="<# uuid #>" <# if("<# [easecrmleadobj.assignedto]#>"=="<# uuid#>" ) {print "selected='selected'";} #> ><# fname as html #> <# lname as html #></option>
 
@@ -281,8 +279,8 @@
 
             <div class="">
 
-                <select class="form-control marginBottom10" name="product">
-                   <option > Select Product</option>
+                <select class="form-control marginBottom10" name="product" required>
+                   <option value="" >Select</option>
                     <#[product.options] #>
                 </select>
             </div>
@@ -292,8 +290,8 @@
             <label class="control-label">Industry: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="industry">
-
+                <select class="form-control marginBottom10" name="industry" >
+                    <option value="" >Select</option>
                     <#[industry.options]#>
                 </select>
             </div>
@@ -303,8 +301,8 @@
             <label class=" control-label">Source: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="source">
-
+                <select class="form-control marginBottom10" name="source" >
+                    <option value="" >Select</option>
                     <#[source.options]#>
                 </select>
             </div>
@@ -315,8 +313,8 @@
             <label class=" control-label">Stage: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" name="stage">
-
+                <select class="form-control marginBottom10" name="stage" required>
+                    <option value="" >Select</option>
                     <#[stage.options]#>
                 </select>
 
@@ -327,8 +325,8 @@
             <label class=" control-label">Assign To: </label>
 
             <div class="">
-                <select class="form-control marginBottom10" id="assignedTo" name="assignedto">
-
+                <select class="form-control marginBottom10" id="assignedTo" name="assignedto" required>
+                    <option value="" >Select</option>
                     <#[assignedTo.options]#>
                 </select>
 
