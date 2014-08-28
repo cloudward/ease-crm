@@ -4,8 +4,15 @@
         set sortOrder to "<# [url.sortOrder]#>";
 
     }
-    else{
+    elseif("<# [url.status]#>"=="1"){
+          set sortBy to "easecrmtaskandactivity.dueDate";
+          set sortOrder to "descending";
+    }
+    elseif("<# [url.status]#>"=="-1"){
           set sortBy to "easecrmtaskandactivity.title";
+          set sortOrder to "ascending";
+    }else{
+          set sortBy to "easecrmtaskandactivity.dueDate";
           set sortOrder to "ascending";
     }
 #>
@@ -234,7 +241,7 @@ ease_set_value('filterConditions', $easeText);
                        (function(){
                            var date=retrieveDueDateDuration("<#easecrmtaskandactivity.dueDate#>","YYYY-MM-DD HH:mm:ss");
 
-                           $("#dueDateDuration-<# easecrmtaskandactivity.uuid#>").html(date);
+                           $("#dueDateDuration-<# easecrmtaskandactivity.uuid#>").html(date.duration);
                            setBgColorForDueDate("<#easecrmtaskandactivity.dueDate#>","dueDateDuration-<# easecrmtaskandactivity.uuid#>");
                        })();
                         </script>
@@ -302,7 +309,7 @@ ease_set_value('filterConditions', $easeText);
      <# end footer #>
     <# no results #>
         <div>
-            <span>No Task Or Activity Found!!</span>
+            <span>No Task Or Activity Found.</span>
         </div>
         <div class="row" style=" margin-left: 0px; margin-right: -15px;">
             <div class="pull-left" style="display: inline-block; float:right; margin-right:15px">

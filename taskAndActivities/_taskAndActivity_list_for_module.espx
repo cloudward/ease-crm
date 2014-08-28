@@ -40,14 +40,15 @@ elseif("<# [session.role]#>"=="2"){
                 </div>
                 <div style="display:inline-block" class="pull-right" id="dueDate-<# uuid#>">
 
-
-
                 <#
                     if("<# [url.status]#>"=="0"){
                         <script style="text/javascript">
                        (function(){
-                           var date=retrieveDueDateDuration("<#dueDate#>","YYYY-MM-DD HH:mm:ss");
-                           $("#dueDate-<# uuid#>").html(date);
+                           var date=retrieveDueDateDuration("<#dueDate#>","YYYY-MM-DD HH:mm:ss"),dateString;
+
+                            dateString=(date.type == 2)?'<span style="color:#E03232">'+date.duration+'</span>':date.duration;
+                            $("#dueDate-<# uuid#>").html(dateString);
+
                        })();
                         </script>
                     }
@@ -75,7 +76,6 @@ elseif("<# [session.role]#>"=="2"){
              <#
                 if("<#[url.status]#>"=="0"){
                    <script>
-                        console.log("<# numberofrows#>");
                         $("#countOfTask").html("<# numberofrows#>");
 
                     </script>
@@ -84,7 +84,6 @@ elseif("<# [session.role]#>"=="2"){
             <#
                 if("<#[url.status]#>"=="1"){
                    <script>
-                    console.log("<# numberofrows#>");
                     $("#countOfTimeline").html(<# numberofrows#>);
                     console.log($("#countOfTimeline").val());
                     </script>
@@ -94,7 +93,7 @@ elseif("<# [session.role]#>"=="2"){
     <# end footer #>
 
     <# start no results #>
-        No Task Found!!
+        <div class="noDataFoundMsg" style="margin-top: 35%;text-align: center;">No Tasks Found.</div>
     <# end no results #>
 
 <# end list #>

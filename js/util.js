@@ -17,7 +17,7 @@ function retrieveCompletedDateDuration(date, format) {
 function retrieveDueDateDuration(date, format) {
 
     format=format || "DD/MM/YYYY hh:mm A";
-
+    var type;
     var dueDate = moment(date, format);
   //  console.log(dueDate);
     var duration = moment(dueDate).fromNow();
@@ -35,21 +35,23 @@ function retrieveDueDateDuration(date, format) {
      */
     if (diff < 0) {
         duration = "Due " + duration;
+        type=1;
     }
     else {
         duration = duration + " Overdue";
+        type=2;
     }
-    return duration;
+
+    return {duration:duration,type:type};
 }
 
 
 function properNumberFormat(num){
     num=Number(jQuery.trim(num));
     num=num.toFixed(2).replace(/./g, function(value, index, number) {
-        console.log(value)
+
         return index && value !== "." && !((number.length - index) % 3) ? ',' + value : value;
     });
-
     return num;
 }
 

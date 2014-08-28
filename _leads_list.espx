@@ -8,7 +8,7 @@
         set sortByContext to "<# [url.sortByContext]#>";
     }
     else{
-          set sortBy to "easeCRMLeads.title";
+          set sortBy to "easeCRMLeads.expectedDate";
           set sortOrder to "ascending";
     }
 #>
@@ -26,7 +26,7 @@ function defaultIncludeCondition($userRole)
 {
 
     if($userRole == "2")
-        $easeText = '(easeCRMContacts.created_by == "<# [session.useruuid]#>" or easeCRMContacts.assignedTo == "<# [session.useruuid]#>")';
+        $easeText = '(easeCRMLeads.created_by == "<# [session.useruuid]#>" or easeCRMLeads.assignedTo == "<# [session.useruuid]#>")';
     else
         $easeText = "";
 
@@ -97,6 +97,8 @@ else
 ease_set_value('filterConditions', $easeText);
 
 ?>
+
+
 
 <# start list for easeCRMLeads;
     relate easeCRMLeads.product to easeCRMProducts.uuid;
@@ -235,7 +237,7 @@ ease_set_value('filterConditions', $easeText);
             <script>
                 (function(){
                     var num=properNumberFormat("<# totalAmount #>");
-                    $('#totalAmount-<# uuid#>').html(num);
+                    $('#totalAmount-<# uuid#>').html("$ "+num);
                 })();
             </script>
 
@@ -247,7 +249,7 @@ ease_set_value('filterConditions', $easeText);
 
 <# no results #>
     <div>
-        <span>No Leads Found!!</span>
+        <span>No Leads Found.</span>
     </div>
     <div class="row" style=" margin-left: 0px; margin-right: -15px;">
         <div class="pull-left" style="display: inline-block; float:right; margin-right:15px">

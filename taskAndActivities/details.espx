@@ -151,7 +151,7 @@
                                (function(){
                                    var date=retrieveDueDateDuration("<#easecrmtaskandactivity.dueDate#>","YYYY-MM-DD HH:mm:ss");
 
-                                   $("#dueDateDuration-<# easecrmtaskandactivity.uuid#>").html(date);
+                                   $("#dueDateDuration-<# easecrmtaskandactivity.uuid#>").html(date.duration);
                                })();
                                 </script>
 
