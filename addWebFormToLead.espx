@@ -7,10 +7,8 @@ header('Access-Control-Allow-Methods:POST');
         include when easecrmstages.name=="New";
         save to stage.value;
     #>
-        <#start row#>
-            <# uuid#>
-        <#end row#>
-    <#end list#>
+    <#start row#><# uuid #><#end row#>
+<#end list#>
 
 <?php
     $uuid=$this->core->new_uuid();
@@ -60,6 +58,7 @@ if("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="1"){
     set lead.product to "<#[post.product]#>";
     set lead.stage to "<#[stage.value]#>";
     set lead.amount to "0";
+    set lead.confidencelevel to "0";
     set lead.contact  to "<#[reference.uuid]#>";
 
 }elseif("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="2"){
@@ -69,6 +68,7 @@ if("<# [flag.value] #>"=="true" and "<# [post.userType]#>"=="1"){
     set lead.product to "<#[post.product]#>";
     set lead.stage to "<#[stage.value]#>";
     set lead.amount to "0";
+    set lead.confidencelevel to "0";
     set lead.account to "<#[reference.uuid]#>";
 
 }
