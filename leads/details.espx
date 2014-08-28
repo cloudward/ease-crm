@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>Lead Profile</title>
-    <# include "_authentication_user.espx" #>
+    <# include "_authentication_user.espx"; #>
 
     <script src="/js/commonResource.js"></script>
 
@@ -100,12 +100,21 @@
             $('#'+tabId).addClass('customActive');
 
             if(tabId=="tab-task"){
-                $("#timelineList").css({"display":"none"});
+                $(".leadCustomTab").css({"display":"none"});
                 $("#taskList").css({"display":"block"});
+                $("#addTaskAndActivity-btn").css({"display":"block"});
+                $("#addAttachment-btn").css({"display":"none"});
             }
-            else{
-                $("#taskList").css({"display":"none"});
+            else if(tabId=="tab-timeline"){
+                $(".leadCustomTab").css({"display":"none"});
                 $("#timelineList").css({"display":"block"});
+                $("#addTaskAndActivity-btn").css({"display":"block"});
+                $("#addAttachment-btn").css({"display":"none"});
+            }else if(tabId=="tab-attachment"){
+                $(".leadCustomTab").css({"display":"none"});
+                $("#attachmentList").css({"display":"block"});
+                $("#addTaskAndActivity-btn").css({"display":"none"});
+                $("#addAttachment-btn").css({"display":"block"});
             }
         }
 
@@ -117,6 +126,7 @@
 <div>
     <# include "easeCRMHeader.espx"; #>
 </div>
+
 
 <#
 if("<# [url.redirectUrl]#>"=="15"){
@@ -177,7 +187,7 @@ else{
             relate easecrmleads.source to easecrmsources.uuid;
             relate easecrmleads.stage to easecrmstages.uuid;
             relate easecrmleads.product to easecrmproducts.uuid;
-            relate easecrmleads.assignto to easeusers.uuid;
+            relate easecrmleads.assignedto to easeusers.uuid;
             include when  (easecrmleads.uuid == "<#[url.id]#>" );
             #>
                 <#  start row #>
@@ -190,7 +200,11 @@ else{
                     <div class="contactProfileGroupMargin form-group col-lg-12 col-sm-12 ">
                         <span class="col-sm-4 col-lg-4 contactProfileLabel">Contact: </span>
                         <div class="col-sm-8 col-lg-8 paddingLeftForProfile" style="padding-left:0px">
-                            <div> <# easecrmcontacts.fname#> <# easecrmcontacts.lname#> </div>
+                            <div>
+                                <a href="/contacts/details?id=<# easecrmcontacts.uuid#>&redirectUrl=16&leadId=<# [url.id]#>">
+                                <# easecrmcontacts.fname#> <# easecrmcontacts.lname#>
+                                 </a>
+                            </div>
                         </div>
                     </div>
                     <div class="contactProfileGroupMargin form-group col-lg-12 col-sm-12 ">
@@ -202,7 +216,11 @@ else{
                       <div class="contactProfileGroupMargin form-group col-lg-12 col-sm-12 ">
                         <span class="col-sm-4 col-lg-4 contactProfileLabel">Account: </span>
                         <div class="col-sm-8 col-lg-8 paddingLeftForProfile" style="padding-left:0px">
-                            <div> <# easecrmaccounts.name#> </div>
+                            <div>
+                                <a href="/accounts/details?id=<# easecrmaccounts.uuid#>&redirectUrl=16&leadId=<# [url.id]#>">
+                                    <# easecrmaccounts.name#>
+                                 </a>
+                            </div>
                         </div>
                     </div>
                       <div class="contactProfileGroupMargin form-group col-lg-12 col-sm-12 ">
@@ -212,7 +230,7 @@ else{
                              <script>
                                  (function(){
                                      var num=properNumberFormat("<# easeCRMLeads.amount #>");
-                                     $('#amount-<# uuid#>').html(num);
+                                     $('#amount-<# uuid#>').html("$ "+num);
                                  })();
                              </script>
                         </div>
@@ -276,7 +294,7 @@ else{
                     <div class="contactProfileGroupMargin form-group col-lg-12 col-sm-12 ">
                            <span class="col-sm-4 col-lg-4 contactProfileLabel">Assigned To: </span>
                            <div class="col-sm-8 col-lg-8 paddingLeftForProfile" style="padding-left:0px">
-                               <div> <# easecrmcontacts.fname#> <# easecrmcontacts.lname#> </div>
+                               <div><# easeusers.fname#> <# easeusers.lname#> </div>
                            </div>
                     </div>
 
@@ -315,7 +333,7 @@ else{
                 <div style="height:45px;border-bottom:1px solid #dadada">
                     <div class="pull-left">
                         <div id="tab-task" class="customContactProfileTab customActive" onclick="activateTab(event,'tab-task')" >
-                        TASK
+                        TASKS
                             <div id="countOfTask" style="vertical-align: middle;font-size:15px;margin-left:5px;" class="badge">0</div>
                             </div>
                         <div id="tab-timeline"  class="customContactProfileTab" onclick="activateTab(event,'tab-timeline')"
@@ -323,13 +341,22 @@ else{
                             <div id="countOfTimeline" style="vertical-align: middle;font-size:15px;margin-left:5px"
                             class="badge">0</div>
                         </div>
+                        <div id="tab-attachment"  class="customContactProfileTab" onclick="activateTab(event,'tab-attachment')"
+                            style="margin-left:-3px">ATTACHMENT
+                            <div id="countOfAttachment" style="vertical-align: middle;font-size:15px;margin-left:5px"
+                            class="badge">0</div>
+                        </div>
                     </div>
-                    <a class="pull-right" style="padding:7px 14px;cursor:pointer" href="/taskAndActivities/addTaskAndActivityFromModule?referenceId=<#[url.id]#>&moduleId=3">
+                    <a id="addTaskAndActivity-btn" class="pull-right" style="padding:7px 14px;cursor:pointer" href="/taskAndActivities/addTaskAndActivityFromModule?referenceId=<#[url.id]#>&moduleId=3">
                         <span class="fui-plus" style="font-size:16px"></span>
                     </a>
+                    <a id="addAttachment-btn" class="pull-right" style="padding:7px 14px;cursor:pointer;display:none" data-toggle="modal" data-target="#addAttachment">
+                        <span class="fui-plus" style="font-size:16px"></span>
+                    </a>
+
                 </div>
 
-                <div id="taskList" class="customTabContent">
+                <div id="taskList" class="customTabContent leadCustomTab">
                      <script>
                         (function(event){
                             $.get('/taskAndActivities/_taskAndActivity_list_for_module.espx?moduleId=3&referenceId=<# [url.id]#>&status=0',function(data){
@@ -339,7 +366,7 @@ else{
                      </script>
 
                 </div>
-                <div id="timelineList" style="display:none" class="customTabContent">
+                <div id="timelineList" style="display:none" class="customTabContent leadCustomTab">
                      <script>
                         (function(event){
                             $.get('/taskAndActivities/_taskAndActivity_list_for_module.espx?moduleId=3&referenceId=<# [url.id]#>&status=1',function(data){
@@ -348,6 +375,29 @@ else{
                         })()
                      </script>
 
+                </div>
+                <div id="attachmentList" style="display:none" class="customTabContent leadCustomTab">
+                     <script>
+                        (function(event){
+                            $.get('/easeAttachments/attachmentList.espx?moduleId=3&referenceId=<# [url.id]#>',function(data,status){
+                                if(status=="success"){
+                                    $("#attachmentList").html(data);
+                                }
+                            })
+                        })();
+                     </script>
+
+                </div>
+                <div id="addAttachmentPopup">
+                    <script>
+                        (function(event){
+                            $.get('/easeAttachments/addAttachment.espx?moduleId=3&referenceId=<# [url.id]#>',function(data,status){
+                                if(status=="success"){
+                                    $("#addAttachmentPopup").html(data);
+                                }
+                            })
+                        })();
+                     </script>
                 </div>
             </div>
         </div>

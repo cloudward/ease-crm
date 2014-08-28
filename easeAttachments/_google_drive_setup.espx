@@ -1,0 +1,18 @@
+<# start list for ease_config;
+include when name == "gapp_access_token" and value != "";
+sort by name;
+#>
+
+<# start row #>
+    <#
+        redirect to "/leads";
+    #>
+<# end row #>
+
+<# no results #>
+    <?php
+        $this->core->validate_google_access_token();
+    ?>
+<# end no results #>
+
+<# end list #>

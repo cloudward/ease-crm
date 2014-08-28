@@ -1,0 +1,14 @@
+<# include "_authentication_user.espx" #>
+
+<#
+    if("<# [url.redirectUrl] #>"!=""){
+        set redirectUrlVal to "<# [url.redirectUrl] #>";
+    }else{
+        set redirectUrlVal to "/leads";
+    }
+#>
+
+<#
+    delete record for "easecrmattachments.<#[url.id]#>";
+    redirect to "<# [redirectUrlVal] #>";
+#>

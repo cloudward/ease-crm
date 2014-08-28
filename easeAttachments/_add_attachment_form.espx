@@ -1,0 +1,36 @@
+<# include "/easeAttachments/checkGoogleDriveSetUp.espx";#>
+
+<div style="margin: -20px -20px -40px;">
+<# set var.uploads_folder_id to public folder id by name "EASE-CRM Uploads"; #>
+
+<# if("<# [url.moduleId]#>"=="3" and "<# [url.referenceId]#>"!=""){
+    set redirectUrl to "/leads/details?id=<# [url.referenceId]#>";
+}#>
+
+<# start form for easecrmattachments <#[url.edit]#>;
+when creating set created_by to "<# [session.useruuid]#>";
+when creating set moduleid to "<# [url.moduleId]#>";
+when creating set referenceid to "<# [url.referenceId]#>";
+
+when creating redirect to "<# [redirectUrl]#>";
+#>
+
+
+<form role="form" style="margin-bottom:0px">
+<div class="modal-body">
+<div class="form-group">
+    <label for="exampleInputFile">Upload To Drive</label>
+    <input type="file" style="font-size:15px" <# upload file to googledrive "/<#[var.uploads_folder_id]#>" for easecrmattachments.file #> required/>
+  </div>
+<div class="form-group">
+  <label for="exampleInputPassword1">Public File URL: </label>
+  <input type="text" class="form-control" <# file_drive_web_url #>  placeholder="File Url">
+</div>
+
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+<input type="button" class="btn btn-primary" <# Create button #> value="Upload"/>
+</form>
+<# end form #>
+</div>

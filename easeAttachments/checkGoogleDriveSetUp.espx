@@ -1,0 +1,13 @@
+<# start list for ease_config;
+include when name == "gapp_access_token" and value != "";
+sort by name;
+#>
+<# no results #>
+<#
+
+    redirect to "/easeAttachments/googleDriveSetup";
+
+#>
+<# end no results #>
+
+<# end list #>

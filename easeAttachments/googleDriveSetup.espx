@@ -1,0 +1,15 @@
+<div id="googleDriveSetUpContent" style="padding:10px">
+<script>
+(function(){
+    $.get("/easeAttachments/_google_drive_setup",function(data,status){
+        if(status=="success"){
+            data=data.replace(/\h1/g,"h3");
+            data=data.replace(/\<button/g,"<button class='btn btn-primary' id='nextBtn'");
+            $("#googleDriveSetUpContent").html(data);
+            $("#nextBtn").removeAttr("style")
+        }
+    })
+})();
+</script>
+
+</div>
