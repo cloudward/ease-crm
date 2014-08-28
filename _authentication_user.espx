@@ -1,6 +1,9 @@
+<?php
+    ease_set_value("redirectUrl",$_SERVER['REQUEST_URI']);
+?>
 <#
     if("<#[session.sessionid]#>"=="")
     {
-        redirect to "/login?redirectUrl=<# [system.page] #>";
+        redirect to "/login?redirectUrl=<# [redirectUrl] #>";
     }
 #>

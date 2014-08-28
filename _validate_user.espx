@@ -34,7 +34,7 @@
 <#
 
 if("<# [request.redirectUrl]#>" != ""){
-     set redirectUrlVal to "/<# [request.redirectUrl]#>";
+     set redirectUrlVal to "<# [request.redirectUrl]#>";
 }
 else{
     set redirectUrlVal to "/";
